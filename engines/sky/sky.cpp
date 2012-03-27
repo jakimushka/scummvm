@@ -47,6 +47,7 @@
 
 #include "engines/util.h"
 
+#include "common/EventRecorder.h"
 
 #ifdef _WIN32_WCE
 
@@ -395,7 +396,7 @@ void SkyEngine::delay(int32 amount) {
 
 	if (amount < 0)
 		amount = 0;
-
+	g_eventRec.sync();
 	do {
 		while (_eventMan->pollEvent(event)) {
 			switch (event.type) {

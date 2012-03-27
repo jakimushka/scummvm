@@ -28,6 +28,7 @@
 #include "common/singleton.h"
 #include "common/mutex.h"
 #include "common/array.h"
+#include "common/queue.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
 
@@ -53,25 +54,24 @@ public:
 	/** Register random source so it can be serialized in game test purposes */
 	void registerRandomSource(RandomSource &rnd, const String &name);
 
-	/** TODO: Add documentation, this is only used by the backend */
-	void processMillis(uint32 &millis);
-
-	/** TODO: Add documentation, this is only used by the backend */
-	bool processDelayMillis(uint &msecs);
+	void sync();
 
 private:
 	bool notifyEvent(const Event &ev);
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
-
+	void readNextEventsChunk();
+	void writeNextEventsChunk();
+	void readEvent(Event &event);
+	void writeEvent(Event &event);
 	class RandomSourceRecord {
 	public:
 		String name;
 		uint32 seed;
 	};
 	Array<RandomSourceRecord> _randomSourceRecords;
-
+	Queue<Event> _eventsQueue;
 	bool _recordSubtitles;
 	volatile uint32 _recordCount;
 	volatile uint32 _lastRecordEvent;

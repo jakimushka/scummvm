@@ -468,13 +468,11 @@ void OSystem_SDL::setupIcon() {
 
 uint32 OSystem_SDL::getMillis() {
 	uint32 millis = SDL_GetTicks();
-	g_eventRec.processMillis(millis);
 	return millis;
 }
 
 void OSystem_SDL::delayMillis(uint msecs) {
-	if (!g_eventRec.processDelayMillis(msecs))
-		SDL_Delay(msecs);
+	SDL_Delay(msecs);
 }
 
 void OSystem_SDL::getTimeAndDate(TimeDate &td) const {
