@@ -468,6 +468,7 @@ void OSystem_SDL::setupIcon() {
 
 uint32 OSystem_SDL::getMillis() {
 	uint32 millis = SDL_GetTicks();
+	g_eventRec.processMillis(millis);
 	return millis;
 }
 

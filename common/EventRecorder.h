@@ -55,7 +55,7 @@ public:
 	void registerRandomSource(RandomSource &rnd, const String &name);
 
 	void sync();
-
+	void processMillis(uint32 &millis);
 private:
 	bool notifyEvent(const Event &ev);
 	bool notifyPoll();
@@ -65,6 +65,10 @@ private:
 	void writeNextEventsChunk();
 	void readEvent(Event &event);
 	void writeEvent(Event &event);
+	void checkForKeyCode(const Event &event);
+	void increaseEngineSpeed();
+	void decreaseEngineSpeed();
+	void togglePause();
 	class RandomSourceRecord {
 	public:
 		String name;
@@ -73,6 +77,7 @@ private:
 	Array<RandomSourceRecord> _randomSourceRecords;
 	Queue<Event> _eventsQueue;
 	bool _recordSubtitles;
+	uint8 _engineSpeedMultiplier;
 	volatile uint32 _recordCount;
 	volatile uint32 _lastRecordEvent;
 	volatile uint32 _recordTimeCount;
@@ -82,6 +87,7 @@ private:
 	MutexRef _timeMutex;
 	MutexRef _recorderMutex;
 	volatile uint32 _lastMillis;
+	volatile uint32 _fakeTimer;
 
 	volatile uint32 _playbackCount;
 	volatile uint32 _playbackDiff;
@@ -97,7 +103,8 @@ private:
 	enum RecordMode {
 		kPassthrough = 0,
 		kRecorderRecord = 1,
-		kRecorderPlayback = 2
+		kRecorderPlayback = 2,
+		kRecorderPlaybackPause
 	};
 	volatile RecordMode _recordMode;
 	String _recordFileName;

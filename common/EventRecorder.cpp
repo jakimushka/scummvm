@@ -120,6 +120,8 @@ EventRecorder::EventRecorder() {
 	_lastEventCount = 0;
 	_lastMillis = 0;
 	_lastEventMillis = 0;
+	_engineSpeedMultiplier = 1;
+	_fakeTimer = 0;
 
 	_recordMode = kPassthrough;
 }
@@ -188,8 +190,7 @@ void EventRecorder::init() {
 		}		
 	}
 
-	if (_recordMode == kRecorderRecord)
-	{
+	if (_recordMode == kRecorderRecord) {
 		_recordFile->writeUint32LE(RECORD_SIGNATURE);
 		_recordFile->writeUint32LE(RECORD_VERSION);
 	}
@@ -250,10 +251,53 @@ void EventRecorder::registerRandomSource(RandomSource &rnd, const String &name) 
 	}
 }
 
+
+void EventRecorder::processMillis(uint32 &millis) {
+	uint32 d;
+	if (_recordMode == kPassthrough) {
+		return;
+	}
+
+	g_system->lockMutex(_timeMutex);
+	if (_recordMode == kRecorderRecord) {
+		return;
+	}
+
+	if (_recordMode == kRecorderPlayback) {
+		if (_recordTimeCount > _playbackTimeCount) {
+			uint32 _millisDelay;
+			_millisDelay = millis - _lastMillis;
+			_lastMillis = millis;
+			if (_recordMode != kRecorderPlaybackPause) {
+				_fakeTimer += _millisDelay * _engineSpeedMultiplier;
+			}
+			millis = _fakeTimer;
+		}
+	}
+
+	g_system->unlockMutex(_timeMutex);
+}
+
+
+void EventRecorder::checkForKeyCode(const Event &event) {
+	if (event.type == EVENT_KEYDOWN) {
+		if ((event.kbd.ascii == '-')) {
+			decreaseEngineSpeed();
+		}
+		if ((event.kbd.ascii == '+')) {
+			increaseEngineSpeed();
+		}
+		if ((event.kbd.ascii == '*')) {
+			togglePause();
+		}
+	}
+}
+
+
 bool EventRecorder::notifyEvent(const Event &ev) {
+	checkForKeyCode(ev);
 	if (_recordMode != kRecorderRecord)
 		return false;
-
 	_eventsQueue.push(ev);
 
 	return false;
@@ -317,6 +361,32 @@ void EventRecorder::writeNextEventsChunk()
 	while (!_eventsQueue.empty()) {
 		event = _eventsQueue.pop();
 		writeEvent(event);
+	}
+}
+
+void EventRecorder::decreaseEngineSpeed()
+{
+	if (_engineSpeedMultiplier != 1){
+		_engineSpeedMultiplier = _engineSpeedMultiplier / 2;
+	}
+}
+
+void EventRecorder::increaseEngineSpeed()
+{
+	if (_engineSpeedMultiplier != 8) {
+		_engineSpeedMultiplier = _engineSpeedMultiplier * 2;
+	}
+}
+
+void EventRecorder::togglePause()
+{
+	switch (_recordMode) {
+	case kRecorderPlayback:		
+		_recordMode = kRecorderPlaybackPause;
+		break;
+	case kRecorderPlaybackPause:
+		_recordMode = kRecorderPlayback;
+		break;
 	}
 }
 
