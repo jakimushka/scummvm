@@ -38,6 +38,13 @@ class RandomSource;
 class SeekableReadStream;
 class WriteStream;
 
+
+struct RecorderEvent :Common::Event {
+	uint32 time;
+	uint32 count;
+};
+
+
 /**
  * Our generic event recorder.
  *
@@ -50,12 +57,16 @@ class EventRecorder : private EventSource, private EventObserver, public Singlet
 public:
 	void init();
 	void deinit();
-
 	/** Register random source so it can be serialized in game test purposes */
 	void registerRandomSource(RandomSource &rnd, const String &name);
-
+	bool delayMillis(uint msecs, bool logged = false);
+	uint32 getMillis(bool logging = false);
+	/** TODO: Add documentation, this is only used by the backend */
+	void processMillis(uint32 &millis, bool logging);
+	bool processAudio(uint32 &samples, bool paused);
 	void sync();
-	void processMillis(uint32 &millis);
+	MutexRef _recorderMutex;
+
 private:
 	bool notifyEvent(const Event &ev);
 	bool notifyPoll();
@@ -63,9 +74,11 @@ private:
 	bool allowMapping() const { return false; }
 	void readNextEventsChunk();
 	void writeNextEventsChunk();
-	void readEvent(Event &event);
-	void writeEvent(Event &event);
+	void readEvent(RecorderEvent &event);
+	void writeEvent(const Event &event);
 	void checkForKeyCode(const Event &event);
+	void writeAudioEvent(uint32 samplesCount);
+	void readAudioEvent();
 	void increaseEngineSpeed();
 	void decreaseEngineSpeed();
 	void togglePause();
@@ -74,18 +87,21 @@ private:
 		String name;
 		uint32 seed;
 	};
+	RecorderEvent _nextEvent;
+	RecorderEvent _nextAudioEvent;
 	Array<RandomSourceRecord> _randomSourceRecords;
-	Queue<Event> _eventsQueue;
+	Queue<RecorderEvent> _eventsQueue;
 	bool _recordSubtitles;
+	volatile uint32 _samplesCount;
 	uint8 _engineSpeedMultiplier;
 	volatile uint32 _recordCount;
 	volatile uint32 _lastRecordEvent;
 	volatile uint32 _recordTimeCount;
 	volatile uint32 _lastEventMillis;
+	volatile uint32 _delayMillis;
 	WriteStream *_recordFile;
 	WriteStream *_recordTimeFile;
 	MutexRef _timeMutex;
-	MutexRef _recorderMutex;
 	volatile uint32 _lastMillis;
 	volatile uint32 _fakeTimer;
 
@@ -104,7 +120,7 @@ private:
 		kPassthrough = 0,
 		kRecorderRecord = 1,
 		kRecorderPlayback = 2,
-		kRecorderPlaybackPause
+		kRecorderPlaybackPause = 3
 	};
 	volatile RecordMode _recordMode;
 	String _recordFileName;

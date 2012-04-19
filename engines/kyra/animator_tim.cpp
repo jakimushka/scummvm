@@ -31,7 +31,7 @@
 #endif
 
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 #ifdef ENABLE_LOL
@@ -125,7 +125,7 @@ void TimAnimator::start(int animIndex, int part) {
 	anim->curPart = part;
 	AnimPart *p = &anim->parts[part];
 	anim->enable = 1;
-	anim->nextFrame = _system->getMillis() + anim->frameDelay * _vm->_tickLength;
+	anim->nextFrame = g_eventRec.getMillis() + anim->frameDelay * _vm->_tickLength;
 	anim->curFrame = p->firstFrame;
 	anim->cyclesCompleted = 0;
 
@@ -149,7 +149,7 @@ void TimAnimator::update(int animIndex) {
 		return;
 
 	Animation *anim = &_animations[animIndex];
-	if (!anim->enable || anim->nextFrame >= _system->getMillis())
+	if (!anim->enable || anim->nextFrame >= g_eventRec.getMillis())
 		return;
 
 	AnimPart *p = &anim->parts[anim->curPart];
@@ -194,7 +194,7 @@ void TimAnimator::update(int animIndex) {
 	anim->nextFrame += (anim->frameDelay * _vm->_tickLength);
 
 	anim->wsa->displayFrame(anim->curFrame - 1, 0, anim->x, anim->y, 0, 0, 0);
-	anim->nextFrame += _system->getMillis();
+	anim->nextFrame += g_eventRec.getMillis();
 }
 
 void TimAnimator::playPart(int animIndex, int firstFrame, int lastFrame, int delay) {
@@ -205,7 +205,7 @@ void TimAnimator::playPart(int animIndex, int firstFrame, int lastFrame, int del
 
 	int step = (lastFrame >= firstFrame) ? 1 : -1;
 	for (int i = firstFrame; i != (lastFrame + step); i += step) {
-		uint32 next = _system->getMillis() + delay * _vm->_tickLength;
+		uint32 next = g_eventRec.getMillis() + delay * _vm->_tickLength;
 		if (anim->wsaCopyParams & 0x4000) {
 			_screen->copyRegion(112, 0, 112, 0, 176, 120, 6, 2);
 			anim->wsa->displayFrame(i - 1, 2, anim->x, anim->y, anim->wsaCopyParams & 0x1000 ? 0x5000 : 0x4000, _vm->_transparencyTable1, _vm->_transparencyTable2);
@@ -215,7 +215,7 @@ void TimAnimator::playPart(int animIndex, int firstFrame, int lastFrame, int del
 			anim->wsa->displayFrame(i - 1, 0, anim->x, anim->y, 0, 0, 0);
 			_screen->updateScreen();
 		}
-		int32 del  = (int32)(next - _system->getMillis());
+		int32 del  = (int32)(next - g_eventRec.getMillis());
 		if (del > 0)
 			_vm->delay(del, true);
 	}

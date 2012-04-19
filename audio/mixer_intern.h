@@ -53,6 +53,7 @@ private:
 	enum {
 		NUM_CHANNELS = 16
 	};
+	int _totalSamples;
 
 	OSystem *_syst;
 	Common::Mutex _mutex;

@@ -32,6 +32,7 @@
 #include "common/system.h"
 #include "common/config-manager.h"
 #include "common/debug-channels.h"
+#include "common/EventRecorder.h"
 
 #include "gui/message.h"
 
@@ -443,7 +444,8 @@ void KyraEngine_LoK::mainLoop() {
 	_eventList.clear();
 
 	while (!shouldQuit()) {
-		int32 frameTime = (int32)_system->getMillis();
+		int32 frameTime = (int32)g_eventRec.getMillis(true);
+		debug("kyra_lok.cpp::mainLoop(%d)",frameTime);
 
 		if (_currentCharacter->sceneId == 210) {
 			updateKyragemFading();
@@ -486,23 +488,32 @@ void KyraEngine_LoK::mainLoop() {
 
 		if (skipFlag())
 			resetSkipFlag();
-
-		delay((frameTime + _gameSpeed) - _system->getMillis(), true, true);
+		
+		uint32 del = g_eventRec.getMillis(true);
+		delay((frameTime + _gameSpeed) - del, true, true);
+		debug("kyra_lok.cpp::mainLoopFinish(%d %d %d %d)",(frameTime + _gameSpeed) - del,frameTime,_gameSpeed,del);
 	}
 }
 
 void KyraEngine_LoK::delayUntil(uint32 timestamp, bool updateTimers, bool update, bool isMainLoop) {
-	while (_system->getMillis() < timestamp && !shouldQuit() && !skipFlag()) {
+	uint32 delayUntilTimer;
+	while ((delayUntilTimer = g_eventRec.getMillis(true)) < timestamp && !shouldQuit() && !skipFlag()) {
+		debug("kyra_lok.cpp::delayUntil(%d)",delayUntilTimer);
 		if (updateTimers)
 			_timer->update();
 
-		if (timestamp - _system->getMillis() >= 10)
+		uint32 delayUntilCondition = g_eventRec.getMillis(true);
+		debug("kyra_lok.cpp::delayUntilCondition(%d %d %d)",timestamp - delayUntilCondition,timestamp,delayUntilCondition);
+		if (timestamp - delayUntilCondition >= 10)
 			delay(10, update, isMainLoop);
 	}
+	debug("kyra_lok.cpp::delayUntilFinish(%d)",delayUntilTimer);
 }
 
 void KyraEngine_LoK::delay(uint32 amount, bool update, bool isMainLoop) {
-	uint32 start = _system->getMillis();
+	uint32 start = g_eventRec.getMillis(true);
+	debug("kyra_lok.cpp::delay(%d %d %d)",start,amount,update,isMainLoop);
+	uint32 millis;
 	do {
 		if (update) {
 			_sprites->updateSceneAnims();
@@ -523,8 +534,12 @@ void KyraEngine_LoK::delay(uint32 amount, bool update, bool isMainLoop) {
 		if (_currentCharacter && _currentCharacter->sceneId == 210 && update)
 			updateKyragemFading();
 
-		if (amount > 0 && !skipFlag() && !shouldQuit())
-			_system->delayMillis(10);
+		
+		debug("kyra_lok.cpp::delaySystemDelay(%d, %d %d)", amount, skipFlag(), shouldQuit());
+		if (amount > 0 && !skipFlag() && !shouldQuit())	{
+				g_eventRec.delayMillis(10,true);
+				debug("kyra_log.cpp::delayMillis(10)");
+		}
 
 		// FIXME: Major hackery to allow skipping the intro
 		if (_seqPlayerFlag) {
@@ -540,7 +555,9 @@ void KyraEngine_LoK::delay(uint32 amount, bool update, bool isMainLoop) {
 
 		if (skipFlag())
 			snd_stopVoice();
-	} while (!skipFlag() && _system->getMillis() < start + amount && !shouldQuit());
+		millis = g_eventRec.getMillis(true);
+	debug("kyra_lok.cpp::finishdelay(%d, %d)", millis, start + amount);
+	} while (!skipFlag() && millis < start + amount && !shouldQuit());
 }
 
 bool KyraEngine_LoK::skipFlag() const {
@@ -556,9 +573,9 @@ void KyraEngine_LoK::resetSkipFlag(bool removeEvent) {
 }
 
 void KyraEngine_LoK::delayWithTicks(int ticks) {
-	uint32 nextTime = _system->getMillis() + ticks * _tickLength;
+	uint32 nextTime = g_eventRec.getMillis() + ticks * _tickLength;
 
-	while (_system->getMillis() < nextTime) {
+	while (g_eventRec.getMillis() < nextTime) {
 		_sprites->updateSceneAnims();
 		_animator->updateAllObjectShapes();
 
@@ -570,7 +587,7 @@ void KyraEngine_LoK::delayWithTicks(int ticks) {
 		if (skipFlag())
 			break;
 
-		if (nextTime - _system->getMillis() >= 10)
+		if (nextTime - g_eventRec.getMillis() >= 10)
 			delay(10);
 	}
 }

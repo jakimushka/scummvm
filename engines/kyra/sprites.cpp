@@ -23,7 +23,7 @@
 #include "kyra/sprites.h"
 #include "kyra/resource.h"
 #include "kyra/animator_lok.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -118,7 +118,8 @@ void Sprites::setupSceneAnims() {
 }
 
 void Sprites::updateSceneAnims() {
-	uint32 currTime = _system->getMillis();
+	uint32 currTime = g_eventRec.getMillis(true);
+	debug("sprites.cpp::updateSceneAnims(%d)",currTime);
 	bool update;
 	uint8 *data;
 	uint16 rndNr;
@@ -149,7 +150,8 @@ void Sprites::updateSceneAnims() {
 			_anims[i].y = READ_LE_UINT16(data);
 			data += 2;
 			_anims[i].flipX = false;
-			_anims[i].lastRefresh = _system->getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis(true);
+			debug("sprites.cpp::updateSceneAnimsFF88(%d)",_anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF8D:
@@ -166,15 +168,16 @@ void Sprites::updateSceneAnims() {
 			_anims[i].y = READ_LE_UINT16(data);
 			data += 2;
 			_anims[i].flipX = true;
-			_anims[i].lastRefresh = _system->getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis();
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF8A:
 			data += 2;
 			debugC(6, kDebugLevelSprites, "func: Set time to wait");
 			debugC(6, kDebugLevelSprites, "Time %i", READ_LE_UINT16(data));
-			_anims[i].nextRun = _system->getMillis() + READ_LE_UINT16(data) * _vm->tickLength();
-			_anims[i].nextRun -= _system->getMillis() - _anims[i].lastRefresh;
+			_anims[i].nextRun = g_eventRec.getMillis(true) + READ_LE_UINT16(data) * _vm->tickLength();
+			_anims[i].nextRun -= g_eventRec.getMillis(true) - _anims[i].lastRefresh;
+			debug("sprites.cpp::updateSceneAnimsFF8A(%d)",_anims[i].nextRun);
 			data += 2;
 			break;
 		case 0xFFB3:
@@ -185,8 +188,9 @@ void Sprites::updateSceneAnims() {
 			data += 2;
 			debugC(6, kDebugLevelSprites, "Maximum time %i", READ_LE_UINT16(data));
 			data += 2;
-			_anims[i].nextRun = _system->getMillis() + rndNr * _vm->tickLength();
-			_anims[i].nextRun -= _system->getMillis() - _anims[i].lastRefresh;
+			_anims[i].nextRun = g_eventRec.getMillis(true) + rndNr * _vm->tickLength();
+			_anims[i].nextRun -= g_eventRec.getMillis(true) - _anims[i].lastRefresh;
+			debug("sprites.cpp::updateSceneAnimsFFB3(%d)",_anims[i].nextRun);
 			break;
 		case 0xFF8C:
 			data += 2;
@@ -221,7 +225,8 @@ void Sprites::updateSceneAnims() {
 		case 0xFF8B:
 			debugC(6, kDebugLevelSprites, "func: Jump to start of script section");
 			_anims[i].curPos = _anims[i].script;
-			_anims[i].nextRun = _system->getMillis();
+			_anims[i].nextRun = g_eventRec.getMillis(true);
+			debug("sprites.cpp::updateSceneAnimsFF8B(%d)",_anims[i].nextRun);
 			update = false;
 			break;
 		case 0xFF8E:
@@ -247,7 +252,8 @@ void Sprites::updateSceneAnims() {
 			_anims[i].sprite = READ_LE_UINT16(data);
 			_anims[i].flipX = false;
 			data += 2;
-			_anims[i].lastRefresh = _system->getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis();
+			debug("sprites.cpp::updateSceneAnimsFF90(%d)",_anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF91:
@@ -257,7 +263,8 @@ void Sprites::updateSceneAnims() {
 			_anims[i].sprite = READ_LE_UINT16(data);
 			_anims[i].flipX = true;
 			data += 2;
-			_anims[i].lastRefresh = _system->getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis();
+			debug("sprites.cpp::updateSceneAnimsFF91(%d)",_anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF92:

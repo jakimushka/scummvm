@@ -26,7 +26,7 @@
 #include "kyra/script_eob.h"
 #include "kyra/resource.h"
 #include "kyra/timer.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 
@@ -119,7 +119,7 @@ const uint8 *EoBCoreEngine::loadActiveMonsterData(const uint8 *data, int level) 
 		_timer->setCountdown(0x21 + (p << 1), v);
 	}
 
-	uint32 ct = _system->getMillis();
+	uint32 ct = g_eventRec.getMillis();
 	for (int i = 0x20; i < 0x24; i++) {
 		int32 del = _timer->getDelay(i);
 		_timer->setNextRun(i, (i & 1) ? ct + (del >> 1) * _tickLength : ct + del * _tickLength);
@@ -358,7 +358,7 @@ void EoBCoreEngine::flashMonsterShape(EoBMonsterInPlay *m) {
 	_flashShapeTimer = 0;
 	drawScene(1);
 	m->flags &= 0xfd;
-	_flashShapeTimer  = _system->getMillis() + _tickLength;
+	_flashShapeTimer  = g_eventRec.getMillis() + _tickLength;
 	enableSysTimer(2);
 
 	_sceneUpdateRequired = true;
@@ -379,7 +379,7 @@ void EoBCoreEngine::updateAllMonsterShapes() {
 
 	if (updateShp) {
 		_sceneUpdateRequired = true;
-		_flashShapeTimer = _system->getMillis() + _tickLength;
+		_flashShapeTimer = g_eventRec.getMillis() + _tickLength;
 	} else {
 		_sceneUpdateRequired = false;
 	}
@@ -1042,7 +1042,7 @@ bool EoBCoreEngine::updateMonsterTryCloseAttack(EoBMonsterInPlay *m, int block) 
 			m->curAttackFrame = -1;
 			if (m->type != 4)
 				updateEnvironmentalSfx(_monsterProps[m->type].sound1);
-			_flashShapeTimer = _system->getMillis() + 8 * _tickLength;
+			_flashShapeTimer = g_eventRec.getMillis() + 8 * _tickLength;
 			drawScene(1);
 		} else {
 			updateEnvironmentalSfx(_monsterProps[m->type].sound1);
@@ -1055,7 +1055,7 @@ bool EoBCoreEngine::updateMonsterTryCloseAttack(EoBMonsterInPlay *m, int block) 
 			m->animStep ^= 1;
 			_sceneUpdateRequired = 1;
 			enableSysTimer(2);
-			_flashShapeTimer = _system->getMillis() + 8 * _tickLength;
+			_flashShapeTimer = g_eventRec.getMillis() + 8 * _tickLength;
 		}
 	} else {
 		int b = m->block;

@@ -72,7 +72,11 @@ enum EventType {
 	 * use events to ask for the save game dialog or to pause the engine.
 	 * An associated enumerated type can accomplish this.
 	 **/
-	EVENT_PREDICTIVE_DIALOG = 12
+	EVENT_PREDICTIVE_DIALOG = 12,
+	EVENT_TIMER = 24,
+	EVENT_RANDOM = 25,
+	EVENT_DELAY = 26,
+	EVENT_AUDIO = 27,
 
 #ifdef ENABLE_KEYMAPPER
 	,

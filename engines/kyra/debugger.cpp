@@ -30,7 +30,7 @@
 
 #include "common/system.h"
 #include "common/config-manager.h"
-
+#include "common/EventRecorder.h"
 #include "gui/message.h"
 
 namespace Kyra {
@@ -177,7 +177,7 @@ bool Debugger::cmd_queryFlag(int argc, const char **argv) {
 }
 
 bool Debugger::cmd_listTimers(int argc, const char **argv) {
-	DebugPrintf("Current time: %-8u\n", g_system->getMillis());
+	DebugPrintf("Current time: %-8u\n", g_eventRec.getMillis());
 	for (int i = 0; i < _vm->timer()->count(); i++)
 		DebugPrintf("Timer %-2i: Active: %-3s Countdown: %-6i %-8u\n", i, _vm->timer()->isEnabled(i) ? "Yes" : "No", _vm->timer()->getDelay(i), _vm->timer()->getNextRun(i));
 

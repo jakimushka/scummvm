@@ -29,7 +29,7 @@
 #include "common/error.h"
 #include "common/config-manager.h"
 #include "common/debug-channels.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 KyraEngine_v1::KyraEngine_v1(OSystem *system, const GameFlags &flags)
@@ -210,7 +210,8 @@ Common::Error KyraEngine_v1::init() {
 	setupKeyMap();
 
 	// Prevent autosave on game startup
-	_lastAutosave = _system->getMillis();
+	debug("kyra_v1.cpp::init()");
+	_lastAutosave = g_eventRec.getMillis(true);
 
 	return Common::kNoError;
 }
@@ -535,7 +536,7 @@ int KyraEngine_v1::resetGameFlag(int flag) {
 }
 
 void KyraEngine_v1::delayUntil(uint32 timestamp, bool updateTimers, bool update, bool isMainLoop) {
-	const uint32 curTime = _system->getMillis();
+	const uint32 curTime = g_eventRec.getMillis();
 	if (curTime > timestamp)
 		return;
 
@@ -548,7 +549,7 @@ void KyraEngine_v1::delayUntil(uint32 timestamp, bool updateTimers, bool update,
 }
 
 void KyraEngine_v1::delay(uint32 amount, bool update, bool isMainLoop) {
-	_system->delayMillis(amount);
+	g_eventRec.delayMillis(amount);
 }
 
 void KyraEngine_v1::delayWithTicks(int ticks) {

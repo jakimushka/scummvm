@@ -27,7 +27,7 @@
 #include "kyra/script_eob.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -57,7 +57,7 @@ const uint8 *EoBCoreEngine::initScriptTimers(const uint8 *pos) {
 		uint16 ticks = READ_LE_UINT16(pos) * 18;
 		_scriptTimers[_scriptTimersCount].ticks = ticks;
 		pos += 2;
-		_scriptTimers[_scriptTimersCount++].next = _system->getMillis() + ticks * _tickLength;
+		_scriptTimers[_scriptTimersCount++].next = g_eventRec.getMillis() + ticks * _tickLength;
 	}
 
 	return pos;
@@ -73,9 +73,9 @@ void EoBCoreEngine::updateScriptTimers() {
 
 	if (_scriptTimersMode & 1) {
 		for (int i = 0; i < _scriptTimersCount; i++) {
-			if (_scriptTimers[i].next < _system->getMillis()) {
+			if (_scriptTimers[i].next < g_eventRec.getMillis()) {
 				_inf->run(_scriptTimers[i].func, _flags.gameID == GI_EOB1 ? 0x20 : 0x80);
-				_scriptTimers[i].next = _system->getMillis() + _scriptTimers[i].ticks * _tickLength;
+				_scriptTimers[i].next = g_eventRec.getMillis() + _scriptTimers[i].ticks * _tickLength;
 				_sceneUpdateRequired = true;
 				timerUpdate = true;
 			}
@@ -1561,7 +1561,7 @@ int EoBInfProcessor::oeob_specialEvent(int8 *data) {
 		_screen->copyRegion(72, 0, 0, 0, 32, 120, 2, 12, Screen::CR_NO_P_CHECK);
 
 		for (; i < 4; i++) {
-			endTime = _vm->_system->getMillis() + _vm->_tickLength;
+			endTime = g_eventRec.getMillis() + _vm->_tickLength;
 			_vm->drawLightningColumn();
 			_screen->copyRegion(72, 0, 72, 0, 32, 120, 2, 0, Screen::CR_NO_P_CHECK);
 			_screen->updateScreen();

@@ -26,7 +26,7 @@
 #include "common/system.h"
 #include "common/config-manager.h"
 #include "common/translation.h"
-
+#include "common/EventRecorder.h"
 #include "gui/message.h"
 
 namespace Kyra {
@@ -275,7 +275,8 @@ void MidiOutput::sysEx(const byte *msg, uint16 length) {
 		delay += 40;
 
 	_output->sysEx(msg, length);
-	_system->delayMillis(delay);
+	g_eventRec.delayMillis(delay,true);
+	debug("sound_midi.cpp::sysEx(%d)",delay);
 }
 
 void MidiOutput::sendSysEx(const byte p1, const byte p2, const byte p3, const byte *buffer, const int size) {
@@ -556,7 +557,7 @@ bool SoundMidiPC::init() {
 		while (isPlaying() && !_vm->shouldQuit()) {
 			_vm->_system->updateScreen();
 			_vm->_eventMan->pollEvent(event);
-			_vm->_system->delayMillis(10);
+			g_eventRec.delayMillis(10);
 		}
 
 		if (pakFile)
@@ -712,7 +713,8 @@ void SoundMidiPC::beginFadeOut() {
 	Common::StackLock lock(_mutex);
 
 	_fadeMusicOut = true;
-	_fadeStartTime = _vm->_system->getMillis();
+	_fadeStartTime = g_eventRec.getMillis(true);
+	debug("sound_midi.cpp::beginFadeOut(%d)",_fadeStartTime);
 }
 
 void SoundMidiPC::pause(bool paused) {
@@ -740,8 +742,14 @@ void SoundMidiPC::onTimer(void *data) {
 	if (midi->_fadeMusicOut) {
 		static const uint32 musicFadeTime = 1 * 1000;
 
-		if (midi->_fadeStartTime + musicFadeTime > midi->_vm->_system->getMillis()) {
-			int volume = (byte)((musicFadeTime - (midi->_vm->_system->getMillis() - midi->_fadeStartTime)) * midi->_musicVolume / musicFadeTime);
+//		uint32 midisec = g_eventRec.getMillis(true);
+		uint32 midisec = g_system->getMillis();
+//		debug("sound_midi.cpp::onTimerCondition(%d %d)",midi->_fadeStartTime + musicFadeTime, midisec);
+		if (midi->_fadeStartTime + musicFadeTime > midisec) {
+//			midisec = g_eventRec.getMillis(true);
+			midisec = g_system->getMillis();
+			int volume = (byte)((musicFadeTime - (midisec - midi->_fadeStartTime)) * midi->_musicVolume / musicFadeTime);
+//			debug("sound_midi.cpp::onTimerVolume(%d %d)",midisec, (musicFadeTime - (midisec - midi->_fadeStartTime)) * midi->_musicVolume / musicFadeTime);
 			midi->_output->setSourceVolume(0, volume, true);
 		} else {
 			for (int i = 0; i < 16; ++i)

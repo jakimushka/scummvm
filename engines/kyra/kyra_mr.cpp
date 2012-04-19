@@ -29,7 +29,7 @@
 #include "kyra/gui_mr.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 #include "common/config-manager.h"
 
@@ -270,14 +270,14 @@ Common::Error KyraEngine_MR::go() {
 		playMenuAudioFile();
 
 		for (int i = 0; i < 64 && !shouldQuit(); ++i) {
-			uint32 nextRun = _system->getMillis() + 3 * _tickLength;
+			uint32 nextRun = g_eventRec.getMillis() + 3 * _tickLength;
 			_menuAnim->displayFrame(i, 0, 0, 0, 0, 0, 0);
 			_screen->updateScreen();
 			delayUntil(nextRun);
 		}
 
 		for (int i = 64; i > 29 && !shouldQuit(); --i) {
-			uint32 nextRun = _system->getMillis() + 3 * _tickLength;
+			uint32 nextRun = g_eventRec.getMillis() + 3 * _tickLength;
 			_menuAnim->displayFrame(i, 0, 0, 0, 0, 0, 0);
 			_screen->updateScreen();
 			delayUntil(nextRun);
@@ -905,7 +905,7 @@ void KyraEngine_MR::runLoop() {
 				break;
 		}
 
-		if (_system->getMillis() >= _nextIdleAnim)
+		if (g_eventRec.getMillis() >= _nextIdleAnim)
 			showIdleAnim();
 
 		int inputFlag = checkInput(_mainButtonList, true);
@@ -920,7 +920,7 @@ void KyraEngine_MR::runLoop() {
 			handleInput(mouse.x, mouse.y);
 		}
 
-		_system->delayMillis(10);
+		g_eventRec.delayMillis(10);
 	}
 }
 

@@ -23,7 +23,7 @@
 #include "kyra/kyra_hof.h"
 
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 int KyraEngine_HoF::checkItemCollision(int x, int y) {
@@ -232,7 +232,7 @@ void KyraEngine_HoF::itemDropDown(int startX, int startY, int dstX, int dstY, in
 				++speed;
 
 				backUpGfxRect24x24(curX, curY-16);
-				uint32 endDelay = _system->getMillis() + _tickLength;
+				uint32 endDelay = g_eventRec.getMillis() + _tickLength;
 
 				_screen->drawShape(0, itemShape, curX, curY-16, 0, 0);
 				_screen->updateScreen();
@@ -268,7 +268,7 @@ void KyraEngine_HoF::itemDropDown(int startX, int startY, int dstX, int dstY, in
 					y = curY - 16;
 					backUpGfxRect24x24(x, y);
 
-					uint16 endDelay = _system->getMillis() + _tickLength;
+					uint16 endDelay = g_eventRec.getMillis() + _tickLength;
 					_screen->drawShape(0, itemShape, x, y, 0, 0);
 					_screen->updateScreen();
 

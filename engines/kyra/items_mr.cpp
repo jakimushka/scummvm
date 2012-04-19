@@ -22,7 +22,7 @@
 
 #include "kyra/kyra_mr.h"
 #include "kyra/timer.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -251,7 +251,7 @@ void KyraEngine_MR::itemDropDown(int startX, int startY, int dstX, int dstY, int
 				++speed;
 
 				backUpGfxRect32x32(curX, curY-16);
-				uint32 endDelay = _system->getMillis() + _tickLength;
+				uint32 endDelay = g_eventRec.getMillis() + _tickLength;
 
 				_screen->drawShape(0, itemShape, curX, curY-16, 0, 0);
 				_screen->updateScreen();
@@ -284,7 +284,7 @@ void KyraEngine_MR::itemDropDown(int startX, int startY, int dstX, int dstY, int
 					y = curY - 16;
 					backUpGfxRect32x32(x, y);
 
-					uint16 endDelay = _system->getMillis() + _tickLength;
+					uint16 endDelay = g_eventRec.getMillis() + _tickLength;
 					_screen->drawShape(0, itemShape, x, y, 0, 0);
 					_screen->updateScreen();
 

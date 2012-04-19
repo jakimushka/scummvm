@@ -23,7 +23,7 @@
 #include "kyra/kyra_mr.h"
 #include "kyra/text_mr.h"
 #include "kyra/resource.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -259,7 +259,7 @@ int KyraEngine_MR::o3_wipeDownMouseItem(EMCState *script) {
 		for (int curY = y, height = 20; height > 0; height -= 2, curY += 2) {
 			restoreGfxRect32x32(x, y);
 			_screen->setNewShapeHeight(shape, height);
-			const uint32 waitTime = _system->getMillis() + _tickLength;
+			const uint32 waitTime = g_eventRec.getMillis() + _tickLength;
 			_screen->drawShape(0, shape, x, curY, 0, 0);
 			_screen->updateScreen();
 			delayUntil(waitTime);
@@ -1118,7 +1118,7 @@ int KyraEngine_MR::o3d_updateAnim(EMCState *script) {
 
 int KyraEngine_MR::o3d_delay(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_MR::o3d_delay(%p) (%d)", (const void *)script, stackPos(0));
-	delayUntil(_system->getMillis() + stackPos(0) * _tickLength, false, true);
+	delayUntil(g_eventRec.getMillis() + stackPos(0) * _tickLength, false, true);
 	return 0;
 }
 

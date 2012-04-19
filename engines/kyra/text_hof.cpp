@@ -22,7 +22,7 @@
 
 #include "kyra/text_hof.h"
 #include "kyra/resource.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -253,9 +253,9 @@ void KyraEngine_HoF::objectChatInit(const char *str, int object, int vocHigh, in
 	_chatTextEnabled = textEnabled();
 	if (_chatTextEnabled) {
 		objectChatPrintText(str, object);
-		_chatEndTime = _system->getMillis() + chatCalcDuration(str) * _tickLength;
+		_chatEndTime = g_eventRec.getMillis() + chatCalcDuration(str) * _tickLength;
 	} else {
-		_chatEndTime = _system->getMillis();
+		_chatEndTime = g_eventRec.getMillis();
 	}
 
 	if (speechEnabled()) {
@@ -344,12 +344,12 @@ void KyraEngine_HoF::objectChatWaitToFinish() {
 
 		updateCharacterAnim(0);
 
-		uint32 nextFrame = _system->getMillis() + delayTime * _tickLength;
+		uint32 nextFrame = g_eventRec.getMillis() + delayTime * _tickLength;
 
-		while (_system->getMillis() < nextFrame && !shouldQuit()) {
+		while (g_eventRec.getMillis() < nextFrame && !shouldQuit()) {
 			updateWithText();
 
-			const uint32 curTime = _system->getMillis();
+			const uint32 curTime = g_eventRec.getMillis();
 			if ((textEnabled() && curTime > endTime) || (speechEnabled() && !textEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 				resetSkipFlag();
 				nextFrame = curTime;
@@ -630,7 +630,7 @@ void KyraEngine_HoF::npcChatSequence(const char *str, int objectId, int vocHigh,
 	setNextIdleAnimTimer();
 
 	uint32 ct = chatCalcDuration(str);
-	uint32 time = _system->getMillis();
+	uint32 time = g_eventRec.getMillis();
 	_chatEndTime =  time + (3 + ct) * _tickLength;
 	uint32 chatAnimEndTime = time + (3 + (ct >> 1)) * _tickLength;
 
@@ -639,8 +639,8 @@ void KyraEngine_HoF::npcChatSequence(const char *str, int objectId, int vocHigh,
 		_chatVocHigh = _chatVocLow = -1;
 	}
 
-	while (((textEnabled() && _chatEndTime > _system->getMillis()) || (speechEnabled() && snd_voiceIsPlaying())) && !(shouldQuit() || skipFlag())) {
-		if ((!speechEnabled() && chatAnimEndTime > _system->getMillis()) || (speechEnabled() && snd_voiceIsPlaying())) {
+	while (((textEnabled() && _chatEndTime > g_eventRec.getMillis()) || (speechEnabled() && snd_voiceIsPlaying())) && !(shouldQuit() || skipFlag())) {
+		if ((!speechEnabled() && chatAnimEndTime > g_eventRec.getMillis()) || (speechEnabled() && snd_voiceIsPlaying())) {
 			_tim->resetFinishedFlag();
 			while (!_tim->finished() && !skipFlag() && !shouldQuit()) {
 				if (_currentTalkSections.TLKTim)

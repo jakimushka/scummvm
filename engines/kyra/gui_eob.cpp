@@ -33,7 +33,7 @@
 #include "common/system.h"
 #include "common/savefile.h"
 #include "graphics/scaler.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 Button *EoBCoreEngine::gui_getButton(Button *buttonList, int index) {
@@ -2006,10 +2006,10 @@ void GUI_EoB::simpleMenu_flashSelection(const char *str, int x, int y, int color
 	for (int i = 0; i < 3; i++) {
 		_screen->printText(str, x, y, color2, color3);
 		_screen->updateScreen();
-		_vm->_system->delayMillis(32);
+		g_eventRec.delayMillis(32);
 		_screen->printText(str, x, y, color1, color3);
 		_screen->updateScreen();
-		_vm->_system->delayMillis(32);
+		g_eventRec.delayMillis(32);
 	}
 }
 
@@ -2066,7 +2066,7 @@ void GUI_EoB::runCampMenu() {
 			drawMenuButton(prevHighlightButton, false, false, true);
 			drawMenuButton(clickedButton, true, true, true);
 			_screen->updateScreen();
-			_vm->_system->delayMillis(80);
+			g_eventRec.delayMillis(80);
 			drawMenuButton(clickedButton, false, true, true);
 			_screen->updateScreen();
 			highlightButton = clickedButton;
@@ -2323,7 +2323,7 @@ bool GUI_EoB::confirmDialogue2(int dim, int id, int deflt) {
 
 	drawMenuButtonBox(x[newHighlight], y, 32, 14, true, true);
 	_screen->updateScreen();
-	_vm->_system->delayMillis(80);
+	g_eventRec.delayMillis(80);
 	drawMenuButtonBox(x[newHighlight], y, 32, 14, false, true);
 	_screen->updateScreen();
 
@@ -2364,7 +2364,7 @@ void GUI_EoB::messageDialogue(int dim, int id, int buttonTextCol) {
 
 	drawMenuButtonBox(bx, by, bw, 14, true, true);
 	_screen->updateScreen();
-	_vm->_system->delayMillis(80);
+	g_eventRec.delayMillis(80);
 	drawMenuButtonBox(bx, by, bw, 14, false, true);
 	_screen->updateScreen();
 
@@ -2405,7 +2405,7 @@ void GUI_EoB::messageDialogue2(int dim, int id, int buttonTextCol) {
 
 	_vm->gui_drawBox(x, y, w, 14, _vm->guiSettings()->colors.frame2, _vm->guiSettings()->colors.fill, -1);
 	_screen->updateScreen();
-	_vm->_system->delayMillis(80);
+	g_eventRec.delayMillis(80);
 	drawMenuButtonBox(x, y, w, 14, false, false);
 	_screen->printShadedText(_vm->_menuOkString, x + 4, y + 3, buttonTextCol, 0);
 	_screen->updateScreen();
@@ -2417,7 +2417,7 @@ void GUI_EoB::updateBoxFrameHighLight(int box) {
 		if (_updateBoxIndex == -1)
 			return;
 
-		if (_vm->_system->getMillis() <= _highLightBoxTimer)
+		if (g_eventRec.getMillis() <= _highLightBoxTimer)
 			return;
 
 		if (!_highLightColorTable[_updateBoxColorIndex])
@@ -2427,7 +2427,7 @@ void GUI_EoB::updateBoxFrameHighLight(int box) {
 		_screen->drawBox(r->x1, r->y1, r->x2, r->y2, _highLightColorTable[_updateBoxColorIndex++]);
 		_screen->updateScreen();
 
-		_highLightBoxTimer = _vm->_system->getMillis() + _vm->_tickLength;
+		_highLightBoxTimer = g_eventRec.getMillis() + _vm->_tickLength;
 
 	} else {
 		if (_updateBoxIndex != -1) {
@@ -2438,7 +2438,7 @@ void GUI_EoB::updateBoxFrameHighLight(int box) {
 
 		_updateBoxColorIndex = 0;
 		_updateBoxIndex = box;
-		_highLightBoxTimer = _vm->_system->getMillis();
+		_highLightBoxTimer = g_eventRec.getMillis();
 	}
 }
 
@@ -2464,7 +2464,7 @@ int GUI_EoB::getTextInput(char *dest, int x, int y, int destMaxLen, int textColo
 	_screen->copyRegion((x - 1) << 3, y, 0, 191, (destMaxLen + 2) << 3, 9, 0, 2, Screen::CR_NO_P_CHECK);
 	_screen->printShadedText(dest, x << 3, y, textColor1, textColor2);
 
-	uint32 next = _vm->_system->getMillis() + 2 * _vm->_tickLength;
+	uint32 next = g_eventRec.getMillis() + 2 * _vm->_tickLength;
 	sufx[0] = (pos < len) ? dest[pos] : 32;
 	_screen->printText(sufx, (x + pos) << 3, y, textColor1, cursorColor);
 
@@ -2475,7 +2475,7 @@ int GUI_EoB::getTextInput(char *dest, int x, int y, int destMaxLen, int textColo
 		_keyPressed.reset();
 
 		while (!in && !_vm->shouldQuit()) {
-			if (next <= _vm->_system->getMillis()) {
+			if (next <= g_eventRec.getMillis()) {
 				if (cursorState) {
 					_screen->copyRegion((pos + 1) << 3, 191, (x + pos) << 3, y, 8, 9, 2, 0, Screen::CR_NO_P_CHECK);
 					_screen->printShadedText(sufx, (x + pos) << 3, y, textColor1, textColor2);
@@ -2485,7 +2485,7 @@ int GUI_EoB::getTextInput(char *dest, int x, int y, int destMaxLen, int textColo
 
 				_screen->updateScreen();
 				cursorState ^= 1;
-				next = _vm->_system->getMillis() + 2 * _vm->_tickLength;
+				next = g_eventRec.getMillis() + 2 * _vm->_tickLength;
 			}
 
 			_vm->updateInput();
@@ -2835,7 +2835,7 @@ int GUI_EoB::selectSaveSlotDialogue(int x, int y, int id) {
 
 	drawSaveSlotButton(newHighlight, 2, 6);
 	_screen->updateScreen();
-	_vm->_system->delayMillis(80);
+	g_eventRec.delayMillis(80);
 	drawSaveSlotButton(newHighlight, 1, 6);
 	_screen->updateScreen();
 
@@ -3021,7 +3021,7 @@ void GUI_EoB::runMemorizePrayMenu(int charIndex, int spellType) {
 			b = _vm->gui_getButton(buttonList, inputFlag & 0x7fff);
 			drawMenuButton(b, true, true, true);
 			_screen->updateScreen();
-			_vm->_system->delayMillis(80);
+			g_eventRec.delayMillis(80);			
 			drawMenuButton(b, false, false, true);
 			_screen->updateScreen();
 		}
@@ -3571,7 +3571,7 @@ bool GUI_EoB::confirmDialogue(int id) {
 			Button *b = _vm->gui_getButton(buttonList, lastHighlight + 33);
 			drawMenuButton(b, true, true, true);
 			_screen->updateScreen();
-			_vm->_system->delayMillis(80);
+			g_eventRec.delayMillis(80);
 			drawMenuButton(b, false, true, true);
 			_screen->updateScreen();
 		}
@@ -3694,7 +3694,7 @@ int GUI_EoB::selectCharacterDialogue(int id) {
 			_screen->setFont(Screen::FID_8_FNT);
 			drawMenuButton(buttonList, true, true, true);
 			_screen->updateScreen();
-			_vm->_system->delayMillis(80);
+			g_eventRec.delayMillis(80);
 			drawMenuButton(buttonList, false, false, true);
 			_screen->updateScreen();
 			_screen->setFont(Screen::FID_6_FNT);
@@ -3748,12 +3748,12 @@ void GUI_EoB::displayTextBox(int id) {
 	_screen->copyRegion(dm->sx << 3, dm->sy, dm->sx << 3, dm->sy, dm->w << 3, dm->h, 2, 0, Screen::CR_NO_P_CHECK);
 	_screen->updateScreen();
 
-	for (uint32 timeOut = _vm->_system->getMillis() + 1440; _vm->_system->getMillis() < timeOut && !_vm->shouldQuit();) {
+	for (uint32 timeOut = g_eventRec.getMillis() + 1440; g_eventRec.getMillis() < timeOut && !_vm->shouldQuit();) {
 		int in = _vm->checkInput(0, false, 0);
 		_vm->removeInputTop();
 		if (in && !(in & 0x800))
 			break;
-		_vm->_system->delayMillis(4);
+		g_eventRec.delayMillis(4);
 	}
 
 	_screen->setCurPage(op);

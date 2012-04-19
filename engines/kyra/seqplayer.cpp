@@ -23,9 +23,9 @@
 #include "kyra/seqplayer.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 #define SEQOP(n, x) { n, &SeqPlayer::x, #x }
 
 namespace Kyra {
@@ -269,7 +269,7 @@ void SeqPlayer::s1_printText() {
 		int x = (Screen::SCREEN_W - _screen->getTextWidth(str)) / 2;
 		_screen->printText(str, x, 180, 0xF, 0xC);
 	} else {
-		_seqDisplayedTextTimer = _system->getMillis() + 1000 / ((_vm->gameFlags().lang == Common::FR_FRA) ? 120 : 60);
+		_seqDisplayedTextTimer = g_eventRec.getMillis() + 1000 / ((_vm->gameFlags().lang == Common::FR_FRA) ? 120 : 60);
 		_seqDisplayedText = txt;
 		_seqDisplayedChar = 0;
 		const char *str = _vm->seqTextsTable()[_seqDisplayedText];
@@ -616,7 +616,7 @@ bool SeqPlayer::playSequence(const uint8 *seqData, bool skipSeq) {
 		}
 		// used in Kallak writing intro
 		if (_seqDisplayTextFlag && _seqDisplayedTextTimer != 0xFFFFFFFF && _vm->textEnabled()) {
-			if (_seqDisplayedTextTimer < _system->getMillis()) {
+			if (_seqDisplayedTextTimer < g_eventRec.getMillis()) {
 				char charStr[3];
 				charStr[0] = _vm->seqTextsTable()[_seqDisplayedText][_seqDisplayedChar];
 				charStr[1] = charStr[2] = '\0';
@@ -629,7 +629,7 @@ bool SeqPlayer::playSequence(const uint8 *seqData, bool skipSeq) {
 				if (_vm->seqTextsTable()[_seqDisplayedText][_seqDisplayedChar] == '\0')
 					_seqDisplayedTextTimer = 0xFFFFFFFF;
 				else
-					_seqDisplayedTextTimer = _system->getMillis() + 1000 / ((_vm->gameFlags().lang == Common::FR_FRA) ? 120 : 60);
+					_seqDisplayedTextTimer = g_eventRec.getMillis() + 1000 / ((_vm->gameFlags().lang == Common::FR_FRA) ? 120 : 60);
 			}
 		}
 

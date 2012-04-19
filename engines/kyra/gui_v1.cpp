@@ -27,7 +27,7 @@
 
 #include "common/savefile.h"
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 GUI_v1::GUI_v1(KyraEngine_v1 *kyra) : GUI(kyra), _text(kyra->text()) {
@@ -367,7 +367,7 @@ int GUI_v1::redrawShadedButtonCallback(Button *button) {
 void GUI_v1::checkTextfieldInput() {
 	Common::Event event;
 
-	uint32 now = _vm->_system->getMillis();
+	uint32 now = g_eventRec.getMillis();
 
 	bool running = true;
 	int keys = 0;
@@ -410,7 +410,7 @@ void GUI_v1::checkTextfieldInput() {
 	}
 
 	processButtonList(_menuButtonList, keys | 0x8000, 0);
-	_vm->_system->delayMillis(3);
+	g_eventRec.delayMillis(3);
 }
 
 void GUI_v1::printMenuText(const char *str, int x, int y, uint8 c0, uint8 c1, uint8 c2) {
@@ -438,7 +438,7 @@ void MainMenu::init(StaticData data, Animation anim) {
 
 void MainMenu::updateAnimation() {
 	if (_anim.anim) {
-		uint32 now = _system->getMillis();
+		uint32 now = g_eventRec.getMillis();
 		if (now > _nextUpdate) {
 			_nextUpdate = now + _anim.delay * _vm->tickLength();
 
@@ -544,16 +544,16 @@ int MainMenu::handle(int dim) {
 				for (int i = 0; i < 3; i++) {
 					printString("%s", textPos, menuRect.top + selected * fh, _static.menuTable[5], 0, 5, _static.strings[selected]);
 					_screen->updateScreen();
-					_system->delayMillis(50);
+					g_eventRec.delayMillis(50);
 					printString("%s", textPos, menuRect.top + selected * fh, _static.menuTable[6], 0, 5, _static.strings[selected]);
 					_screen->updateScreen();
-					_system->delayMillis(50);
+					g_eventRec.delayMillis(50);
 				}
 				command = item;
 				break;
 			}
 		}
-		_system->delayMillis(10);
+		g_eventRec.delayMillis(10);
 	}
 
 	if (_vm->shouldQuit())

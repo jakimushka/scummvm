@@ -25,7 +25,7 @@
 #include "kyra/animator_lok.h"
 #include "kyra/sprites.h"
 #include "kyra/timer.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -35,7 +35,8 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	bool runLoop = true;
 	uint8 currPage;
 
-	uint32 timeToEnd = strlen(chatStr) * 8 * _tickLength + _system->getMillis();
+	uint32 timeToEnd = strlen(chatStr) * 8 * _tickLength + g_eventRec.getMillis(true);
+	debug("text_lok.cpp::waitForChatTimeToEnd(%d)",timeToEnd);
 
 	if (textEnabled() && !speechEnabled() && chatDuration != -1) {
 		switch (_configTextspeed) {
@@ -61,15 +62,19 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	_timer->disable(18);
 	_timer->disable(19);
 
-	uint32 timeAtStart = _system->getMillis();
+	uint32 timeAtStart = g_eventRec.getMillis(true);
+	debug("text_lok.cpp::waitForChatTimeAtStart(%d)",timeAtStart);
 	uint32 loopStart;
 	while (runLoop) {
-		loopStart = _system->getMillis();
+		loopStart = g_eventRec.getMillis(true);
+		debug("text_lok.cpp::waitForChatloopStart(%d)",loopStart);
 		if (_currentCharacter->sceneId == 210)
 			if (seq_playEnd())
 				break;
 
-		if (_system->getMillis() > timeToEnd && !hasUpdatedNPCs) {
+		uint32 chatacterSays = g_eventRec.getMillis(true);
+		debug("text_lok.cpp::chatacterSays(%d, %d)",chatacterSays,timeToEnd);
+		if (chatacterSays > timeToEnd && !hasUpdatedNPCs) {
 			hasUpdatedNPCs = true;
 			_timer->disable(15);
 			_currHeadShape = 4;
@@ -98,25 +103,38 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 
 		_animator->copyChangedObjectsForward(0);
 		updateTextFade();
+		chatacterSays = g_eventRec.getMillis(true);
+		if (chatacterSays == 19570) {
+			debug("%d",chatacterSays);
+		}
+		debug("chatacterSays %d %d %d %d %d",chatacterSays,chatDuration,chatacterSays - timeAtStart,printText,snd_voiceIsPlaying());
 
-		if (((chatDuration < (int16)(_system->getMillis() - timeAtStart)) && chatDuration != -1 && printText) || (!printText && !snd_voiceIsPlaying()))
+		if (((chatDuration < (int16)(chatacterSays - timeAtStart)) && chatDuration != -1 && printText) || (!printText && !snd_voiceIsPlaying()))
 			break;
 
 		uint32 nextTime = loopStart + _tickLength;
+		debug("chatacterSaysNextTime %d %d %d",nextTime,loopStart,_tickLength);
 
-		while (_system->getMillis() < nextTime) {
+		uint32 chatmills;
+		while ((chatmills = g_eventRec.getMillis(true)) < nextTime) {
+			debug("text_lok.cpp::waitForChatToFinishLoop(%d,%d)",chatmills, nextTime);
 			updateInput();
 
 			if (skipFlag()) {
+				debug("text_lok.cpp::waitForChatToFinishSkipFlag(%d)",skipFlag());
 				runLoop = false;
 				break;
 			}
-
-			if (nextTime - _system->getMillis() >= 10) {
-				_system->delayMillis(10);
+			
+			chatmills =  g_eventRec.getMillis(true);
+			debug("text_lok.cpp::waitForChatToFinishIf(%d)",nextTime - chatmills);
+			if (nextTime - chatmills >= 10) {
+				g_eventRec.delayMillis(10,true);
+				debug("text_lok.cpp::waitForChatDelayMillis(10)");
 				_system->updateScreen();
 			}
 		}
+		debug("text_lok.cpp::waitForChatToFinishEndLoop(%d,%d)",chatmills, nextTime);
 	}
 
 	if (skipFlag()) {

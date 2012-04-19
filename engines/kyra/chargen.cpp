@@ -33,7 +33,7 @@
 #include "base/plugins.h"
 #include "engines/metaengine.h"
 #include "engines/game.h"
-
+#include "common/EventRecorder.h"
 namespace Kyra {
 
 // Character Generator
@@ -373,7 +373,7 @@ void CharacterGenerator::toggleSpecialButton(int index, int bodyCustom, int page
 void CharacterGenerator::processSpecialButton(int index) {
 	toggleSpecialButton(index, 1, 0);
 	_vm->snd_playSoundEffect(76);
-	_vm->_system->delayMillis(80);
+	g_eventRec.delayMillis(80);
 	toggleSpecialButton(index, 0, 0);
 }
 
@@ -615,10 +615,10 @@ void CharacterGenerator::updateMagicShapes() {
 		_magicShapesBox = _activeBox;
 	}
 
-	if (_chargenMagicShapeTimer < _vm->_system->getMillis()) {
+	if (_chargenMagicShapeTimer < g_eventRec.getMillis()) {
 		if (++_updateBoxShapesIndex > 9)
 			_updateBoxShapesIndex = 0;
-		_chargenMagicShapeTimer = _vm->_system->getMillis() + 2 * _vm->_tickLength;
+		_chargenMagicShapeTimer = g_eventRec.getMillis() + 2 * _vm->_tickLength;
 	}
 
 	if (_updateBoxShapesIndex == _lastUpdateBoxShapesIndex)
@@ -1664,7 +1664,7 @@ int TransferPartyWiz::selectCharactersMenu() {
 		int x = (highlight - 6) * 268 + 4;
 		_vm->gui_drawBox(x, 148, 43, 12, _vm->guiSettings()->colors.fill, _vm->guiSettings()->colors.fill, -1);
 		_screen->updateScreen();
-		_vm->_system->delayMillis(80);
+		g_eventRec.delayMillis(80);
 		_vm->gui_drawBox(x, 148, 43, 12, _vm->guiSettings()->colors.frame1, _vm->guiSettings()->colors.frame2, -1);
 		_screen->updateScreen();
 

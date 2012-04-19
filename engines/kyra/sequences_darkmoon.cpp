@@ -28,7 +28,7 @@
 #include "kyra/sound.h"
 
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 #include "base/version.h"
 
 namespace Kyra {
@@ -255,7 +255,7 @@ void DarkMoonEngine::seq_playIntro() {
 	if (!skipFlag() && !shouldQuit()) {
 		if (_configRenderMode == Common::kRenderEGA) {
 			for (int i = 0; i < 35; i++) {
-				uint32 endtime = _system->getMillis() + 2 * _tickLength;
+				uint32 endtime = g_eventRec.getMillis() + 2 * _tickLength;
 				_screen->copyRegion(16, 8, 8, 8, 296, 128, 0, 0, Screen::CR_NO_P_CHECK);
 				_screen->copyRegion(i << 3, 0, 304, 8, 8, 128, 2, 0, Screen::CR_NO_P_CHECK);
 				_screen->updateScreen();
@@ -267,7 +267,7 @@ void DarkMoonEngine::seq_playIntro() {
 			}
 		} else {
 			for (int i = 0; i < 280; i += 3) {
-				uint32 endtime = _system->getMillis() + _tickLength;
+				uint32 endtime = g_eventRec.getMillis() + _tickLength;
 				_screen->copyRegion(11, 8, 8, 8, 301, 128, 0, 0, Screen::CR_NO_P_CHECK);
 				_screen->copyRegion(i, 0, 309, 8, 3, 128, 2, 0, Screen::CR_NO_P_CHECK);
 				_screen->updateScreen();
@@ -848,20 +848,20 @@ void DarkMoonEngine::seq_playCredits(DarkmoonSequenceHelper *sq, const uint8 *da
 	memset(items, 0, sizeof(items));
 
 	const char *pos = (const char *)data;
-	uint32 end = _system->getMillis();
+	uint32 end = g_eventRec.getMillis();
 	uint32 cur = 0;
 	int i = 0;
 
 	do {
 		for (bool loop = true; loop;) {
 			sq->processDelayedPaletteFade();
-			cur = _system->getMillis();
+			cur = g_eventRec.getMillis();
 			if (end <= cur)
 				break;
 			delay(MIN<uint32>(_tickLength, end - cur));
 		}
 
-		end = _system->getMillis() + speed * _tickLength;
+		end = g_eventRec.getMillis() + speed * _tickLength;
 
 		for (; i < 35 && *pos; i++) {
 			int16 nextY = i ? items[i].y + items[i].size + (items[i].size >> 2) : dm->h;
@@ -1003,7 +1003,7 @@ DarkmoonSequenceHelper::~DarkmoonSequenceHelper() {
 	_screen->showMouse();
 	_screen->updateScreen();
 
-	_system->delayMillis(150);
+	g_eventRec.delayMillis(150);
 	_vm->resetSkipFlag(true);
 	_vm->_allowSkip = false;
 }
@@ -1156,7 +1156,7 @@ void DarkmoonSequenceHelper::animCommand(int index, int del) {
 				_screen->setShapeFadeMode(0, true);
 				_screen->setShapeFadeMode(1, true);
 
-				end = _system->getMillis() + s->delay * _vm->tickLength();
+				end = g_eventRec.getMillis() + s->delay * _vm->tickLength();
 
 				if (palIndex) {
 					_screen->setFadeTableIndex(palIndex - 1);
@@ -1278,7 +1278,7 @@ void DarkmoonSequenceHelper::setPaletteWithoutTextColor(int index) {
 	setPalette(11);
 
 	_screen->updateScreen();
-	_system->delayMillis(10);
+	g_eventRec.delayMillis(10);
 }
 
 void DarkmoonSequenceHelper::setPalette(int index) {
@@ -1305,19 +1305,19 @@ void DarkmoonSequenceHelper::initDelayedPaletteFade(int palIndex, int rate) {
 
 	_fadePalIndex = palIndex;
 	_fadePalRate = rate;
-	_fadePalTimer = _system->getMillis() + 2 * _vm->_tickLength;
+	_fadePalTimer = g_eventRec.getMillis() + 2 * _vm->_tickLength;
 }
 
 bool DarkmoonSequenceHelper::processDelayedPaletteFade() {
 	if (_vm->skipFlag() || _vm->shouldQuit())
 		return true;
 
-	if (_vm->_configRenderMode == Common::kRenderEGA || !_fadePalRate || (_system->getMillis() <= _fadePalTimer))
+	if (_vm->_configRenderMode == Common::kRenderEGA || !_fadePalRate || (g_eventRec.getMillis() <= _fadePalTimer))
 		return false;
 
 	if (_screen->delayedFadePalStep(_palettes[_fadePalIndex], _palettes[0], _fadePalRate)) {
 		setPaletteWithoutTextColor(0);
-		_fadePalTimer = _system->getMillis() + 3 * _vm->_tickLength;
+		_fadePalTimer = g_eventRec.getMillis() + 3 * _vm->_tickLength;
 	} else {
 		_fadePalRate = 0;
 	}
@@ -1329,14 +1329,14 @@ void DarkmoonSequenceHelper::delay(uint32 ticks) {
 	if (_vm->skipFlag() || _vm->shouldQuit())
 		return;
 
-	uint32 end = _system->getMillis() + ticks * _vm->_tickLength;
+	uint32 end = g_eventRec.getMillis() + ticks * _vm->_tickLength;
 
 	if (_config->palFading) {
 		do {
 			if (processDelayedPaletteFade())
 				break;
 			_vm->updateInput();
-		} while (end > _system->getMillis());
+		} while (end > g_eventRec.getMillis());
 		processDelayedPaletteFade();
 
 	} else {

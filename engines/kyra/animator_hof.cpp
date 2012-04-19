@@ -22,7 +22,7 @@
 
 #include "kyra/kyra_hof.h"
 #include "kyra/wsamovie.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -122,7 +122,7 @@ void KyraEngine_HoF::updateItemAnimations() {
 	ActiveItemAnim *a = &_activeItemAnim[_nextAnimItem];
 	_nextAnimItem = (_nextAnimItem + 1) % _itemAnimDefinitionSize;
 
-	if (_system->getMillis() < a->nextFrameTime)
+	if (g_eventRec.getMillis() < a->nextFrameTime)
 		return;
 
 	uint16 shpIdx = s->frames[a->currentFrame].index + 64;
@@ -163,7 +163,7 @@ void KyraEngine_HoF::updateItemAnimations() {
 	}
 
 	if (nextFrame) {
-		a->nextFrameTime = _system->getMillis() + (s->frames[a->currentFrame].delay * _tickLength);
+		a->nextFrameTime = g_eventRec.getMillis() + (s->frames[a->currentFrame].delay * _tickLength);
 		a->currentFrame = (a->currentFrame + 1) % s->numFrames;
 	}
 }

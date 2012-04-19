@@ -19,10 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-
 #include "common/util.h"
 #include "common/system.h"
 #include "common/textconsole.h"
+#include "common/EventRecorder.h"
 
 #include "audio/mixer_intern.h"
 #include "audio/rate.h"
@@ -268,7 +268,7 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 	assert(samples);
 
 	Common::StackLock lock(_mutex);
-
+	Common::StackLock recorderlock(g_eventRec._recorderMutex);
 	int16 *buf = (int16 *)samples;
 	// we store stereo, 16-bit samples
 	assert(len % 4 == 0);
@@ -282,19 +282,31 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 
 	// mix all channels
 	int res = 0, tmp;
+	bool paused = true;
+	for (int i = 0; i != NUM_CHANNELS; i++)
+		if (_channels[i]) {
+			if ((_channels[i] != 0) && (!_channels[i]->isPaused()))
+				paused = false;
+		}
+	if (g_eventRec.processAudio(len, paused)) {
 	for (int i = 0; i != NUM_CHANNELS; i++)
 		if (_channels[i]) {
 			if (_channels[i]->isFinished()) {
 				delete _channels[i];
 				_channels[i] = 0;
 			} else if (!_channels[i]->isPaused()) {
-				tmp = _channels[i]->mix(buf, len);
-
+					_totalsamples += len;
+					debug("samples = %d",_totalsamples);
+					tmp = _channels[i]->mix(buf, len);					
+			
 				if (tmp > res)
 					res = tmp;
 			}
 		}
-
+	}
+	else {
+		res = 0;
+	}
 	return res;
 }
 
@@ -606,6 +618,7 @@ int Channel::mix(int16 *data, uint len) {
 		assert(_converter);
 		_samplesConsumed = _samplesDecoded;
 		_mixerTimeStamp = g_system->getMillis();
+//		debug("mixer.cpp::mix(%d)",_mixerTimeStamp);
 		_pauseTime = 0;
 		res = _converter->flow(*_stream, data, len, _volL, _volR);
 		_samplesDecoded += res;

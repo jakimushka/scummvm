@@ -25,7 +25,7 @@
 
 #include "common/savefile.h"
 #include "common/system.h"
-
+#include "common/EventRecorder.h"
 #include "graphics/thumbnail.h"
 #include "graphics/surface.h"
 
@@ -257,7 +257,7 @@ bool KyraEngine_v1::saveFileLoadable(int slot) {
 void KyraEngine_v1::checkAutosave() {
 	if (shouldPerformAutoSave(_lastAutosave)) {
 		saveGameStateIntern(999, "Autosave", 0);
-		_lastAutosave = _system->getMillis();
+		_lastAutosave = g_eventRec.getMillis();
 	}
 }
 

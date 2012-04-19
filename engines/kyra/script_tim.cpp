@@ -28,7 +28,7 @@
 #include "kyra/lol.h"
 #include "kyra/screen_lol.h"
 #endif // ENABLE_LOL
-
+#include "common/EventRecorder.h"
 #include "common/iff_container.h"
 #include "common/system.h"
 
@@ -201,7 +201,7 @@ int TIMInterpreter::exec(TIM *tim, bool loop) {
 	_currentTim = tim;
 	if (!_currentTim->func[0].ip) {
 		_currentTim->func[0].ip = _currentTim->func[0].avtl;
-		_currentTim->func[0].nextTime = _currentTim->func[0].lastTime = _system->getMillis();
+		_currentTim->func[0].nextTime = _currentTim->func[0].lastTime = g_eventRec.getMillis();
 	}
 
 	do {
@@ -218,7 +218,7 @@ int TIMInterpreter::exec(TIM *tim, bool loop) {
 
 			bool running = true;
 			int cnt = 0;
-			while (cur.ip && cur.nextTime <= _system->getMillis() && running) {
+			while (cur.ip && cur.nextTime <= g_eventRec.getMillis() && running) {
 				if (cnt++ > 0) {
 					if (_currentTim->procFunc != -1)
 						execCommand(28, &_currentTim->procParam);
@@ -607,7 +607,7 @@ int TIMInterpreter::cmd_initFunc0(const uint16 *param) {
 		memset(&_currentTim->wsa[i], 0, sizeof(TIM::WSASlot));
 
 	_currentTim->func[0].ip = _currentTim->func[0].avtl;
-	_currentTim->func[0].lastTime = _system->getMillis();
+	_currentTim->func[0].lastTime = g_eventRec.getMillis();
 	return 1;
 }
 
@@ -791,7 +791,7 @@ int TIMInterpreter::cmd_resetLoopIp(const uint16 *param) {
 int TIMInterpreter::cmd_resetAllRuntimes(const uint16 *param) {
 	for (int i = 0; i < TIM::kCountFuncs; ++i) {
 		if (_currentTim->func[i].ip)
-			_currentTim->func[i].nextTime = _system->getMillis();
+			_currentTim->func[i].nextTime = g_eventRec.getMillis();
 	}
 	return 1;
 }
@@ -821,7 +821,7 @@ int TIMInterpreter::cmd_initFuncNow(const uint16 *param) {
 	uint16 func = *param;
 	assert(func < TIM::kCountFuncs);
 	_currentTim->func[func].ip = _currentTim->func[func].avtl;
-	_currentTim->func[func].lastTime = _currentTim->func[func].nextTime = _system->getMillis();
+	_currentTim->func[func].lastTime = _currentTim->func[func].nextTime = g_eventRec.getMillis();
 	return 1;
 }
 
@@ -829,7 +829,7 @@ int TIMInterpreter::cmd_stopFuncNow(const uint16 *param) {
 	uint16 func = *param;
 	assert(func < TIM::kCountFuncs);
 	_currentTim->func[func].ip = 0;
-	_currentTim->func[func].lastTime = _currentTim->func[func].nextTime = _system->getMillis();
+	_currentTim->func[func].lastTime = _currentTim->func[func].nextTime = g_eventRec.getMillis();
 	return 1;
 }
 
@@ -961,7 +961,7 @@ void TIMInterpreter_LoL::advanceToOpcode(int opcode) {
 		f->ip += len;
 	}
 
-	f->nextTime = _system->getMillis();
+	f->nextTime = g_eventRec.getMillis();
 }
 
 void TIMInterpreter_LoL::resetDialogueState(TIM *tim) {

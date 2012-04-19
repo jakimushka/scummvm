@@ -24,7 +24,7 @@
 
 #include "kyra/lol.h"
 #include "kyra/timer.h"
-
+#include "common/EventRecorder.h"
 #include "common/system.h"
 
 namespace Kyra {
@@ -35,7 +35,7 @@ void LoLEngine::setupTimers() {
 	_timer->addTimer(0, TimerV2(timerProcessDoors), 15, true);
 	_timer->addTimer(0x10, TimerV2(timerProcessMonsters), 6, true);
 	_timer->addTimer(0x11, TimerV2(timerProcessMonsters), 6, true);
-	_timer->setNextRun(0x11, _system->getMillis() + 3 * _tickLength);
+	_timer->setNextRun(0x11, g_eventRec.getMillis() + 3 * _tickLength);
 	_timer->addTimer(3, TimerV2(timerSpecialCharacterUpdate), 15, true);
 	_timer->addTimer(4, TimerV2(timerProcessFlyingObjects), 1, true);
 	_timer->addTimer(0x50, TimerV2(timerRunSceneAnimScript), 0, false);
