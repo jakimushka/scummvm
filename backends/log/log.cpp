@@ -69,8 +69,8 @@ void Log::print(const char *message, const bool printTime) {
 	while (*message) {
 		if (_startOfLine) {
 			_startOfLine = false;
-			if (printTime)
-				printTimeStamp();
+		//	if (printTime)
+		//		printTimeStamp();
 		}
 
 		const char *msgStart = message;

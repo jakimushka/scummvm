@@ -22,7 +22,7 @@
 
 #include "common/EventRecorder.h"
 #include "backends/timer/sdl/sdl-timer.h"
-
+#include "backends/mixer/sdl/sdl-mixer.h"
 #include "common/bufferedstream.h"
 #include "common/config-manager.h"
 #include "common/random.h"
@@ -235,8 +235,6 @@ void EventRecorder::init() {
 		getNextEvent();
 	}
 
-	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
-	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
 }
 
 void EventRecorder::deinit() {
@@ -304,10 +302,10 @@ bool EventRecorder::delayMillis(uint msecs, bool logged) {
 }
 
 void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
-	uint32 d;
 	if (_recordMode == kPassthrough) {
 		return;
 	}
+ 	_mixer->update();
 	if (_recordMode == kRecorderRecord) {
 		StackLock lock(_recorderMutex);
 		uint32 _millisDelay;
@@ -316,19 +314,12 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		_fakeTimer += _millisDelay;
 		Common::Event timerEvent;
 		timerEvent.type = EVENT_TIMER;
-		_recordMode = kPassthrough;
-		uint32 somedelay = g_system->getMillis();
-		_recordMode = kRecorderRecord;
 		writeEvent(timerEvent);
 	}
 
 	if (_recordMode == kRecorderPlayback) {
 		uint32 _millisDelay;
 		uint32 audioTime = 0;
-		while (_nextEvent.type == EVENT_AUDIO) {
-			g_system->delayMillis(10);
-			audioTime = _nextEvent.time;
-		}		
 		StackLock lock(_recorderMutex);
 		if (_nextEvent.type == EVENT_TIMER) {
 			if (audioTime != 0) {
@@ -454,8 +445,7 @@ void EventRecorder::togglePause() {
 	}
 }
 
-uint32 EventRecorder::getMillis(bool logging)
-{
+uint32 EventRecorder::getMillis(bool logging) {
 	uint32 millis = g_system->getMillis();
 	processMillis(millis);
 	if (!logging) {
@@ -476,20 +466,38 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	if (_recordMode == kRecorderPlayback) {
 
 		if ((_nextEvent.type == EVENT_AUDIO) /*&& !paused */) {
-		if (_nextEvent.time <= _fakeTimer) {
-			_nextEvent.count;			
-			getNextEvent();
-			return true;
-		}
+			if (_nextEvent.time <= _fakeTimer) {
+				_nextEvent.count;			
+				getNextEvent();
+				return true;
+			}
+			else {
+				samples = 0;
+				return false;
+			}
+		} 
 		else {
-			samples = 0;
-			return false;
-		}} else {
 			samples = 0;
 			return false;
 		}
 	}
 	return true;
+}
+
+SdlMixerManager* EventRecorder::createMixerManager() {
+	if (_recordMode == kPassthrough) {
+		return new SdlMixerManager();
+	}
+	else {
+		_mixer = new NullSdlMixerManager();
+		return _mixer;
+	}
+
+}
+
+void EventRecorder::RegisterEventSource() {
+	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
+	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
 }
 
 } // End of namespace Common

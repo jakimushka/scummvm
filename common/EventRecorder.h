@@ -29,6 +29,8 @@
 #include "common/mutex.h"
 #include "common/array.h"
 #include "common/queue.h"
+#include "backends/mixer/sdl/sdl-mixer.h"
+#include "backends/mixer/nullmixer/nullsdl-mixer.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
 
@@ -58,6 +60,7 @@ public:
 	void init();
 	void deinit();
 	/** Register random source so it can be serialized in game test purposes */
+	void RegisterEventSource();
 	void registerRandomSource(RandomSource &rnd, const String &name);
 	bool delayMillis(uint msecs, bool logged = false);
 	uint32 getMillis(bool logging = false);
@@ -66,6 +69,8 @@ public:
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	MutexRef _recorderMutex;
+	NullSdlMixerManager* _mixer;
+	SdlMixerManager* createMixerManager();
 
 private:
 	bool notifyEvent(const Event &ev);

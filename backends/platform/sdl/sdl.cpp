@@ -189,9 +189,10 @@ void OSystem_SDL::initBackend() {
 	if (_savefileManager == 0)
 		_savefileManager = new DefaultSaveFileManager();
 
-	if (_mixerManager == 0) {
-		_mixerManager = new SdlMixerManager();
+	g_eventRec.init();
 
+	if (_mixerManager == 0) {
+		_mixerManager = g_eventRec.createMixerManager();
 		// Setup and start mixer
 		_mixerManager->init();
 	}
