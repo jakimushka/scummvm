@@ -137,15 +137,6 @@ void EventRecorder::writeEvent(const Event &event) {
 	_recordMode = kRecorderRecord;
 }
 
-void EventRecorder::writeAudioEvent(uint32 samplesCount) {
-	_recordTimeFile->writeUint32LE((uint32)_fakeTimer);
-	_recordTimeFile->writeSint32LE(samplesCount);
-}
-
-void EventRecorder::readAudioEvent() {
-	_nextAudioEvent.time = _playbackTimeFile->readUint32LE();
-	_nextAudioEvent.count = _playbackTimeFile->readUint32LE();
-}
 
 EventRecorder::EventRecorder() {
 	_recordFile = NULL;
@@ -241,8 +232,7 @@ void EventRecorder::init() {
 			error("Unknown record file signature");
 		}
 		_playbackFile->readUint32LE(); // version
-		readNextEventsChunk();
-		readAudioEvent();
+		getNextEvent();
 	}
 
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
@@ -293,20 +283,18 @@ void EventRecorder::registerRandomSource(RandomSource &rnd, const String &name) 
 bool EventRecorder::delayMillis(uint msecs, bool logged) {
 	if (_recordMode == kRecorderRecord)	{
 		Common::Event delayEvent;
-		debugEvent.type = EVENT_DELAY;
+		delayEvent.type = EVENT_DELAY;
 		_delayMillis = msecs;
 		writeEvent(delayEvent);
 		g_system->delayMillis(msecs);
 	}
 	if (_recordMode == kRecorderPlayback) {
-		RecorderEvent event = _eventsQueue.front();
-		if (_eventsQueue.front().type == EVENT_DELAY) {
-			event = _eventsQueue.pop();
-			g_system->delayMillis(event.time);
-			readNextEventsChunk();
+		if (_nextEvent.type == EVENT_DELAY) {
+			g_system->delayMillis(_nextEvent.time);
 			if (!logged) {
-				g_system->delayMillis(event.time);
+				g_system->delayMillis(_nextEvent.time);
 			}
+			getNextEvent();
 			return true;
 		} else {
 			return true;
@@ -337,29 +325,19 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 	if (_recordMode == kRecorderPlayback) {
 		uint32 _millisDelay;
 		uint32 audioTime = 0;
-		if (_eventsQueue.front().time == 10400) {
-			RecorderEvent timeevent = _eventsQueue.front();
-		}
-		while (_eventsQueue.front().type == EVENT_AUDIO) {
+		while (_nextEvent.type == EVENT_AUDIO) {
 			g_system->delayMillis(10);
-			audioTime = _eventsQueue.front().time;
+			audioTime = _nextEvent.time;
 		}		
 		StackLock lock(_recorderMutex);
-		RecorderEvent timeevent = _eventsQueue.front();
-		if (_eventsQueue.front().type == EVENT_TIMER) {
+		if (_nextEvent.type == EVENT_TIMER) {
 			if (audioTime != 0) {
-				debug("AudioEventTime = %d, TimerTime = %d",audioTime,_eventsQueue.front().time);
+				debug("AudioEventTime = %d, TimerTime = %d",audioTime,_nextEvent.time);
 			}
-			_eventsQueue.front().count--;
-			_nextEvent = _eventsQueue.pop();
 			_fakeTimer = _nextEvent.time;
-			millis = _fakeTimer;
-			readNextEventsChunk();
+			getNextEvent();
 		}
-		else {
-			millis = _fakeTimer;
-			return;
-		}
+		millis = _fakeTimer;
 	}
 }
 
@@ -401,57 +379,42 @@ bool EventRecorder::pollEvent(Event &ev) {
 		return false;
 	StackLock lock(_recorderMutex);
 
-	if (_eventsQueue.empty()) {
+	if (_nextEvent.type ==  EVENT_INVALID) {
 		return false;
 	}
-	RecorderEvent eve = _eventsQueue.front();
+
+	if ((_nextEvent.type == EVENT_MOUSEMOVE) || (_nextEvent.type == EVENT_TIMER) || (_nextEvent.type == EVENT_DELAY) || (_nextEvent.type == EVENT_AUDIO)) {
+		return false;
+	}
+
+	if (_nextEvent.time > _fakeTimer) {
+		return false;
+	}
+	if ((_nextEvent.type == EVENT_LBUTTONDOWN) || (_nextEvent.type == EVENT_LBUTTONUP)) {
+		debug("%d %d %d %d %d",_nextEvent.type,_nextEvent.time,_fakeTimer,_nextEvent.mouse.x,_nextEvent.mouse.y);
+	}
 	
-	if ((_eventsQueue.front().type == EVENT_MOUSEMOVE) || (_eventsQueue.front().type == EVENT_TIMER) || (_eventsQueue.front().type == EVENT_DELAY) || (_eventsQueue.front().type == EVENT_AUDIO)) {
-		return false;
-	}
-
-	if (_eventsQueue.front().time > _fakeTimer) {
-		return false;
-	}
-	if ((_eventsQueue.front().type == EVENT_LBUTTONDOWN) || (_eventsQueue.front().type == EVENT_LBUTTONUP)) {
-		debug("%d %d %d %d %d",_eventsQueue.front().type,_eventsQueue.front().time,_fakeTimer,_eventsQueue.front().mouse.x,_eventsQueue.front().mouse.y);
-	}
-
-	ev = _eventsQueue.pop();
-	readNextEventsChunk();
-	switch (ev.type) {
+	switch (_nextEvent.type) {
 	case EVENT_LBUTTONDOWN:
 	case EVENT_LBUTTONUP:
 	case EVENT_RBUTTONDOWN:
 	case EVENT_RBUTTONUP:
 	case EVENT_WHEELUP:
 	case EVENT_WHEELDOWN:
-		g_system->warpMouse(ev.mouse.x, ev.mouse.y);
+		g_system->warpMouse(_nextEvent.mouse.x, _nextEvent.mouse.y);
 		break;
 	default:
 		break;
 	}
+	ev = _nextEvent;
+	getNextEvent();
 	return true;
 }
 
-void EventRecorder::sync() {
-	return;
-	switch (_recordMode) {
-	case kRecorderPlayback:
-		readNextEventsChunk();
-		break;
-	case kRecorderRecord:
-		writeNextEventsChunk();
-		break;
-	}
-}
 
-void EventRecorder::readNextEventsChunk() {
-	RecorderEvent event;
-	if (_eventsQueue.size() > 1) return;
-	while((_eventsQueue.size() < 1) && !_playbackFile->eos()) {
-		readEvent(event);
-		_eventsQueue.push(event);
+void EventRecorder::getNextEvent() {
+	if(!_playbackFile->eos()) {		
+		readEvent(_nextEvent);		
 	}
 }
 
@@ -502,8 +465,6 @@ uint32 EventRecorder::getMillis(bool logging)
 }
 
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
-	
-	//StackLock lock(_recorderMutex);
 	if ((_recordMode == kRecorderRecord)&& !paused)	{	
 		StackLock lock(_recorderMutex);
 		Common::Event audioEvent;
@@ -514,11 +475,10 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	}
 	if (_recordMode == kRecorderPlayback) {
 
-		if ((_eventsQueue.front().type == EVENT_AUDIO) /*&& !paused */) {
-		if (_eventsQueue.front().time <= _fakeTimer) {
-			samples = _eventsQueue.front().count;
-			_eventsQueue.pop();
-			readNextEventsChunk();
+		if ((_nextEvent.type == EVENT_AUDIO) /*&& !paused */) {
+		if (_nextEvent.time <= _fakeTimer) {
+			_nextEvent.count;			
+			getNextEvent();
 			return true;
 		}
 		else {
@@ -527,7 +487,6 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 		}} else {
 			samples = 0;
 			return false;
-
 		}
 	}
 	return true;

@@ -72,7 +72,7 @@ private:
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
-	void readNextEventsChunk();
+	void getNextEvent();
 	void writeNextEventsChunk();
 	void readEvent(RecorderEvent &event);
 	void writeEvent(const Event &event);

@@ -198,60 +198,66 @@ Common::Error SkyEngine::go() {
 
 	uint32 delayCount = _system->getMillis();
 	while (!shouldQuit()) {
-		_debugger->onFrame();
-
-		if (shouldPerformAutoSave(_lastSaveTime)) {
-			if (_skyControl->loadSaveAllowed()) {
-				_lastSaveTime = _system->getMillis();
-				_skyControl->doAutoSave();
-			} else
-				_lastSaveTime += 30 * 1000; // try again in 30 secs
+		if (!_systemVars.paused) {
+			_debugger->onFrame();
+			_skySound->checkFxQueue();
+			_skyMouse->mouseEngine();
+			_skyLogic->engine();
+			_skyScreen->processSequence();
+			_skyScreen->recreate();
+			_skyScreen->spriteEngine();
+			showGrid();
+			_skyScreen->flip();										
 		}
-		_skySound->checkFxQueue();
-		_skyMouse->mouseEngine();
+		performAutosave();
+		delay(calculateDelay(delayCount));
 		handleKey();
-		if (_systemVars.paused) {
-			do {
-				_system->updateScreen();
-				delay(50);
-				handleKey();
-			} while (_systemVars.paused);
-			delayCount = _system->getMillis();
-		}
-
-		_skyLogic->engine();
-		_skyScreen->processSequence();
-		_skyScreen->recreate();
-		_skyScreen->spriteEngine();
-		if (_debugger->showGrid()) {
-			uint8 *grid = _skyLogic->_skyGrid->giveGrid(Logic::_scriptVariables[SCREEN]);
-			if (grid) {
-				_skyScreen->showGrid(grid);
-				_skyScreen->forceRefresh();
-			}
-		}
-		_skyScreen->flip();
-
-		if (_fastMode & 2)
-			delay(0);
-		else if (_fastMode & 1)
-			delay(10);
-		else {
-			delayCount += _systemVars.gameSpeed;
-			int needDelay = delayCount - (int)_system->getMillis();
-			if ((needDelay < 0) || (needDelay > _systemVars.gameSpeed)) {
-				needDelay = 0;
-				delayCount = _system->getMillis();
-			}
-			delay(needDelay);
-		}
 	}
-
 	_skyControl->showGameQuitMsg();
 	_skyMusic->stopMusic();
 	ConfMan.flushToDisk();
 	delay(1500);
 	return Common::kNoError;
+}
+
+void SkyEngine::delay(int32 amount) {
+	uint32 start = _system->getMillis();
+	_keyPressed.reset();
+
+	if (amount < 0)
+		amount = 0;
+	do {
+		processEvents();
+		_system->updateScreen();
+
+		if (amount > 0)
+			_system->delayMillis((amount > 10) ? 10 : amount);
+
+	} while (_system->getMillis() < start + amount);
+}
+
+
+int SkyEngine::calculateDelay( uint32 &delayCount )
+{
+	if (_systemVars.paused) {
+		delayCount = _system->getMillis();
+		return 50;
+	}
+	if (_fastMode & 2) {
+		return 0;
+	}
+	else if (_fastMode & 1) {
+		return 10;
+	}
+	else {
+		delayCount += _systemVars.gameSpeed;
+		int needDelay = delayCount - (int)_system->getMillis();
+		if ((needDelay < 0) || (needDelay > _systemVars.gameSpeed)) {
+			needDelay = 0;
+			delayCount = _system->getMillis();
+		}
+		return needDelay;
+	}
 }
 
 Common::Error SkyEngine::init() {
@@ -388,47 +394,6 @@ void *SkyEngine::fetchItem(uint32 num) {
 	return _itemList[num];
 }
 
-void SkyEngine::delay(int32 amount) {
-	Common::Event event;
-
-	uint32 start = _system->getMillis();
-	_keyPressed.reset();
-
-	if (amount < 0)
-		amount = 0;
-	g_eventRec.sync();
-	do {
-		while (_eventMan->pollEvent(event)) {
-			switch (event.type) {
-			case Common::EVENT_KEYDOWN:
-				_keyPressed = event.kbd;
-				break;
-			case Common::EVENT_MOUSEMOVE:
-				if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
-					_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
-				break;
-			case Common::EVENT_LBUTTONDOWN:
-				if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
-					_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
-				_skyMouse->buttonPressed(2);
-				break;
-			case Common::EVENT_RBUTTONDOWN:
-				if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
-					_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
-				_skyMouse->buttonPressed(1);
-				break;
-			default:
-				break;
-			}
-		}
-
-		_system->updateScreen();
-
-		if (amount > 0)
-			_system->delayMillis((amount > 10) ? 10 : amount);
-
-	} while (_system->getMillis() < start + amount);
-}
 
 bool SkyEngine::isDemo() {
 	switch (_systemVars.gameVersion) {
@@ -467,5 +432,55 @@ bool SkyEngine::isCDVersion() {
 		error("Unknown game version %d", _systemVars.gameVersion);
 	}
 }
+
+void SkyEngine::processEvents() {
+	Common::Event event;
+	while (_eventMan->pollEvent(event)) {
+		switch (event.type) {
+		case Common::EVENT_KEYDOWN:
+			_keyPressed = event.kbd;
+		break;
+		case Common::EVENT_MOUSEMOVE:
+			if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
+				_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
+			break;
+		case Common::EVENT_LBUTTONDOWN:
+			if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
+				_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
+			_skyMouse->buttonPressed(2);
+			break;
+		case Common::EVENT_RBUTTONDOWN:
+			if (!(_systemVars.systemFlags & SF_MOUSE_LOCKED))
+				_skyMouse->mouseMoved(event.mouse.x, event.mouse.y);
+			_skyMouse->buttonPressed(1);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void SkyEngine::performAutosave()
+{
+	if (shouldPerformAutoSave(_lastSaveTime)) {
+		if (_skyControl->loadSaveAllowed()) {
+			_lastSaveTime = _system->getMillis();
+			_skyControl->doAutoSave();
+		} else
+			_lastSaveTime += 30 * 1000; // try again in 30 secs
+	}
+}
+
+void SkyEngine::showGrid()
+{
+	if (_debugger->showGrid()) {
+		uint8 *grid = _skyLogic->_skyGrid->giveGrid(Logic::_scriptVariables[SCREEN]);
+		if (grid) {
+			_skyScreen->showGrid(grid);
+			_skyScreen->forceRefresh();
+		}
+	}
+}
+
 
 } // End of namespace Sky

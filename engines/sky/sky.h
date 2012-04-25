@@ -100,6 +100,11 @@ protected:
 	// Engine APIs
 	Common::Error init();
 	Common::Error go();
+
+	void showGrid();
+
+	void performAutosave();
+
 	virtual Common::Error run() {
 		Common::Error err;
 		err = init();
@@ -113,6 +118,10 @@ protected:
 	byte _fastMode;
 
 	void delay(int32 amount);
+
+	void processEvents();
+	int calculateDelay(uint32 &delayCount);
+
 	void handleKey();
 
 	uint32 _lastSaveTime;

@@ -902,7 +902,6 @@ bool Intro::escDelay(uint32 msecs) {
 	if (_relDelay == 0) // first call, init with system time
 		_relDelay = (int32)_system->getMillis();
 
-	g_eventRec.sync();
 	_relDelay += msecs; // now wait until _system->getMillis() >= _relDelay
 
 	int32 nDelay = 0;

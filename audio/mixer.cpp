@@ -295,9 +295,9 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 				delete _channels[i];
 				_channels[i] = 0;
 			} else if (!_channels[i]->isPaused()) {
-					_totalsamples += len;
-					debug("samples = %d",_totalsamples);
-					tmp = _channels[i]->mix(buf, len);					
+			//		_totalsamples += len;
+			//		debug("samples = %d",_totalsamples);
+					tmp = _channels[i]->mix(buf, len);
 			
 				if (tmp > res)
 					res = tmp;
@@ -618,7 +618,6 @@ int Channel::mix(int16 *data, uint len) {
 		assert(_converter);
 		_samplesConsumed = _samplesDecoded;
 		_mixerTimeStamp = g_system->getMillis();
-//		debug("mixer.cpp::mix(%d)",_mixerTimeStamp);
 		_pauseTime = 0;
 		res = _converter->flow(*_stream, data, len, _volL, _volR);
 		_samplesDecoded += res;
