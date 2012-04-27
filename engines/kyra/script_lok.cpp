@@ -423,7 +423,8 @@ int KyraEngine_LoK::o1_runWSAFromBeginningToEnd(EMCState *script) {
 	int wsaFrame = 0;
 
 	while (running) {
-		const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis();
+		const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
+		debug("script_lok.cpp::o1_runWSAFromBeginningToEnd(continueTime = %d)",continueTime);
 
 		_movieObjects[wsaIndex]->displayFrame(wsaFrame++, 0, xpos, ypos, 0, 0, 0);
 		if (wsaFrame >= _movieObjects[wsaIndex]->frames())
@@ -666,7 +667,8 @@ int KyraEngine_LoK::o1_displayWSAFrameOnHidPage(EMCState *script) {
 	int wsaIndex = stackPos(4);
 
 	_screen->hideMouse();
-	const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis();
+	const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
+	debug("script_lok.cpp::o1_displayWSAFrameOnHidPage(continueTime = %d)",continueTime);
 	_movieObjects[wsaIndex]->displayFrame(frame, 2, xpos, ypos, 0, 0, 0);
 	delayUntil(continueTime, false, true);
 	_screen->showMouse();
@@ -703,9 +705,11 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 					specialTime = ABS(specialTime);
 				}
 
+				debug("voiceTime = %d, specialTime = %d" ,voiceTime,specialTime);
 				voiceTime *= specialTime;
 				voiceTime /= 100;
 
+				debug("voiceSync = %d, voicePlayedTime = %d" , voiceSync, _sound->voicePlayedTime(_speechHandle));
 				if (voiceSync) {
 					uint32 voicePlayedTime = _sound->voicePlayedTime(_speechHandle);
 					if (voicePlayedTime >= voiceTime)
@@ -1012,8 +1016,9 @@ int KyraEngine_LoK::o1_walkCharacterToPoint(EMCState *script) {
 
 		setCharacterPosition(character, 0);
 		++curPos;
-
-		delayUntil(nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(), true, true);
+		uint32 delaytime = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+		debug("script_lok.cpp::go1_walkCharacterToPoint(%d)",delaytime);
+		delayUntil(nextFrame = delaytime, true, true);
 	}
 	return 0;
 }

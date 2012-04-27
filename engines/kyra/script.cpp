@@ -205,6 +205,7 @@ bool EMCInterpreter::run(EMCState *script) {
 		error("Unknown script opcode: %d in file '%s' at offset 0x%.08X", opcode, script->dataPtr->filename, instOffset);
 	} else {
 		debugC(5, kDebugLevelScript, "[0x%.08X] EMCInterpreter::%s([%d/%u])", instOffset, _opcodes[opcode].desc, _parameter, (uint)_parameter);
+		debug("[0x%.08X] EMCInterpreter::%s([%d/%u])", instOffset, _opcodes[opcode].desc, _parameter, (uint)_parameter);
 		(this->*(_opcodes[opcode].proc))(script);
 	}
 

@@ -71,6 +71,8 @@ public:
 	MutexRef _recorderMutex;
 	NullSdlMixerManager* _mixer;
 	SdlMixerManager* createMixerManager();
+	uint32 getRandomNumber(uint& rnd);
+	uint32 getRandomSeed();
 
 private:
 	bool notifyEvent(const Event &ev);
@@ -109,7 +111,7 @@ private:
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
 	volatile uint32 _fakeTimer;
-
+	volatile uint32 _randomNumber;
 	volatile uint32 _playbackCount;
 	volatile uint32 _playbackDiff;
 	volatile bool _hasPlaybackEvent;

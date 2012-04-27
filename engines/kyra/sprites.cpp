@@ -252,7 +252,7 @@ void Sprites::updateSceneAnims() {
 			_anims[i].sprite = READ_LE_UINT16(data);
 			_anims[i].flipX = false;
 			data += 2;
-			_anims[i].lastRefresh = g_eventRec.getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis(true);
 			debug("sprites.cpp::updateSceneAnimsFF90(%d)",_anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
@@ -263,7 +263,7 @@ void Sprites::updateSceneAnims() {
 			_anims[i].sprite = READ_LE_UINT16(data);
 			_anims[i].flipX = true;
 			data += 2;
-			_anims[i].lastRefresh = g_eventRec.getMillis();
+			_anims[i].lastRefresh = g_eventRec.getMillis(true);
 			debug("sprites.cpp::updateSceneAnimsFF91(%d)",_anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;

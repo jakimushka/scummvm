@@ -627,7 +627,8 @@ void KyraEngine_LoK::itemSpecialFX2(int x, int y, int item) {
 
 	for (int i = 201; i <= 205; ++i) {
 		restoreItemRect0(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 3 * _tickLength;
+		uint32 nextTime = g_eventRec.getMillis(true) + 3 * _tickLength;
+		debug("items_lok.cpp::itemSpecialFX2_first(nextTime = %d)",nextTime);
 		_screen->drawShape(0, _shapes[i], x, y + yAdd, 0, 0);
 		_screen->updateScreen();
 		delayUntil(nextTime);
@@ -635,7 +636,8 @@ void KyraEngine_LoK::itemSpecialFX2(int x, int y, int item) {
 
 	for (int i = 204; i >= 201; --i) {
 		restoreItemRect0(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 3 * _tickLength;
+		uint32 nextTime = g_eventRec.getMillis(true) + 3 * _tickLength;
+		debug("items_lok.cpp::itemSpecialFX2_second(nextTime = %d)",nextTime);
 		_screen->drawShape(0, _shapes[216 + item], x, y, 0, 0);
 		_screen->drawShape(0, _shapes[i], x, y + yAdd, 0, 0);
 		_screen->updateScreen();

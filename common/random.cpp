@@ -32,11 +32,10 @@ RandomSource::RandomSource(const String &name) {
 	assert(g_system);
 	uint32 seed = g_system->getMillis();
 	setSeed(seed);
-
 	// Register this random source with the event recorder. This may end
 	// up querying or resetting the current seed, so we must call it
 	// *after* the initial seed has been set.
-	g_eventRec.registerRandomSource(*this, name);
+//	g_eventRec.registerRandomSource(*this, name);
 }
 
 void RandomSource::setSeed(uint32 seed) {
@@ -45,9 +44,11 @@ void RandomSource::setSeed(uint32 seed) {
 
 uint RandomSource::getRandomNumber(uint max) {
 	_randSeed = 0xDEADBF03 * (_randSeed + 1);
-	_randSeed = (_randSeed >> 13) | (_randSeed << 19);
-	return _randSeed % (max + 1);
-}
+	uint result = _randSeed % (max + 1);
+	g_eventRec.getRandomNumber(result);
+	debug("random.cpp::getRandomNumber(result = %d)", result);
+	return result;
+} 
 
 uint RandomSource::getRandomBit() {
 	_randSeed = 0xDEADBF03 * (_randSeed + 1);

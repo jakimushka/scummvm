@@ -1039,7 +1039,8 @@ void Screen::shuffleScreen(int sx, int sy, int w, int h, int srcPage, int dstPag
 	int32 start, now;
 	int wait;
 	for (y = 0; y < h && !_vm->shouldQuit(); ++y) {
-		start = (int32)g_eventRec.getMillis();
+		start = (int32)g_eventRec.getMillis(true);
+		debug("screen.cpp::shuffleScreen(start = %d)",start);
 		int y_cur = y;
 		for (x = 0; x < w; ++x) {
 			int i = sx + x_offs[x];
@@ -1055,7 +1056,8 @@ void Screen::shuffleScreen(int sx, int sy, int w, int h, int srcPage, int dstPag
 		// forcing full update for now
 		_forceFullUpdate = true;
 		updateScreen();
-		now = (int32)g_eventRec.getMillis();
+		now = (int32)g_eventRec.getMillis(true);
+		debug("screen.cpp::shuffleScreen_now(now = %d)",now);
 		wait = ticks * _vm->tickLength() - (now - start);
 		if (wait > 0)
 			_vm->delay(wait);

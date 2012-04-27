@@ -34,6 +34,8 @@ NullSdlMixerManager::NullSdlMixerManager() : SdlMixerManager() {
 }
 
 NullSdlMixerManager::~NullSdlMixerManager() {
+	_audioFile->finalize();
+	delete _audioFile;
 	delete _samplesBuf;
 }
 
@@ -70,7 +72,12 @@ void NullSdlMixerManager::callbackHandler(byte *samples, int len) {
 
 void NullSdlMixerManager::update() {
 	_callsCounter++;	
-	if (_callsCounter % _callbackPeriod) {
+
+	static uint32 counter = 0;
+	
+	if ((_callsCounter % _callbackPeriod) == 0) {
 		callbackHandler(_samplesBuf, _samples);
 	}
+	counter += _samples;
+	_audioFile->write(_samplesBuf,_samples);
 }

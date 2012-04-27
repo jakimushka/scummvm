@@ -50,6 +50,7 @@
 #include "gui/debugger.h"
 #include "gui/dialog.h"
 #include "gui/message.h"
+#include "common/EventRecorder.h"
 
 #include "audio/mixer.h"
 
@@ -111,9 +112,9 @@ Engine::Engine(OSystem *syst)
 		_pauseLevel(0),
 		_pauseStartTime(0),
 		_saveSlotToLoad(-1),
-		_engineStartTime(_system->getMillis()),
+		_engineStartTime(g_eventRec.getMillis(true)),
 		_mainMenuDialog(NULL) {
-
+	debug("engine.cpp::Engine(_engineStartTime = %d)",_engineStartTime);
 	g_engine = this;
 	Common::setErrorOutputFormatter(defaultOutputFormatter);
 	Common::setErrorHandler(defaultErrorHandler);
@@ -376,7 +377,8 @@ void Engine::checkCD() {
 }
 
 bool Engine::shouldPerformAutoSave(int lastSaveTime) {
-	const int diff = _system->getMillis() - lastSaveTime;
+	const int diff = g_eventRec.getMillis(true) - lastSaveTime;
+	debug("engine.cpp::shouldPerformAutoSave(diff  = %d)",diff);
 	const int autosavePeriod = ConfMan.getInt("autosave_period");
 	return autosavePeriod != 0 && diff > autosavePeriod * 1000;
 }
@@ -394,11 +396,13 @@ void Engine::pauseEngine(bool pause) {
 		_pauseLevel--;
 
 	if (_pauseLevel == 1 && pause) {
-		_pauseStartTime = _system->getMillis();
+		_pauseStartTime = g_eventRec.getMillis(true);
+		debug("engine.cpp::pauseEngine(_pauseStartTime  = %d)",_pauseStartTime);
 		pauseEngineIntern(true);
 	} else if (_pauseLevel == 0) {
 		pauseEngineIntern(false);
-		_engineStartTime += _system->getMillis() - _pauseStartTime;
+		_engineStartTime += g_eventRec.getMillis(true) - _pauseStartTime;
+		debug("engine.cpp::pauseEngine(_engineStartTime  = %d)",_engineStartTime);
 		_pauseStartTime = 0;
 	}
 }
@@ -447,13 +451,14 @@ bool Engine::warnUserAboutUnsupportedGame() {
 
 uint32 Engine::getTotalPlayTime() const {
 	if (!_pauseLevel)
-		return _system->getMillis() - _engineStartTime;
+		return g_eventRec.getMillis() - _engineStartTime;
 	else
 		return _pauseStartTime - _engineStartTime;
 }
 
 void Engine::setTotalPlayTime(uint32 time) {
-	const uint32 currentTime = _system->getMillis();
+	const uint32 currentTime = g_eventRec.getMillis(true);
+	debug("engine.cpp::setTotalPlayTime(currentTime  = %d)",currentTime);
 
 	// We need to reset the pause start time here in case the engine is already
 	// paused to avoid any incorrect play time counting.

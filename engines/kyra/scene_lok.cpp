@@ -226,7 +226,8 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 	switch (facing) {
 	case 0:
 		while (ypos < ch->y1) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis();
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			debug("scene_lok.cpp::moveCharacterToPos0(nextFrame = %d)",nextFrame);
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -234,7 +235,8 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 2:
 		while (ch->x1 < xpos) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis();
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			debug("scene_lok.cpp::moveCharacterToPos2(nextFrame = %d)",nextFrame);
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -242,7 +244,8 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 4:
 		while (ypos > ch->y1) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis();
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			debug("scene_lok.cpp::moveCharacterToPos4(nextFrame = %d)",nextFrame);
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -250,7 +253,8 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 6:
 		while (ch->x1 > xpos) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis();
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			debug("scene_lok.cpp::moveCharacterToPos6(nextFrame = %d)",nextFrame);
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}

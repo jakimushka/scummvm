@@ -298,8 +298,8 @@ void TimerManager::loadDataFromFile(Common::SeekableReadStream &file, int versio
 }
 
 void TimerManager::saveDataToFile(Common::WriteStream &file) const {
-	const uint32 saveTime = _isPaused ? _pauseStart : g_eventRec.getMillis();
-
+	const uint32 saveTime = _isPaused ? _pauseStart : g_eventRec.getMillis(true);
+	debug("timer.cpp::saveDataToFile(saveTimer = %d)",saveTime);
 	file.writeByte(count());
 	for (CIterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
 		file.writeByte(pos->id);

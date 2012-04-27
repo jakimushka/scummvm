@@ -65,6 +65,10 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 	case EVENT_DELAY:
 		event.time = _playbackFile->readUint32LE();
 		break;
+	case EVENT_RANDOM:
+		event.time = _playbackFile->readUint32LE();
+		event.count = _playbackFile->readUint32LE();
+		break;
 	case EVENT_KEYDOWN:
 	case EVENT_KEYUP:
 		event.time = _playbackFile->readUint32LE();
@@ -76,6 +80,7 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 		event.time = _playbackFile->readUint32LE();
 		event.count = _playbackFile->readUint32LE();
 		break;
+	case EVENT_MOUSEMOVE:
 	case EVENT_LBUTTONDOWN:
 	case EVENT_LBUTTONUP:
 	case EVENT_RBUTTONDOWN:
@@ -118,6 +123,11 @@ void EventRecorder::writeEvent(const Event &event) {
 		_recordFile->writeUint32LE((uint32)_fakeTimer);
 		_recordFile->writeUint32LE(_samplesCount);
 		break;
+	case EVENT_RANDOM:
+		_recordFile->writeUint32LE((uint32)_fakeTimer);
+		_recordFile->writeUint32LE(_randomNumber);
+		break;
+	case EVENT_MOUSEMOVE:
 	case EVENT_LBUTTONDOWN:
 	case EVENT_LBUTTONUP:
 	case EVENT_RBUTTONDOWN:
@@ -328,6 +338,12 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 			_fakeTimer = _nextEvent.time;
 			getNextEvent();
 		}
+		else {
+			millis = _fakeTimer;
+		}
+		if (!logging) {
+			millis = _fakeTimer;
+		}
 		millis = _fakeTimer;
 	}
 }
@@ -352,7 +368,6 @@ bool EventRecorder::notifyEvent(const Event &ev) {
 	checkForKeyCode(ev);
 	if (_recordMode != kRecorderRecord)
 		return false;
-	if (ev.type == EVENT_MOUSEMOVE) return false;
 	if ((ev.type == EVENT_LBUTTONDOWN) || (ev.type == EVENT_LBUTTONUP)) {
 		debug("%d %d %d %d %d",ev.type,_fakeTimer,_fakeTimer,ev.mouse.x,ev.mouse.y);
 	}
@@ -374,7 +389,7 @@ bool EventRecorder::pollEvent(Event &ev) {
 		return false;
 	}
 
-	if ((_nextEvent.type == EVENT_MOUSEMOVE) || (_nextEvent.type == EVENT_TIMER) || (_nextEvent.type == EVENT_DELAY) || (_nextEvent.type == EVENT_AUDIO)) {
+	if ((_nextEvent.type == EVENT_TIMER) || (_nextEvent.type == EVENT_DELAY) || (_nextEvent.type == EVENT_AUDIO)) {
 		return false;
 	}
 
@@ -386,6 +401,7 @@ bool EventRecorder::pollEvent(Event &ev) {
 	}
 	
 	switch (_nextEvent.type) {
+	case EVENT_MOUSEMOVE:
 	case EVENT_LBUTTONDOWN:
 	case EVENT_LBUTTONUP:
 	case EVENT_RBUTTONDOWN:
@@ -498,6 +514,37 @@ SdlMixerManager* EventRecorder::createMixerManager() {
 void EventRecorder::RegisterEventSource() {
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
 	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
+}
+
+uint32 EventRecorder::getRandomNumber(uint& rnd) {	
+	if (_recordMode == kRecorderRecord) {
+		_randomNumber = rnd;
+		Common::Event event;
+		event.type = EVENT_RANDOM;
+		writeEvent(event);
+		return _randomNumber;
+	}
+	else if (_recordMode == kRecorderPlayback) {
+		_randomNumber = _nextEvent.count;
+		rnd = _nextEvent.count;
+		getNextEvent();
+		return _randomNumber;
+	}
+}
+
+uint32 EventRecorder::getRandomSeed() {
+	if (_recordMode == kRecorderRecord) {
+		Common::Event event;
+		_randomNumber = g_system->getMillis();
+		event.type = EVENT_RANDOM;
+		writeEvent(event);
+		return _randomNumber;
+	}
+	else if (_recordMode == kRecorderPlayback) {
+		getNextEvent();
+		_randomNumber = _nextEvent.count;
+		return _randomNumber;
+	}
 }
 
 } // End of namespace Common
