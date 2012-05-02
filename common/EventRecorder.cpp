@@ -21,6 +21,7 @@
  */
 
 #include "common/EventRecorder.h"
+#include "common/debug-channels.h"
 #include "backends/timer/sdl/sdl-timer.h"
 #include "backends/mixer/sdl/sdl-mixer.h"
 #include "common/bufferedstream.h"
@@ -174,17 +175,17 @@ EventRecorder::~EventRecorder() {
 
 void EventRecorder::init() {
 	String recordModeString = ConfMan.get("record_mode");
+	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
 	if (recordModeString.compareToIgnoreCase("record") == 0) {
 		_recordMode = kRecorderRecord;
-
-		debug(3, "EventRecorder: record");
+		debugC(3, kDebugLevelEventRec, "EventRecorder: record");
 	} else {
 		if (recordModeString.compareToIgnoreCase("playback") == 0) {
 			_recordMode = kRecorderPlayback;
-			debug(3, "EventRecorder: playback");
+			debugC(3, kDebugLevelEventRec, "EventRecorder: playback");
 		} else {
 			_recordMode = kPassthrough;
-			debug(3, "EventRecorder: passthrough");
+			debugC(3, kDebugLevelEventRec, "EventRecorder: passthrough");
 		}
 	}
 
@@ -248,7 +249,7 @@ void EventRecorder::init() {
 }
 
 void EventRecorder::deinit() {
-	debug(3, "EventRecorder: deinit");
+	debugC(3, kDebugLevelEventRec, "EventRecorder: deinit");
 
 	g_system->getEventManager()->getEventDispatcher()->unregisterSource(this);
 	g_system->getEventManager()->getEventDispatcher()->unregisterObserver(this);
@@ -333,7 +334,7 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		StackLock lock(_recorderMutex);
 		if (_nextEvent.type == EVENT_TIMER) {
 			if (audioTime != 0) {
-				debug("AudioEventTime = %d, TimerTime = %d",audioTime,_nextEvent.time);
+				debugC(3, kDebugLevelEventRec, "AudioEventTime = %d, TimerTime = %d",audioTime,_nextEvent.time);
 			}
 			_fakeTimer = _nextEvent.time;
 			getNextEvent();
@@ -369,7 +370,7 @@ bool EventRecorder::notifyEvent(const Event &ev) {
 	if (_recordMode != kRecorderRecord)
 		return false;
 	if ((ev.type == EVENT_LBUTTONDOWN) || (ev.type == EVENT_LBUTTONUP)) {
-		debug("%d %d %d %d %d",ev.type,_fakeTimer,_fakeTimer,ev.mouse.x,ev.mouse.y);
+		debugC(3, kDebugLevelEventRec, "%d, %d, %d, %d, %d", ev.type, _fakeTimer, _fakeTimer, ev.mouse.x, ev.mouse.y);
 	}
 
 	writeEvent(ev);
@@ -397,7 +398,7 @@ bool EventRecorder::pollEvent(Event &ev) {
 		return false;
 	}
 	if ((_nextEvent.type == EVENT_LBUTTONDOWN) || (_nextEvent.type == EVENT_LBUTTONUP)) {
-		debug("%d %d %d %d %d",_nextEvent.type,_nextEvent.time,_fakeTimer,_nextEvent.mouse.x,_nextEvent.mouse.y);
+		debugC(3, kDebugLevelEventRec, "%d, %d, %d, %d, %d", _nextEvent.type, _nextEvent.time, _fakeTimer, _nextEvent.mouse.x, _nextEvent.mouse.y);
 	}
 	
 	switch (_nextEvent.type) {
@@ -438,25 +439,25 @@ void EventRecorder::decreaseEngineSpeed() {
 	if (_engineSpeedMultiplier != 1) {
 		_engineSpeedMultiplier = _engineSpeedMultiplier / 2;
 	}
-	debug("Decrease speed: %d",_engineSpeedMultiplier);
+	debugC(3, kDebugLevelEventRec, "Decrease speed: %d", _engineSpeedMultiplier);
 }
 
 void EventRecorder::increaseEngineSpeed() {
 	if (_engineSpeedMultiplier != 8) {
 		_engineSpeedMultiplier = _engineSpeedMultiplier * 2;
 	}
-	debug("Increase speed: %d",_engineSpeedMultiplier);
+	debugC(3, kDebugLevelEventRec, "Increase speed: %d", _engineSpeedMultiplier);
 }
 
 void EventRecorder::togglePause() {
 	switch (_recordMode) {
 	case kRecorderPlayback:	
 		_recordMode = kRecorderPlaybackPause;
-		debug("Pause");
+		debugC(3, kDebugLevelEventRec, "Pause");
 		break;
 	case kRecorderPlaybackPause:
 		_recordMode = kRecorderPlayback;
-		debug("Resume");
+		debugC(3, kDebugLevelEventRec, "Resume");
 		break;
 	}
 }

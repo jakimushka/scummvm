@@ -535,7 +535,7 @@ int GUI_LoK::buttonMenuCallback(Button *caller) {
 
 void GUI_LoK::getInput() {
 	uint32 now = g_eventRec.getMillis(true);
-	debug("gui_lok.cpp::getInput(%d)",now);
+	debugC(3, kDebugLevelEventRec, "%s_1(%d)", __FUNCTION__, now);
 
 	_vm->checkInput(_menuButtonList);
 	_vm->removeInputTop();
@@ -546,7 +546,7 @@ void GUI_LoK::getInput() {
 	}
 
 	g_eventRec.delayMillis(3,true);
-	debug("gui_lok.cpp::getInputdelay (3)");
+	debugC(3, kDebugLevelEventRec, "%s_2(3)", __FUNCTION__);
 }
 
 int GUI_LoK::resumeGame(Button *button) {

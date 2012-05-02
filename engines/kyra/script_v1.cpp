@@ -50,7 +50,7 @@ int KyraEngine_v1::o1_getRand(EMCState *script) {
 	if (max < min)
 		SWAP(min, max);
 	int result = _rnd.getRandomNumberRng(min, max);
-	debug("KyraEngine_v1::o1_getRandResult = %d)", result);
+	debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, result);
 	return result;
 }
 

@@ -276,7 +276,7 @@ void MidiOutput::sysEx(const byte *msg, uint16 length) {
 
 	_output->sysEx(msg, length);
 	g_eventRec.delayMillis(delay,true);
-	debug("sound_midi.cpp::sysEx(%d)",delay);
+	debugC(3, kDebugLevelEventRec, "sound_midi.cpp::sysEx(%d)", delay);
 }
 
 void MidiOutput::sendSysEx(const byte p1, const byte p2, const byte p3, const byte *buffer, const int size) {
@@ -714,7 +714,7 @@ void SoundMidiPC::beginFadeOut() {
 
 	_fadeMusicOut = true;
 	_fadeStartTime = g_eventRec.getMillis(true);
-	debug("sound_midi.cpp::beginFadeOut(%d)",_fadeStartTime);
+	debugC(3, kDebugLevelEventRec, "sound_midi.cpp::beginFadeOut(%d)", _fadeStartTime);
 }
 
 void SoundMidiPC::pause(bool paused) {

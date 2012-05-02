@@ -64,14 +64,14 @@ void TimerManager::pause(bool p) {
 		if (_isPaused == 1) {
 			_isPaused = true;
 			_pauseStart = g_eventRec.getMillis(true);
-			debug("timer.cpp::pause(_pauseStart = %d)",_pauseStart);
+			debugC(3, kDebugLevelEventRec, "%s(_pauseStart = %d)", __FUNCTION__, _pauseStart);
 		}
 	} else if (!p && _isPaused > 0) {
 		--_isPaused;
 
 		if (_isPaused == 0) {
 			const uint32 pausedTime = g_eventRec.getMillis(true) - _pauseStart;
-			debug("timer.cpp::pause(pausedTime = %d)",pausedTime);
+			debugC(3, kDebugLevelEventRec, "%s(pausedTime = %d)", __FUNCTION__, pausedTime);
 			_nextRun += pausedTime;
 
 			for (Iterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
@@ -110,7 +110,7 @@ void TimerManager::addTimer(uint8 id, TimerFunc *func, int countdown, bool enabl
 
 void TimerManager::update() {
 	uint32 timerUpdateTime = g_eventRec.getMillis(true);
-	debug("timer.cpp::updateFirstCondition(%d %d)",timerUpdateTime, _nextRun);
+	debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, timerUpdateTime, _nextRun);
 	if (timerUpdateTime < _nextRun || _isPaused)
 		return;
 
@@ -119,14 +119,14 @@ void TimerManager::update() {
 	for (Iterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
 		if (pos->enabled == 1 && pos->countdown >= 0) {
 			timerUpdateTime = g_eventRec.getMillis(true);
-			debug("timer.cpp::updateSecondCondition(%d %d)",timerUpdateTime, _nextRun);
+			debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, timerUpdateTime, _nextRun);
 			if (pos->nextRun <= timerUpdateTime) {
 				if (pos->func && pos->func->isValid()) {
 					(*pos->func)(pos->id);
 				}
 
 				uint32 curTime = g_eventRec.getMillis(true);
-				debug("timer.cpp::updateCurrTime(%d)",curTime);
+				debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, curTime);
 				pos->lastUpdate = curTime;
 				pos->nextRun = curTime + pos->countdown * _vm->tickLength();
 			}
@@ -154,7 +154,7 @@ void TimerManager::setCountdown(uint8 id, int32 countdown) {
 
 		if (countdown >= 0) {
 			uint32 curTime = g_eventRec.getMillis(true);
-			debug("timer.cpp::setCountdown(%d, %d)",curTime, countdown);
+			debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, curTime, countdown);
 			timer->lastUpdate = curTime;
 			timer->nextRun = curTime + countdown * _vm->tickLength();
 			if (timer->enabled & 2)

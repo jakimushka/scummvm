@@ -119,7 +119,7 @@ void Sprites::setupSceneAnims() {
 
 void Sprites::updateSceneAnims() {
 	uint32 currTime = g_eventRec.getMillis(true);
-	debug("sprites.cpp::updateSceneAnims(%d)",currTime);
+	debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, currTime);
 	bool update;
 	uint8 *data;
 	uint16 rndNr;
@@ -151,7 +151,7 @@ void Sprites::updateSceneAnims() {
 			data += 2;
 			_anims[i].flipX = false;
 			_anims[i].lastRefresh = g_eventRec.getMillis(true);
-			debug("sprites.cpp::updateSceneAnimsFF88(%d)",_anims[i].lastRefresh);
+			debugC(3, kDebugLevelEventRec, "%sFF88(%d)", __FUNCTION__, _anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF8D:
@@ -177,7 +177,7 @@ void Sprites::updateSceneAnims() {
 			debugC(6, kDebugLevelSprites, "Time %i", READ_LE_UINT16(data));
 			_anims[i].nextRun = g_eventRec.getMillis(true) + READ_LE_UINT16(data) * _vm->tickLength();
 			_anims[i].nextRun -= g_eventRec.getMillis(true) - _anims[i].lastRefresh;
-			debug("sprites.cpp::updateSceneAnimsFF8A(%d)",_anims[i].nextRun);
+			debugC(3, kDebugLevelEventRec, "%sFF8A(%d)", __FUNCTION__, _anims[i].nextRun);
 			data += 2;
 			break;
 		case 0xFFB3:
@@ -190,7 +190,7 @@ void Sprites::updateSceneAnims() {
 			data += 2;
 			_anims[i].nextRun = g_eventRec.getMillis(true) + rndNr * _vm->tickLength();
 			_anims[i].nextRun -= g_eventRec.getMillis(true) - _anims[i].lastRefresh;
-			debug("sprites.cpp::updateSceneAnimsFFB3(%d)",_anims[i].nextRun);
+			debugC(3, kDebugLevelEventRec, "%sFFB3(%d)", __FUNCTION__, _anims[i].nextRun);
 			break;
 		case 0xFF8C:
 			data += 2;
@@ -226,7 +226,7 @@ void Sprites::updateSceneAnims() {
 			debugC(6, kDebugLevelSprites, "func: Jump to start of script section");
 			_anims[i].curPos = _anims[i].script;
 			_anims[i].nextRun = g_eventRec.getMillis(true);
-			debug("sprites.cpp::updateSceneAnimsFF8B(%d)",_anims[i].nextRun);
+			debugC(3, kDebugLevelEventRec, "%sFF8B(%d)", __FUNCTION__, _anims[i].nextRun);
 			update = false;
 			break;
 		case 0xFF8E:
@@ -253,7 +253,7 @@ void Sprites::updateSceneAnims() {
 			_anims[i].flipX = false;
 			data += 2;
 			_anims[i].lastRefresh = g_eventRec.getMillis(true);
-			debug("sprites.cpp::updateSceneAnimsFF90(%d)",_anims[i].lastRefresh);
+			debugC(3, kDebugLevelEventRec, "%sFF90(%d)", __FUNCTION__, _anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF91:
@@ -264,7 +264,7 @@ void Sprites::updateSceneAnims() {
 			_anims[i].flipX = true;
 			data += 2;
 			_anims[i].lastRefresh = g_eventRec.getMillis(true);
-			debug("sprites.cpp::updateSceneAnimsFF91(%d)",_anims[i].lastRefresh);
+			debugC(3, kDebugLevelEventRec, "%sFF91(%d)", __FUNCTION__, _anims[i].lastRefresh);
 			refreshSceneAnimObject(i, _anims[i].sprite, _anims[i].x, _anims[i].y, _anims[i].flipX, _anims[i].unk1 != 0);
 			break;
 		case 0xFF92:

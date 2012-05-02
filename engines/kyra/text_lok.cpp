@@ -36,7 +36,7 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	uint8 currPage;
 
 	uint32 timeToEnd = strlen(chatStr) * 8 * _tickLength + g_eventRec.getMillis(true);
-	debug("text_lok.cpp::waitForChatTimeToEnd(%d)",timeToEnd);
+	debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, timeToEnd);
 
 	if (textEnabled() && !speechEnabled() && chatDuration != -1) {
 		switch (_configTextspeed) {
@@ -63,17 +63,17 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	_timer->disable(19);
 
 	uint32 timeAtStart = g_eventRec.getMillis(true);
-	debug("text_lok.cpp::waitForChatTimeAtStart(%d)",timeAtStart);
+	debugC(3, kDebugLevelEventRec, "%s_1(timeAtStart = %d)", __FUNCTION__, timeAtStart);
 	uint32 loopStart;
 	while (runLoop) {
 		loopStart = g_eventRec.getMillis(true);
-		debug("text_lok.cpp::waitForChatloopStart(%d)",loopStart);
+		debugC(3, kDebugLevelEventRec, "%s_2(loopStart = %d)", __FUNCTION__, loopStart);
 		if (_currentCharacter->sceneId == 210)
 			if (seq_playEnd())
 				break;
 
 		uint32 chatacterSays = g_eventRec.getMillis(true);
-		debug("text_lok.cpp::chatacterSays(%d, %d)",chatacterSays,timeToEnd);
+		debugC(3, kDebugLevelEventRec, "%s_3(chatacterSays = %d, timeToEnd =%d)", __FUNCTION__, chatacterSays, timeToEnd);
 		if (chatacterSays > timeToEnd && !hasUpdatedNPCs) {
 			hasUpdatedNPCs = true;
 			_timer->disable(15);
@@ -107,34 +107,31 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 		if (chatacterSays == 19570) {
 			debug("%d",chatacterSays);
 		}
-		debug("chatacterSays %d %d %d %d %d",chatacterSays,chatDuration,chatacterSays - timeAtStart,printText,snd_voiceIsPlaying());
+		debugC(3, kDebugLevelEventRec, "%s_4(%d, %d, %d, %d, %d)", __FUNCTION__, chatacterSays, chatDuration, chatacterSays - timeAtStart, printText, snd_voiceIsPlaying());
 
 		if (((chatDuration < (int16)(chatacterSays - timeAtStart)) && chatDuration != -1 && printText) || (!printText && !snd_voiceIsPlaying()))
 			break;
 
 		uint32 nextTime = loopStart + _tickLength;
-		debug("chatacterSaysNextTime %d %d %d",nextTime,loopStart,_tickLength);
+		debugC(3, kDebugLevelEventRec, "%s_5(%d, %d, %d)", __FUNCTION__, nextTime, loopStart, _tickLength);
 
 		uint32 chatmills;
 		while ((chatmills = g_eventRec.getMillis(true)) < nextTime) {
-			debug("text_lok.cpp::waitForChatToFinishLoop(%d,%d)",chatmills, nextTime);
+			debugC(3, kDebugLevelEventRec, "%s_6(%d,%d)", __FUNCTION__, chatmills, nextTime);
 			updateInput();
 
 			if (skipFlag()) {
-				debug("text_lok.cpp::waitForChatToFinishSkipFlag(%d)",skipFlag());
 				runLoop = false;
 				break;
 			}
 			
 			chatmills =  g_eventRec.getMillis(true);
-			debug("text_lok.cpp::waitForChatToFinishIf(%d)",nextTime - chatmills);
+			debugC(3, kDebugLevelEventRec, "%s_7(%d)", __FUNCTION__, nextTime - chatmills);
 			if (nextTime - chatmills >= 10) {
 				g_eventRec.delayMillis(10,true);
-				debug("text_lok.cpp::waitForChatDelayMillis(10)");
 				_system->updateScreen();
 			}
 		}
-		debug("text_lok.cpp::waitForChatToFinishEndLoop(%d,%d)",chatmills, nextTime);
 	}
 
 	if (skipFlag()) {

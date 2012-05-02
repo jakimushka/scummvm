@@ -944,10 +944,10 @@ int KyraEngine_LoK::processSceneChange(int *table, int unk1, int frameReset) {
 			++table;
 
 		nextFrame = _timer->getDelay(5) * _tickLength + g_eventRec.getMillis(true);
-		debug("scene_lok.cpp::processSceneChange(%d)",nextFrame);
+		debugC(3, kDebugLevelEventRec, "%s_1(%d)", __FUNCTION__, nextFrame);
 		uint32 processSceneChangemsec;
 		while ((processSceneChangemsec = g_eventRec.getMillis(true)) < nextFrame) {
-			debug("scene_lok.cpp::processSceneChangeLoop(%d)",processSceneChangemsec);
+			debugC(3, kDebugLevelEventRec, "%s_2(%d)", __FUNCTION__, processSceneChangemsec);
 			_timer->update();
 
 			if (_currentCharacter->sceneId == 210) {
@@ -960,11 +960,11 @@ int KyraEngine_LoK::processSceneChange(int *table, int unk1, int frameReset) {
 			}
 
 			uint32 processSceneChangemsecCondition = g_eventRec.getMillis(true);
-			debug("scene_lok.cpp::processSceneChangeLoopCondition(%d)",processSceneChangemsecCondition);
+			debugC(3, kDebugLevelEventRec, "%s_3(%d)", __FUNCTION__, processSceneChangemsecCondition);
 			if ((nextFrame - processSceneChangemsecCondition) >= 10)
 				delay(10, true);
 		}
-		debug("scene_lok.cpp::processSceneChangeLoopFinish(%d)",processSceneChangemsec);
+		debugC(3, kDebugLevelEventRec, "%s_4(%d)", __FUNCTION__, processSceneChangemsec);
 	}
 
 	if (frameReset && !(_brandonStatusBit & 2))

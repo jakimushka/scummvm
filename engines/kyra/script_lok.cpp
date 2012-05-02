@@ -424,7 +424,7 @@ int KyraEngine_LoK::o1_runWSAFromBeginningToEnd(EMCState *script) {
 
 	while (running) {
 		const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-		debug("script_lok.cpp::o1_runWSAFromBeginningToEnd(continueTime = %d)",continueTime);
+		debugC(3, kDebugLevelEventRec, "%s(continueTime = %d)", __FUNCTION__, continueTime);
 
 		_movieObjects[wsaIndex]->displayFrame(wsaFrame++, 0, xpos, ypos, 0, 0, 0);
 		if (wsaFrame >= _movieObjects[wsaIndex]->frames())
@@ -448,7 +448,7 @@ int KyraEngine_LoK::o1_displayWSAFrame(EMCState *script) {
 	_screen->hideMouse();
 	uint32 msecs = g_eventRec.getMillis(true);
 	const uint32 continueTime = waitTime * _tickLength + msecs;
-	debug("script_lok.cpp::o1_displayWSAFrame(%d %d %d %d)",continueTime, waitTime, tickLength(), msecs);
+	debugC(3, kDebugLevelEventRec, "%s(%d, %d, %d, %d)", __FUNCTION__, continueTime, waitTime, tickLength(), msecs);
 	_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 	delayUntil(continueTime, false, true);
 	_screen->showMouse();
@@ -668,7 +668,7 @@ int KyraEngine_LoK::o1_displayWSAFrameOnHidPage(EMCState *script) {
 
 	_screen->hideMouse();
 	const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-	debug("script_lok.cpp::o1_displayWSAFrameOnHidPage(continueTime = %d)",continueTime);
+	debugC(3, kDebugLevelEventRec, "%s(continueTime = %d)", __FUNCTION__, continueTime);
 	_movieObjects[wsaIndex]->displayFrame(frame, 2, xpos, ypos, 0, 0, 0);
 	delayUntil(continueTime, false, true);
 	_screen->showMouse();
@@ -705,11 +705,11 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 					specialTime = ABS(specialTime);
 				}
 
-				debug("voiceTime = %d, specialTime = %d" ,voiceTime,specialTime);
+				debugC(3, kDebugLevelEventRec, "%s_1(voiceTime = %d, specialTime = %d)", __FUNCTION__, voiceTime, specialTime);
 				voiceTime *= specialTime;
 				voiceTime /= 100;
 
-				debug("voiceSync = %d, voicePlayedTime = %d" , voiceSync, _sound->voicePlayedTime(_speechHandle));
+				debugC(3, kDebugLevelEventRec, "%s_2(voiceSync = %d, voicePlayedTime = %d)", __FUNCTION__, voiceSync, _sound->voicePlayedTime(_speechHandle));
 				if (voiceSync) {
 					uint32 voicePlayedTime = _sound->voicePlayedTime(_speechHandle);
 					if (voicePlayedTime >= voiceTime)
@@ -719,7 +719,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 				}
 
 				waitTime = voiceTime / displayFrames;
-				debug("script_loc.cpp::o1_displayWSASequentialFrames voiceTime = %d, displayFrames = %d" ,voiceTime,displayFrames);
+				debugC(3, kDebugLevelEventRec, "%s_3(voiceTime = %d, displayFrames = %d)", __FUNCTION__, voiceTime, displayFrames);
 				waitTime /= _tickLength;
 			}
 		}
@@ -752,7 +752,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 			while (endFrame >= frame) {
 				uint32 msecs= g_eventRec.getMillis(true);
 				const uint32 continueTime = waitTime * _tickLength + msecs;
-				debug("script_loc.cpp::o1_displayWSASequentialFrames(%d %d %d %d)",msecs,waitTime,_tickLength, continueTime);
+				debugC(3, kDebugLevelEventRec, "%s_1(%d, %d, %d, %d)", __FUNCTION__, msecs, waitTime, _tickLength, continueTime);
 				_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 				delayUntil(continueTime, false, true);
 				++frame;
@@ -761,7 +761,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 			int frame = startFrame;
 			while (endFrame <= frame) {
 				const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-				debug("script_loc.cpp::o1_displayWSASequentialFramesNext(%d)",continueTime);
+				debugC(3, kDebugLevelEventRec, "%s_2(%d)", __FUNCTION__, continueTime);
 				_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 				delayUntil(continueTime, false, true);
 				--frame;
@@ -1017,7 +1017,7 @@ int KyraEngine_LoK::o1_walkCharacterToPoint(EMCState *script) {
 		setCharacterPosition(character, 0);
 		++curPos;
 		uint32 delaytime = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
-		debug("script_lok.cpp::go1_walkCharacterToPoint(%d)",delaytime);
+		debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, delaytime);
 		delayUntil(nextFrame = delaytime, true, true);
 	}
 	return 0;
