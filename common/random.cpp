@@ -46,7 +46,6 @@ uint RandomSource::getRandomNumber(uint max) {
 	_randSeed = 0xDEADBF03 * (_randSeed + 1);
 	uint result = _randSeed % (max + 1);
 	g_eventRec.getRandomNumber(result);
-	debug("random.cpp::getRandomNumber(result = %d)", result);
 	return result;
 } 
 

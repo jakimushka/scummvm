@@ -210,7 +210,6 @@ Common::Error KyraEngine_v1::init() {
 	setupKeyMap();
 
 	// Prevent autosave on game startup
-	debug("kyra_v1.cpp::init()");
 	_lastAutosave = g_eventRec.getMillis(true);
 
 	return Common::kNoError;

@@ -742,14 +742,10 @@ void SoundMidiPC::onTimer(void *data) {
 	if (midi->_fadeMusicOut) {
 		static const uint32 musicFadeTime = 1 * 1000;
 
-//		uint32 midisec = g_eventRec.getMillis(true);
 		uint32 midisec = g_system->getMillis();
-//		debug("sound_midi.cpp::onTimerCondition(%d %d)",midi->_fadeStartTime + musicFadeTime, midisec);
 		if (midi->_fadeStartTime + musicFadeTime > midisec) {
-//			midisec = g_eventRec.getMillis(true);
 			midisec = g_system->getMillis();
 			int volume = (byte)((musicFadeTime - (midisec - midi->_fadeStartTime)) * midi->_musicVolume / musicFadeTime);
-//			debug("sound_midi.cpp::onTimerVolume(%d %d)",midisec, (musicFadeTime - (midisec - midi->_fadeStartTime)) * midi->_musicVolume / musicFadeTime);
 			midi->_output->setSourceVolume(0, volume, true);
 		} else {
 			for (int i = 0; i < 16; ++i)

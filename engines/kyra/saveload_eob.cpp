@@ -32,7 +32,6 @@
 #include "common/translation.h"
 #include "common/EventRecorder.h"
 #include "gui/message.h"
-#include "common/EventRecorder.h"
 namespace Kyra {
 
 Common::Error EoBCoreEngine::loadGameState(int slot) {

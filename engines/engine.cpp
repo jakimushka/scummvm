@@ -114,7 +114,6 @@ Engine::Engine(OSystem *syst)
 		_saveSlotToLoad(-1),
 		_engineStartTime(g_eventRec.getMillis(true)),
 		_mainMenuDialog(NULL) {
-	debug("engine.cpp::Engine(_engineStartTime = %d)",_engineStartTime);
 	g_engine = this;
 	Common::setErrorOutputFormatter(defaultOutputFormatter);
 	Common::setErrorHandler(defaultErrorHandler);
@@ -378,7 +377,6 @@ void Engine::checkCD() {
 
 bool Engine::shouldPerformAutoSave(int lastSaveTime) {
 	const int diff = g_eventRec.getMillis(true) - lastSaveTime;
-	debug("engine.cpp::shouldPerformAutoSave(diff  = %d)",diff);
 	const int autosavePeriod = ConfMan.getInt("autosave_period");
 	return autosavePeriod != 0 && diff > autosavePeriod * 1000;
 }
@@ -397,12 +395,10 @@ void Engine::pauseEngine(bool pause) {
 
 	if (_pauseLevel == 1 && pause) {
 		_pauseStartTime = g_eventRec.getMillis(true);
-		debug("engine.cpp::pauseEngine(_pauseStartTime  = %d)",_pauseStartTime);
 		pauseEngineIntern(true);
 	} else if (_pauseLevel == 0) {
 		pauseEngineIntern(false);
 		_engineStartTime += g_eventRec.getMillis(true) - _pauseStartTime;
-		debug("engine.cpp::pauseEngine(_engineStartTime  = %d)",_engineStartTime);
 		_pauseStartTime = 0;
 	}
 }
@@ -458,7 +454,6 @@ uint32 Engine::getTotalPlayTime() const {
 
 void Engine::setTotalPlayTime(uint32 time) {
 	const uint32 currentTime = g_eventRec.getMillis(true);
-	debug("engine.cpp::setTotalPlayTime(currentTime  = %d)",currentTime);
 
 	// We need to reset the pause start time here in case the engine is already
 	// paused to avoid any incorrect play time counting.

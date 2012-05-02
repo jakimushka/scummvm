@@ -295,8 +295,6 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 				delete _channels[i];
 				_channels[i] = 0;
 			} else if (!_channels[i]->isPaused()) {
-			//		_totalsamples += len;
-			//		debug("samples = %d",_totalsamples);
 					tmp = _channels[i]->mix(buf, len);
 			
 				if (tmp > res)
@@ -569,7 +567,6 @@ void Channel::pause(bool paused) {
 
 		if (_pauseLevel == 1) {
 			_pauseStartTime = g_eventRec.getMillis(true);
-			debug("mixer.cpp::pause(%d )",_pauseStartTime);
 		}
 
 	} else if (_pauseLevel > 0) {
@@ -578,7 +575,6 @@ void Channel::pause(bool paused) {
 		if (!_pauseLevel) {
 			_pauseTime = (g_eventRec.getMillis(true) - _pauseStartTime);
 			_pauseStartTime = 0;
-			debug("mixer.cpp::pause2(%d )",_pauseTime);
 		}
 	}
 }
@@ -596,7 +592,6 @@ Timestamp Channel::getElapsedTime() {
 		delta = _pauseStartTime - _mixerTimeStamp;
 	else {
 		delta = g_eventRec.getMillis(true) - _mixerTimeStamp - _pauseTime;
-		debug("mixer.cpp::getElapsedTime(%d)",delta);
 	}
 
 	// Convert the number of samples into a time duration.
@@ -624,7 +619,6 @@ int Channel::mix(int16 *data, uint len) {
 		assert(_converter);
 		_samplesConsumed = _samplesDecoded;
 		_mixerTimeStamp = g_eventRec.getMillis(true);
-		debug("mixer.cpp::mix(%d )",_mixerTimeStamp);
 		_pauseTime = 0;
 		res = _converter->flow(*_stream, data, len, _volL, _volR);
 		_samplesDecoded += res;

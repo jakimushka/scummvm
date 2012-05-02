@@ -23,7 +23,6 @@
 #include "kyra/seqplayer.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
 #include "common/system.h"
 #include "common/EventRecorder.h"
 #define SEQOP(n, x) { n, &SeqPlayer::x, #x }

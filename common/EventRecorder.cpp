@@ -342,9 +342,6 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		else {
 			millis = _fakeTimer;
 		}
-		if (!logging) {
-			millis = _fakeTimer;
-		}
 		millis = _fakeTimer;
 	}
 }

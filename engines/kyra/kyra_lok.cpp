@@ -537,8 +537,8 @@ void KyraEngine_LoK::delay(uint32 amount, bool update, bool isMainLoop) {
 		
 		debugC(3, kDebugLevelEventRec, "%s(%d, %d, %d)", __FUNCTION__, amount, skipFlag(), shouldQuit());
 		if (amount > 0 && !skipFlag() && !shouldQuit())	{
-				g_eventRec.delayMillis(10,true);
-				debugC(3, kDebugLevelEventRec, "%s(10)", __FUNCTION__);
+			g_eventRec.delayMillis(10,true);
+			debugC(3, kDebugLevelEventRec, "%s(10)", __FUNCTION__);
 		}
 
 		// FIXME: Major hackery to allow skipping the intro
