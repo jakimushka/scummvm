@@ -31,6 +31,7 @@
 #include "common/queue.h"
 #include "backends/mixer/sdl/sdl-mixer.h"
 #include "backends/mixer/nullmixer/nullsdl-mixer.h"
+#include "engines/advancedDetector.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
 
@@ -73,9 +74,13 @@ public:
 	SdlMixerManager* createMixerManager();
 	uint32 getRandomNumber(uint& rnd);
 	uint32 getRandomSeed();
-
+	void initRecord(Common::String gameid, const ADGameDescription* desc = NULL);
 private:
+	void openRecordFile(Common::String gameId);
+	void checkGameHash(const ADGameDescription* desc);
+	void writeGameHash(const ADGameDescription* desc);
 	bool notifyEvent(const Event &ev);
+	Common::String readString();
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
@@ -107,19 +112,15 @@ private:
 	volatile uint32 _lastEventMillis;
 	volatile uint32 _delayMillis;
 	WriteStream *_recordFile;
-	WriteStream *_recordTimeFile;
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
 	volatile uint32 _fakeTimer;
 	volatile uint32 _randomNumber;
-	volatile uint32 _playbackCount;
 	volatile uint32 _playbackDiff;
 	volatile bool _hasPlaybackEvent;
 	volatile uint32 _playbackTimeCount;
 	Event _playbackEvent;
 	SeekableReadStream *_playbackFile;
-	SeekableReadStream *_playbackTimeFile;
-
 	volatile uint32 _eventCount;
 	volatile uint32 _lastEventCount;
 
@@ -130,9 +131,6 @@ private:
 		kRecorderPlaybackPause = 3
 	};
 	volatile RecordMode _recordMode;
-	String _recordFileName;
-	String _recordTempFileName;
-	String _recordTimeFileName;
 };
 
 } // End of namespace Common

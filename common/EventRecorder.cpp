@@ -57,6 +57,9 @@ void writeTime(WriteStream *outFile, uint32 d) {
 }
 
 void EventRecorder::readEvent(RecorderEvent &event) {
+	if (_recordMode != kRecorderPlayback) {
+		return;
+	}
 	_recordCount++;
 	event.type = (EventType)_playbackFile->readUint32LE();
 	switch (event.type) {	case EVENT_TIMER:
@@ -101,10 +104,12 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 }
 
 void EventRecorder::writeEvent(const Event &event) {
-	_recordMode = kPassthrough;
+	if (_recordMode != kRecorderRecord) {
+		return;
+	}
+
 	_recordFile->writeUint32LE((uint32)event.type);
 	_recordCount++;
-
 	switch (event.type) {
 	case EVENT_TIMER:
 		_recordFile->writeUint32LE((uint32)_fakeTimer);
@@ -145,15 +150,12 @@ void EventRecorder::writeEvent(const Event &event) {
 		_recordFile->writeUint32LE((uint32)_fakeTimer);
 		break;
 	}
-	_recordMode = kRecorderRecord;
 }
 
 
 EventRecorder::EventRecorder() {
 	_recordFile = NULL;
-	_recordTimeFile = NULL;
 	_playbackFile = NULL;
-	_playbackTimeFile = NULL;
 	_timeMutex = g_system->createMutex();
 	_recorderMutex = g_system->createMutex();
 
@@ -174,77 +176,6 @@ EventRecorder::~EventRecorder() {
 }
 
 void EventRecorder::init() {
-	String recordModeString = ConfMan.get("record_mode");
-	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
-	if (recordModeString.compareToIgnoreCase("record") == 0) {
-		_recordMode = kRecorderRecord;
-		debugC(3, kDebugLevelEventRec, "EventRecorder: record");
-	} else {
-		if (recordModeString.compareToIgnoreCase("playback") == 0) {
-			_recordMode = kRecorderPlayback;
-			debugC(3, kDebugLevelEventRec, "EventRecorder: playback");
-		} else {
-			_recordMode = kPassthrough;
-			debugC(3, kDebugLevelEventRec, "EventRecorder: passthrough");
-		}
-	}
-
-	_recordFileName = ConfMan.get("record_file_name");
-	if (_recordFileName.empty()) {
-		_recordFileName = "record.bin";
-	}
-	_recordTempFileName = ConfMan.get("record_temp_file_name");
-	if (_recordTempFileName.empty()) {
-		_recordTempFileName = "record.tmp";
-	}
-	_recordTimeFileName = ConfMan.get("record_time_file_name");
-	if (_recordTimeFileName.empty()) {
-		_recordTimeFileName = "record.time";
-	}
-
-	_recordCount = 0;
-	// recorder stuff
-	if (_recordMode == kRecorderRecord) {
-		_recordTimeCount = 0;
-		_recordFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(_recordFileName), 128 * 1024);
-		_recordTimeFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(_recordTimeFileName), 128 * 1024);
-		_recordSubtitles = ConfMan.getBool("subtitles");
-	}
-
-	_fakeTimer = 0;
-
-	uint32 sign;
-	uint32 randomSourceCount;
-	if (_recordMode == kRecorderPlayback) {
-		_playbackCount = 0;
-		_playbackTimeCount = 0;
-		_playbackFile = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(_recordFileName), 128 * 1024, DisposeAfterUse::YES);
-		_playbackTimeFile = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(_recordTimeFileName), 128 * 1024, DisposeAfterUse::YES);
-
-		if (!_playbackFile) {
-			warning("Cannot open playback file %s. Playback was switched off", _recordFileName.c_str());
-			_recordMode = kPassthrough;
-		}
-
-		if (!_playbackTimeFile) {
-			warning("Cannot open playback time file %s. Playback was switched off", _recordTimeFileName.c_str());
-			_recordMode = kPassthrough;
-		}
-	}
-
-	if (_recordMode == kRecorderRecord) {
-		_recordFile->writeUint32LE(RECORD_SIGNATURE);
-		_recordFile->writeUint32LE(RECORD_VERSION);
-	}
-
-	if (_recordMode == kRecorderPlayback) {
-		sign = _playbackFile->readUint32LE();
-		if (sign != RECORD_SIGNATURE) {
-			error("Unknown record file signature");
-		}
-		_playbackFile->readUint32LE(); // version
-		getNextEvent();
-	}
 
 }
 
@@ -257,14 +188,13 @@ void EventRecorder::deinit() {
 	g_system->lockMutex(_timeMutex);
 	g_system->lockMutex(_recorderMutex);
 	_recordMode = kPassthrough;
-	delete _playbackFile;
-	delete _playbackTimeFile;
+	if (_playbackFile != NULL) {
+		delete _playbackFile;
+	}
 
 	if (_recordFile != NULL) {
 		_recordFile->finalize();
 		delete _recordFile;
-		_recordTimeFile->finalize();
-		delete _recordTimeFile;
 	}
 	g_system->unlockMutex(_timeMutex);
 	g_system->unlockMutex(_recorderMutex);
@@ -499,14 +429,13 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 }
 
 SdlMixerManager* EventRecorder::createMixerManager() {
-	if (_recordMode == kPassthrough) {
+	/*if (_recordMode == kPassthrough) {
 		return new SdlMixerManager();
 	}
-	else {
+	else {*/
 		_mixer = new NullSdlMixerManager();
 		return _mixer;
-	}
-
+	//}
 }
 
 void EventRecorder::RegisterEventSource() {
@@ -543,6 +472,123 @@ uint32 EventRecorder::getRandomSeed() {
 		_randomNumber = _nextEvent.count;
 		return _randomNumber;
 	}
+}
+
+void EventRecorder::initRecord(Common::String gameId, const ADGameDescription* desc) {
+	String recordModeString = ConfMan.get("record_mode");
+	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
+	if (recordModeString.compareToIgnoreCase("record") == 0) {
+		_recordMode = kRecorderRecord;
+		debugC(3, kDebugLevelEventRec, "EventRecorder: record");
+	} else {
+		if (recordModeString.compareToIgnoreCase("playback") == 0) {
+			_recordMode = kRecorderPlayback;
+			debugC(3, kDebugLevelEventRec, "EventRecorder: playback");
+		} else {
+			_recordMode = kPassthrough;
+			debugC(3, kDebugLevelEventRec, "EventRecorder: passthrough");
+		}
+	}	
+	openRecordFile(gameId);
+	if (desc != NULL) {
+		if (_recordMode == kRecorderRecord) {
+			writeGameHash(desc);
+		}
+		if (_recordMode == kRecorderPlayback) {
+			checkGameHash(desc);
+			getNextEvent();
+			_fakeTimer = 0;
+		}
+	}
+	_recordCount = 0;
+}
+
+void EventRecorder::openRecordFile(Common::String gameId) {
+	Common::String fileName;
+	if (gameId.empty()) {
+		warning("Game id is undefined. Using default record file name.");
+		fileName = "record.bin";
+	}
+	else {
+		fileName = gameId + ".bin";
+	}
+
+	if (_recordMode == kRecorderRecord) {
+		_recordFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(fileName), 128 * 1024);
+		_recordFile->writeUint32LE(RECORD_SIGNATURE);
+		_recordFile->writeUint32LE(RECORD_VERSION);
+	}
+
+	if (_recordMode == kRecorderPlayback) {
+		uint32 sign;
+		uint32 version;
+
+		_playbackFile = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(fileName), 128 * 1024, DisposeAfterUse::YES);
+		if (!_playbackFile) {
+			warning("Cannot open playback file %s. Playback was switched off", fileName.c_str());
+			_recordMode = kPassthrough;
+			return;
+		}
+
+		sign = _playbackFile->readUint32LE();
+		if (sign != RECORD_SIGNATURE) {
+			warning("Unknown playback file signature");
+			_recordMode = kPassthrough;
+		}
+
+		version = _playbackFile->readUint32LE(); 
+		if (version != RECORD_VERSION) {
+			warning("Incorrect playback file version. Current version is %d", RECORD_VERSION);
+			_recordMode = kPassthrough;
+		}
+	}
+}
+
+void EventRecorder::checkGameHash(const ADGameDescription* gameDesc) {
+	uint8 md5RecordsCount = _playbackFile->readByte();
+	for (int i = 0; i < md5RecordsCount; ++i) {
+		Common::String filename = readString();
+		Common::String md5hash = readString();
+		bool isFileFounded = false;
+		for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
+			if (filename.equals(fileDesc->fileName)) {
+				isFileFounded = true;
+				if (!md5hash.equals(fileDesc->md5)) {
+					warning("Incorrect version of game file %s. Need file with md5 = %s", fileDesc->fileName, fileDesc->md5);
+					_recordMode = kPassthrough;
+					return;
+				}
+			}
+			if (!isFileFounded) {
+				warning("Cannot found file %s", fileDesc->fileName, fileDesc->md5);				
+			}
+		}		
+	}
+}
+
+void EventRecorder::writeGameHash(const ADGameDescription* gameDesc) {
+	uint8 md5RecordsCount = 0;
+	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
+		md5RecordsCount++;
+	}
+	_recordFile->writeByte(md5RecordsCount);
+	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
+		_recordFile->writeString(fileDesc->fileName);
+		_recordFile->writeByte(0);
+		_recordFile->writeString(fileDesc->md5);
+		_recordFile->writeByte(0);
+	}
+}
+
+Common::String EventRecorder::readString() {
+	Common::String ret;
+	while (!_playbackFile->eos()) {
+		byte in = _playbackFile->readByte();
+		if (!in)
+			break;
+		ret += in;
+	}
+	return ret;
 }
 
 } // End of namespace Common
