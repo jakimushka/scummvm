@@ -34,6 +34,7 @@
 #include "common/savefile.h"
 #include "common/textconsole.h"
 #include "common/translation.h"
+#include "common/EventRecorder.h"
 
 #include "engines/metaengine.h"
 
@@ -188,6 +189,7 @@ GameList SkyMetaEngine::detectGames(const Common::FSList &fslist) const {
 
 Common::Error SkyMetaEngine::createInstance(OSystem *syst, Engine **engine) const {
 	assert(engine);
+	g_eventRec.init(getName(), NULL);
 	*engine = new Sky::SkyEngine(syst);
 	return Common::kNoError;
 }

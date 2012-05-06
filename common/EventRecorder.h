@@ -74,12 +74,13 @@ public:
 	SdlMixerManager* createMixerManager();
 	uint32 getRandomNumber(uint& rnd);
 	uint32 getRandomSeed();
-	void initRecord(Common::String gameid, const ADGameDescription* desc = NULL);
+	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 private:
 	void openRecordFile(Common::String gameId);
 	void checkGameHash(const ADGameDescription* desc);
 	void writeGameHash(const ADGameDescription* desc);
 	bool notifyEvent(const Event &ev);
+	String findMd5ByFileName(const ADGameDescription* gameDesc, String fileName);
 	Common::String readString();
 	bool notifyPoll();
 	bool pollEvent(Event &ev);

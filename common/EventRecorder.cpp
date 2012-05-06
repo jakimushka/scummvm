@@ -259,7 +259,6 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 	}
 
 	if (_recordMode == kRecorderPlayback) {
-		uint32 _millisDelay;
 		uint32 audioTime = 0;
 		StackLock lock(_recorderMutex);
 		if (_nextEvent.type == EVENT_TIMER) {
@@ -474,7 +473,7 @@ uint32 EventRecorder::getRandomSeed() {
 	}
 }
 
-void EventRecorder::initRecord(Common::String gameId, const ADGameDescription* desc) {
+void EventRecorder::init(Common::String gameId, const ADGameDescription* desc) {
 	String recordModeString = ConfMan.get("record_mode");
 	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
 	if (recordModeString.compareToIgnoreCase("record") == 0) {
@@ -508,8 +507,7 @@ void EventRecorder::openRecordFile(Common::String gameId) {
 	if (gameId.empty()) {
 		warning("Game id is undefined. Using default record file name.");
 		fileName = "record.bin";
-	}
-	else {
+	} else {
 		fileName = gameId + ".bin";
 	}
 
@@ -546,28 +544,38 @@ void EventRecorder::openRecordFile(Common::String gameId) {
 
 void EventRecorder::checkGameHash(const ADGameDescription* gameDesc) {
 	uint8 md5RecordsCount = _playbackFile->readByte();
+	if ((gameDesc == NULL) && (md5RecordsCount != 0)) {
+		warning("Engine doesn't contain description table");
+		_recordMode = kPassthrough;
+		return;
+	}
 	for (int i = 0; i < md5RecordsCount; ++i) {
-		Common::String filename = readString();
-		Common::String md5hash = readString();
-		bool isFileFounded = false;
-		for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
-			if (filename.equals(fileDesc->fileName)) {
-				isFileFounded = true;
-				if (!md5hash.equals(fileDesc->md5)) {
-					warning("Incorrect version of game file %s. Need file with md5 = %s", fileDesc->fileName, fileDesc->md5);
-					_recordMode = kPassthrough;
-					return;
-				}
+		String storedFileName = readString();
+		String storedMd5Hash = readString();
+		String engineMd5Hash = findMd5ByFileName(gameDesc, storedFileName);
+		if (!engineMd5Hash.empty()) {
+			if (!storedMd5Hash.equals(engineMd5Hash)) {
+				warning("Incorrect version of game file %s. Stored md5 is %s. Md5 of loaded game is %s", storedFileName, storedMd5Hash, engineMd5Hash);
+				_recordMode = kPassthrough;
+				return;
 			}
-			if (!isFileFounded) {
-				warning("Cannot found file %s", fileDesc->fileName, fileDesc->md5);				
-			}
-		}		
+		} else {
+			warning("Md5 hash for file %s not found", storedFileName);
+		}
 	}
 }
 
+Common::String EventRecorder::findMd5ByFileName(const ADGameDescription* gameDesc, String fileName) {
+	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
+		if (fileName.equals(fileDesc->fileName)) {
+			return fileDesc->md5;
+		}
+	}
+	return String();
+}
+
 void EventRecorder::writeGameHash(const ADGameDescription* gameDesc) {
-	uint8 md5RecordsCount = 0;
+	byte md5RecordsCount = 0;
 	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
 		md5RecordsCount++;
 	}
@@ -580,15 +588,23 @@ void EventRecorder::writeGameHash(const ADGameDescription* gameDesc) {
 	}
 }
 
-Common::String EventRecorder::readString() {
-	Common::String ret;
-	while (!_playbackFile->eos()) {
-		byte in = _playbackFile->readByte();
-		if (!in)
-			break;
-		ret += in;
+String EventRecorder::readString() {
+	String result;
+	char buf[50];
+	int count = 0;
+	char *ptr = buf;
+	while (*ptr = _playbackFile->readByte()) {
+		ptr++;
+		count++;
+		if (count > 48) {
+			*ptr = 0;
+			result += buf;
+			ptr = buf;
+		}
 	}
-	return ret;
+	*ptr = 0;
+	result += buf;
+	return result;
 }
 
 } // End of namespace Common
