@@ -154,17 +154,8 @@ void EventRecorder::writeEvent(const Event &event) {
 
 
 EventRecorder::EventRecorder() {
-	_recordFile = NULL;
-	_playbackFile = NULL;
 	_timeMutex = g_system->createMutex();
 	_recorderMutex = g_system->createMutex();
-
-	_eventCount = 1;
-	_lastEventCount = 0;
-	_lastMillis = 0;
-	_lastEventMillis = 0;
-	_engineSpeedMultiplier = 1;
-
 	_recordMode = kPassthrough;
 }
 
@@ -176,7 +167,10 @@ EventRecorder::~EventRecorder() {
 }
 
 void EventRecorder::init() {
-
+	_fakeMixerManager = new NullSdlMixerManager();
+	_fakeMixerManager->init();
+	_fakeMixerManager->suspendAudio();
+	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
 }
 
 void EventRecorder::deinit() {
@@ -246,7 +240,7 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 	if (_recordMode == kPassthrough) {
 		return;
 	}
- 	_mixer->update();
+ 	_fakeMixerManager->update();
 	if (_recordMode == kRecorderRecord) {
 		StackLock lock(_recorderMutex);
 		uint32 _millisDelay;
@@ -410,7 +404,6 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 
 		if ((_nextEvent.type == EVENT_AUDIO) /*&& !paused */) {
 			if (_nextEvent.time <= _fakeTimer) {
-				_nextEvent.count;			
 				getNextEvent();
 				return true;
 			}
@@ -425,16 +418,6 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 		}
 	}
 	return true;
-}
-
-SdlMixerManager* EventRecorder::createMixerManager() {
-	/*if (_recordMode == kPassthrough) {
-		return new SdlMixerManager();
-	}
-	else {*/
-		_mixer = new NullSdlMixerManager();
-		return _mixer;
-	//}
 }
 
 void EventRecorder::RegisterEventSource() {
@@ -474,8 +457,9 @@ uint32 EventRecorder::getRandomSeed() {
 }
 
 void EventRecorder::init(Common::String gameId, const ADGameDescription* desc) {
+	_playbackFile = NULL;
+	_recordFile = NULL;
 	String recordModeString = ConfMan.get("record_mode");
-	DebugMan.addDebugChannel(kDebugLevelEventRec, "EventRec", "Event recorder debug level"); 
 	if (recordModeString.compareToIgnoreCase("record") == 0) {
 		_recordMode = kRecorderRecord;
 		debugC(3, kDebugLevelEventRec, "EventRecorder: record");
@@ -496,10 +480,16 @@ void EventRecorder::init(Common::String gameId, const ADGameDescription* desc) {
 		if (_recordMode == kRecorderPlayback) {
 			checkGameHash(desc);
 			getNextEvent();
-			_fakeTimer = 0;
 		}
 	}
+	switchMixer();
+	_fakeTimer = 0;
 	_recordCount = 0;
+	_lastMillis = 0;
+	_eventCount = 1;
+	_lastEventCount = 0;
+	_lastEventMillis = 0;
+	_engineSpeedMultiplier = 1;
 }
 
 void EventRecorder::openRecordFile(Common::String gameId) {
@@ -605,6 +595,28 @@ String EventRecorder::readString() {
 	*ptr = 0;
 	result += buf;
 	return result;
+}
+
+void EventRecorder::registerMixerManager(SdlMixerManager* mixerManager) {
+	_realMixerManager = mixerManager;
+}
+
+void EventRecorder::switchMixer() {
+	if (_recordMode == kPassthrough) {
+		_fakeMixerManager->suspendAudio();
+		_realMixerManager->resumeAudio();
+	} else {
+		_realMixerManager->suspendAudio();
+		_fakeMixerManager->resumeAudio();
+	}
+}
+
+SdlMixerManager* EventRecorder::getMixerManager() {
+	if (_recordMode == kPassthrough) {
+		return _realMixerManager;
+	} else {
+		return _fakeMixerManager;
+	}
 }
 
 } // End of namespace Common

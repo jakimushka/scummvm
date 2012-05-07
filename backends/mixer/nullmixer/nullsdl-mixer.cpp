@@ -71,8 +71,11 @@ void NullSdlMixerManager::callbackHandler(byte *samples, int len) {
 }
 
 void NullSdlMixerManager::update() {
-	_callsCounter++;	
+	if (_audioSuspended) {
+		return;
+	}
 
+	_callsCounter++;	
 	static uint32 counter = 0;
 	
 	if ((_callsCounter % _callbackPeriod) == 0) {

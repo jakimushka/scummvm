@@ -69,13 +69,17 @@ public:
 	void processMillis(uint32 &millis, bool logging);
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
-	MutexRef _recorderMutex;
-	NullSdlMixerManager* _mixer;
-	SdlMixerManager* createMixerManager();
+	SdlMixerManager* getMixerManager();
 	uint32 getRandomNumber(uint& rnd);
 	uint32 getRandomSeed();
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
-private:
+	void registerMixerManager(SdlMixerManager* mixerManager);
+
+private:	
+	MutexRef _recorderMutex;
+	SdlMixerManager* _realMixerManager;
+	NullSdlMixerManager* _fakeMixerManager;
+	void switchMixer();
 	void openRecordFile(Common::String gameId);
 	void checkGameHash(const ADGameDescription* desc);
 	void writeGameHash(const ADGameDescription* desc);

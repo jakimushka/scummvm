@@ -189,10 +189,9 @@ void OSystem_SDL::initBackend() {
 	if (_savefileManager == 0)
 		_savefileManager = new DefaultSaveFileManager();
 
-	g_eventRec.init();
-
 	if (_mixerManager == 0) {
-		_mixerManager = g_eventRec.createMixerManager();
+		_mixerManager = new SdlMixerManager();
+		g_eventRec.registerMixerManager(_mixerManager);
 		// Setup and start mixer
 		_mixerManager->init();
 	}
@@ -489,12 +488,12 @@ void OSystem_SDL::getTimeAndDate(TimeDate &td) const {
 
 Audio::Mixer *OSystem_SDL::getMixer() {
 	assert(_mixerManager);
-	return _mixerManager->getMixer();
+	return getMixerManager()->getMixer();
 }
 
 SdlMixerManager *OSystem_SDL::getMixerManager() {
 	assert(_mixerManager);
-	return _mixerManager;
+	return g_eventRec.getMixerManager();
 }
 
 #ifdef USE_OPENGL

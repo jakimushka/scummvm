@@ -268,7 +268,6 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 	assert(samples);
 
 	Common::StackLock lock(_mutex);
-	Common::StackLock recorderlock(g_eventRec._recorderMutex);
 	int16 *buf = (int16 *)samples;
 	// we store stereo, 16-bit samples
 	assert(len % 4 == 0);
@@ -622,6 +621,7 @@ int Channel::mix(int16 *data, uint len) {
 		_pauseTime = 0;
 		res = _converter->flow(*_stream, data, len, _volL, _volR);
 		_samplesDecoded += res;
+		debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, _samplesDecoded);
 	}
 
 	return res;
