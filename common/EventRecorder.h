@@ -73,7 +73,6 @@ public:
 	uint32 getRandomSeed();
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 	void registerMixerManager(SdlMixerManager* mixerManager);
-
 private:	
 	MutexRef _recorderMutex;
 	SdlMixerManager* _realMixerManager;
@@ -83,6 +82,8 @@ private:
 	void checkGameHash(const ADGameDescription* desc);
 	void writeGameHash(const ADGameDescription* desc);
 	bool notifyEvent(const Event &ev);
+	String getAutor();
+	String getComment();
 	String findMd5ByFileName(const ADGameDescription* gameDesc, String fileName);
 	Common::String readString();
 	bool notifyPoll();
