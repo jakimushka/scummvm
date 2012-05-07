@@ -30,12 +30,8 @@ RandomSource::RandomSource(const String &name) {
 	// Use system time as RNG seed. Normally not a good idea, if you are using
 	// a RNG for security purposes, but good enough for our purposes.
 	assert(g_system);
-	uint32 seed = g_system->getMillis();
+	uint32 seed = g_eventRec.getRandomSeed();
 	setSeed(seed);
-	// Register this random source with the event recorder. This may end
-	// up querying or resetting the current seed, so we must call it
-	// *after* the initial seed has been set.
-//	g_eventRec.registerRandomSource(*this, name);
 }
 
 void RandomSource::setSeed(uint32 seed) {
@@ -45,7 +41,6 @@ void RandomSource::setSeed(uint32 seed) {
 uint RandomSource::getRandomNumber(uint max) {
 	_randSeed = 0xDEADBF03 * (_randSeed + 1);
 	uint result = _randSeed % (max + 1);
-	g_eventRec.getRandomNumber(result);
 	return result;
 } 
 

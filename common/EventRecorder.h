@@ -70,7 +70,6 @@ public:
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager* getMixerManager();
-	uint32 getRandomNumber(uint& rnd);
 	uint32 getRandomSeed();
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 	void registerMixerManager(SdlMixerManager* mixerManager);

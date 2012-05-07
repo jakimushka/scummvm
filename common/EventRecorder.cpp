@@ -425,22 +425,6 @@ void EventRecorder::RegisterEventSource() {
 	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
 }
 
-uint32 EventRecorder::getRandomNumber(uint& rnd) {	
-	if (_recordMode == kRecorderRecord) {
-		_randomNumber = rnd;
-		Common::Event event;
-		event.type = EVENT_RANDOM;
-		writeEvent(event);
-		return _randomNumber;
-	}
-	else if (_recordMode == kRecorderPlayback) {
-		_randomNumber = _nextEvent.count;
-		rnd = _nextEvent.count;
-		getNextEvent();
-		return _randomNumber;
-	}
-}
-
 uint32 EventRecorder::getRandomSeed() {
 	if (_recordMode == kRecorderRecord) {
 		Common::Event event;
@@ -450,8 +434,8 @@ uint32 EventRecorder::getRandomSeed() {
 		return _randomNumber;
 	}
 	else if (_recordMode == kRecorderPlayback) {
-		getNextEvent();
 		_randomNumber = _nextEvent.count;
+		getNextEvent();
 		return _randomNumber;
 	}
 }
