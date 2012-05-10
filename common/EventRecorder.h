@@ -29,11 +29,14 @@
 #include "common/mutex.h"
 #include "common/array.h"
 #include "common/queue.h"
+#include "common/memstream.h"
 #include "backends/mixer/sdl/sdl-mixer.h"
 #include "backends/mixer/nullmixer/nullsdl-mixer.h"
 #include "engines/advancedDetector.h"
+#include "common/hashmap.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
+#define kRecordBuffSize 21 * 10000 //biggest event's size * records count
 
 namespace Common {
 
@@ -47,6 +50,11 @@ struct RecorderEvent :Common::Event {
 	uint32 count;
 };
 
+
+struct ChunkHeader {
+	uint32 id;
+	uint32 len;
+};
 
 /**
  * Our generic event recorder.
@@ -62,7 +70,6 @@ public:
 	void deinit();
 	/** Register random source so it can be serialized in game test purposes */
 	void RegisterEventSource();
-	void registerRandomSource(RandomSource &rnd, const String &name);
 	bool delayMillis(uint msecs, bool logged = false);
 	uint32 getMillis(bool logging = false);
 	/** TODO: Add documentation, this is only used by the backend */
@@ -70,22 +77,50 @@ public:
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager* getMixerManager();
-	uint32 getRandomSeed();
+	uint32 getRandomSeed(const String &name);
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 	void registerMixerManager(SdlMixerManager* mixerManager);
 private:	
+	typedef HashMap<String, String, IgnoreCase_Hash, IgnoreCase_EqualTo> hashDictionary;
+	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
+	enum PlaybackFileState{
+		kFileStateCheckFormat,
+		kFileStateCheckVersion,
+		kFileStateProcessHash,
+		kFileStateProcessHeader,
+		kFileStateProcessRandom,
+		kFileStateReadRnd,
+		kFileStateSelectSection,
+		kFileStateDone,
+		kFileStateError
+	};
+	bool parsePlaybackFile();
+	ChunkHeader readChunk();
+	bool processChunk(ChunkHeader &nextChunk);
+	bool checkPlaybackFileVersion();
+	void readAuthor(ChunkHeader chunk);
+	void readComment(ChunkHeader chunk);
+	void readHashMap(ChunkHeader chunk);
+	void processRndSeedRecord(ChunkHeader chunk);
+
+	bool _headerDumped;
+	PlaybackFileState _playbackParseState;
 	MutexRef _recorderMutex;
 	SdlMixerManager* _realMixerManager;
 	NullSdlMixerManager* _fakeMixerManager;
 	void switchMixer();
-	void openRecordFile(Common::String gameId);
-	void checkGameHash(const ADGameDescription* desc);
-	void writeGameHash(const ADGameDescription* desc);
+	void writeVersion();
+	void writeHeader();
+	void writeFormatId();
+	void writeGameHash();
+	void writeRandomRecords();
+	bool openRecordFile(const String &gameId);
+	bool checkGameHash(const ADGameDescription* desc);
 	bool notifyEvent(const Event &ev);
-	String getAutor();
+	String getAuthor();
 	String getComment();
-	String findMd5ByFileName(const ADGameDescription* gameDesc, String fileName);
-	Common::String readString();
+	String findMd5ByFileName(const ADGameDescription* gameDesc, const String &fileName);
+	Common::String readString(int len);
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
@@ -99,21 +134,21 @@ private:
 	void increaseEngineSpeed();
 	void decreaseEngineSpeed();
 	void togglePause();
-	class RandomSourceRecord {
-	public:
-		String name;
-		uint32 seed;
-	};
+	void dumpRecordsToFile();
+	void dumpHeaderToFile();
 	RecorderEvent _nextEvent;
 	RecorderEvent _nextAudioEvent;
-	Array<RandomSourceRecord> _randomSourceRecords;
+	randomSeedsDictionary _randomSourceRecords;
+	hashDictionary _hashRecords;
 	Queue<RecorderEvent> _eventsQueue;
-	bool _recordSubtitles;
+	bool _recordSubtitles;	
 	volatile uint32 _samplesCount;
 	uint8 _engineSpeedMultiplier;
 	volatile uint32 _recordCount;
+	volatile uint32 _recordSize;
+	byte _recordBuffer[kRecordBuffSize];
+	SeekableMemoryWriteStream _tmpRecordFile;
 	volatile uint32 _lastRecordEvent;
-	volatile uint32 _recordTimeCount;
 	volatile uint32 _lastEventMillis;
 	volatile uint32 _delayMillis;
 	WriteStream *_recordFile;
@@ -123,7 +158,6 @@ private:
 	volatile uint32 _randomNumber;
 	volatile uint32 _playbackDiff;
 	volatile bool _hasPlaybackEvent;
-	volatile uint32 _playbackTimeCount;
 	Event _playbackEvent;
 	SeekableReadStream *_playbackFile;
 	volatile uint32 _eventCount;
