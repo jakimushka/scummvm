@@ -110,7 +110,9 @@ public:
 	uint32 size() const { return _bufSize; }
 };
 
-
+/**
+ * MemoryWriteStream subclass with ability to set stream position indicator.
+ */
 class SeekableMemoryWriteStream : public MemoryWriteStream {
 private:
 	byte *_ptrOrig;
@@ -119,23 +121,23 @@ public:
 	uint32 seek(uint32 offset, int whence = SEEK_SET) {
 		switch (whence) {
 		case SEEK_END:
-		// SEEK_END works just like SEEK_SET, only 'reversed',
-		// i.e. from the end.
-		offset = size() + offset;
-		// Fall through
+			// SEEK_END works just like SEEK_SET, only 'reversed',
+			// i.e. from the end.
+			offset = size() + offset;
+			// Fall through
 		case SEEK_SET:
-		_ptr = _ptrOrig + offset;
-		_pos = offset;
-		break;
+			_ptr = _ptrOrig + offset;
+			_pos = offset;
+			break;
 		case SEEK_CUR:
-		_ptr += offset;
-		_pos += offset;
-		break;
+			_ptr += offset;
+			_pos += offset;
+			break;
 		}
 		// Post-Condition
 		if (_pos > size()) {
 			_pos = size();
-			_ptr = _ptrOrig;
+			_ptr = _ptrOrig + _pos;
 		}
 		return _pos;
 	}
