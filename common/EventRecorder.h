@@ -36,7 +36,10 @@
 #include "common/hashmap.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
-#define kRecordBuffSize 21 * 10000 //biggest event's size * records count
+
+//capacity of records buffer
+#define kMaxBufferedRecords 10000
+#define kRecordBuffSize sizeof(RecorderEvent) * kMaxBufferedRecords
 
 namespace Common {
 
@@ -45,7 +48,7 @@ class SeekableReadStream;
 class WriteStream;
 
 
-struct RecorderEvent :Common::Event {
+struct RecorderEvent : Common::Event {
 	uint32 time;
 	uint32 count;
 };
@@ -127,7 +130,7 @@ private:
 	void getNextEvent();
 	void writeNextEventsChunk();
 	void readEvent(RecorderEvent &event);
-	void writeEvent(const Event &event);
+	void writeEvent(const RecorderEvent &event);
 	void checkForKeyCode(const Event &event);
 	void writeAudioEvent(uint32 samplesCount);
 	void readAudioEvent();
@@ -142,15 +145,11 @@ private:
 	hashDictionary _hashRecords;
 	Queue<RecorderEvent> _eventsQueue;
 	bool _recordSubtitles;	
-	volatile uint32 _samplesCount;
 	uint8 _engineSpeedMultiplier;
 	volatile uint32 _recordCount;
 	volatile uint32 _recordSize;
 	byte _recordBuffer[kRecordBuffSize];
 	SeekableMemoryWriteStream _tmpRecordFile;
-	volatile uint32 _lastRecordEvent;
-	volatile uint32 _lastEventMillis;
-	volatile uint32 _delayMillis;
 	WriteStream *_recordFile;
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
@@ -160,8 +159,6 @@ private:
 	volatile bool _hasPlaybackEvent;
 	Event _playbackEvent;
 	SeekableReadStream *_playbackFile;
-	volatile uint32 _eventCount;
-	volatile uint32 _lastEventCount;
 
 	enum RecordMode {
 		kPassthrough = 0,

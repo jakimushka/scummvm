@@ -65,7 +65,6 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 	switch (event.type) {	
 	case EVENT_TIMER:
 		event.time = _playbackFile->readUint32LE();
-		event.count = _playbackFile->readUint32LE();
 		break;
 	case EVENT_DELAY:
 		event.time = _playbackFile->readUint32LE();
@@ -100,7 +99,7 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 	}
 }
 
-void EventRecorder::writeEvent(const Event &event) {
+void EventRecorder::writeEvent(const RecorderEvent &event) {
 	if (_recordMode != kRecorderRecord) {
 		return;
 	}
@@ -108,22 +107,21 @@ void EventRecorder::writeEvent(const Event &event) {
 	_tmpRecordFile.writeUint32LE((uint32)event.type);
 	switch (event.type) {
 	case EVENT_TIMER:
-		_tmpRecordFile.writeUint32LE(_fakeTimer);
-		_tmpRecordFile.writeUint32LE(_eventCount);
+		_tmpRecordFile.writeUint32LE(event.time);
 		break;
 	case EVENT_DELAY:
-		_tmpRecordFile.writeUint32LE(_delayMillis);
+		_tmpRecordFile.writeUint32LE(event.count);
 		break;
 	case EVENT_KEYDOWN:
 	case EVENT_KEYUP:
-		_tmpRecordFile.writeUint32LE(_fakeTimer);
+		_tmpRecordFile.writeUint32LE(event.time);
 		_tmpRecordFile.writeSint32LE(event.kbd.keycode);
 		_tmpRecordFile.writeUint16LE(event.kbd.ascii);
 		_tmpRecordFile.writeByte(event.kbd.flags);
 		break;
 	case EVENT_AUDIO:
-		_tmpRecordFile.writeUint32LE(_fakeTimer);
-		_tmpRecordFile.writeUint32LE(_samplesCount);
+		_tmpRecordFile.writeUint32LE(event.time);
+		_tmpRecordFile.writeUint32LE(event.count);
 		break;
 	case EVENT_MOUSEMOVE:
 	case EVENT_LBUTTONDOWN:
@@ -134,15 +132,15 @@ void EventRecorder::writeEvent(const Event &event) {
 	case EVENT_WHEELDOWN:
 	case EVENT_MBUTTONDOWN:
 	case EVENT_MBUTTONUP:
-		_tmpRecordFile.writeUint32LE(_fakeTimer);
+		_tmpRecordFile.writeUint32LE(event.time);
 		_tmpRecordFile.writeSint16LE(event.mouse.x);
 		_tmpRecordFile.writeSint16LE(event.mouse.y);
 		break;
 	default:
-		_tmpRecordFile.writeUint32LE(_fakeTimer);
+		_tmpRecordFile.writeUint32LE(event.time);
 		break;
 	}
-	if (_recordCount == 10000) {
+	if (_recordCount == kMaxBufferedRecords) {
 		dumpRecordsToFile();
 		_recordCount = 0;
 	}
@@ -209,9 +207,10 @@ void EventRecorder::deinit() {
 
 bool EventRecorder::delayMillis(uint msecs, bool logged) {
 	if (_recordMode == kRecorderRecord)	{
-		Common::Event delayEvent;
+		RecorderEvent delayEvent;
 		delayEvent.type = EVENT_DELAY;
-		_delayMillis = msecs;
+		delayEvent.time = _fakeTimer;
+		delayEvent.count = msecs;
 		writeEvent(delayEvent);
 		g_system->delayMillis(msecs);
 	}
@@ -241,8 +240,9 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		_millisDelay = millis - _lastMillis;
 		_lastMillis = millis;
 		_fakeTimer += _millisDelay;
-		Common::Event timerEvent;
+		RecorderEvent timerEvent;
 		timerEvent.type = EVENT_TIMER;
+		timerEvent.time = _fakeTimer;
 		writeEvent(timerEvent);
 	}
 
@@ -286,8 +286,10 @@ bool EventRecorder::notifyEvent(const Event &ev) {
 	if ((ev.type == EVENT_LBUTTONDOWN) || (ev.type == EVENT_LBUTTONUP)) {
 		debugC(3, kDebugLevelEventRec, "%d, %d, %d, %d, %d", ev.type, _fakeTimer, _fakeTimer, ev.mouse.x, ev.mouse.y);
 	}
-
-	writeEvent(ev);
+	RecorderEvent e;
+	memcpy(&e, &ev, sizeof(ev));
+	e.time = _fakeTimer;
+	writeEvent(e);
 	return false;
 }
 
@@ -388,9 +390,10 @@ uint32 EventRecorder::getMillis(bool logging) {
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	if ((_recordMode == kRecorderRecord)&& !paused)	{	
 		StackLock lock(_recorderMutex);
-		Common::Event audioEvent;
+		RecorderEvent audioEvent;
 		audioEvent.type =  EVENT_AUDIO;
-		_samplesCount = samples;
+		audioEvent.time = _fakeTimer;
+		audioEvent.count = samples;
 		writeEvent(audioEvent);
 		return true;
 	}
@@ -473,9 +476,6 @@ void EventRecorder::init(Common::String gameId, const ADGameDescription* gameDes
 	switchMixer();
 	_fakeTimer = 0;
 	_lastMillis = 0;
-	_eventCount = 1;
-	_lastEventCount = 0;
-	_lastEventMillis = 0;
 	_headerDumped = false;
 	_engineSpeedMultiplier = 1;
 }
