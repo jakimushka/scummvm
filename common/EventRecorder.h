@@ -34,6 +34,7 @@
 #include "backends/mixer/nullmixer/nullsdl-mixer.h"
 #include "engines/advancedDetector.h"
 #include "common/hashmap.h"
+#include "common/config-manager.h"
 
 #define g_eventRec (Common::EventRecorder::instance())
 
@@ -93,18 +94,24 @@ private:
 		kFileStateProcessRandom,
 		kFileStateReadRnd,
 		kFileStateSelectSection,
+		kFileStateProcessSettings,
+		kFileStateProcessSettingsRecord,
 		kFileStateDone,
 		kFileStateError
 	};
 	bool parsePlaybackFile();
 	ChunkHeader readChunkHeader();
+	void getConfig();
+	void applyPlaybackSettings();
+	void removeDifferentEntriesInDomain(ConfigManager::Domain* domain);
+	void getConfigFromDomain(ConfigManager::Domain* domain);
 	bool processChunk(ChunkHeader &nextChunk);
 	bool checkPlaybackFileVersion();
 	void readAuthor(ChunkHeader chunk);
 	void readComment(ChunkHeader chunk);
 	void readHashMap(ChunkHeader chunk);
 	void processRndSeedRecord(ChunkHeader chunk);
-
+	bool processSettingsRecord(ChunkHeader chunk);
 	bool _headerDumped;
 	PlaybackFileState _playbackParseState;
 	MutexRef _recorderMutex;
@@ -132,16 +139,19 @@ private:
 	void writeEvent(const RecorderEvent &event);
 	void checkForKeyCode(const Event &event);
 	void writeAudioEvent(uint32 samplesCount);
+	void writeGameSettings();
 	void readAudioEvent();
 	void increaseEngineSpeed();
 	void decreaseEngineSpeed();
 	void togglePause();
 	void dumpRecordsToFile();
 	void dumpHeaderToFile();
+	int _settingsSectionSize;
 	RecorderEvent _nextEvent;
 	RecorderEvent _nextAudioEvent;
 	randomSeedsDictionary _randomSourceRecords;
 	StringMap _hashRecords;
+	StringMap _settingsRecords;
 	Queue<RecorderEvent> _eventsQueue;
 	bool _recordSubtitles;	
 	uint8 _engineSpeedMultiplier;
