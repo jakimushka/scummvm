@@ -60,7 +60,6 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 		return;
 	}
 	_recordCount++;
-	warning("recordCount = %d", _recordCount);
 	event.type = (EventType)_playbackFile->readUint32LE();
 	switch (event.type) {	
 	case EVENT_TIMER:
@@ -491,6 +490,10 @@ bool EventRecorder::openRecordFile(const String &gameId) {
 
 	if (_recordMode == kRecorderRecord) {
 		_recordFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(fileName), 128 * 1024);
+		if (!_recordFile) {
+			warning("Cannot open file %s for recording. Record was switched off", fileName.c_str());
+			return false;
+		}
 	}
 
 	if (_recordMode == kRecorderPlayback) {
@@ -508,20 +511,20 @@ bool EventRecorder::checkGameHash(const ADGameDescription* gameDesc) {
 		warning("Engine doesn't contain description table");
 		return false;
 	}
-	return true;
 	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
 		if (_hashRecords.find(fileDesc->fileName) == _hashRecords.end()) {
-			warning("Md5 hash for file %s not found in record file", fileDesc->fileName);
+			warning("MD5 hash for file %s not found in record file", fileDesc->fileName);
 			return false;
 		}
 		if (_hashRecords[fileDesc->fileName] != fileDesc->md5) {
-			warning("Incorrect version of game file %s. Stored md5 is %s. Md5 of loaded game is %s", fileDesc->fileName, _hashRecords[fileDesc->fileName].c_str(), fileDesc->md5);
+			warning("Incorrect version of game file %s. Stored MD5 is %s. MD5 of loaded game is %s", fileDesc->fileName, _hashRecords[fileDesc->fileName].c_str(), fileDesc->md5);
 			return false;
 		}
 	}
+	return true;
 }
 
-Common::String EventRecorder::findMd5ByFileName(const ADGameDescription* gameDesc, const String &fileName) {
+Common::String EventRecorder::findMD5ByFileName(const ADGameDescription* gameDesc, const String &fileName) {
 	for (const ADGameFileDescription *fileDesc = gameDesc->filesDescriptions; fileDesc->fileName; fileDesc++) {
 		if (fileName.equals(fileDesc->fileName)) {
 			return fileDesc->md5;
@@ -563,16 +566,16 @@ Common::String EventRecorder::getComment() {
 bool EventRecorder::parsePlaybackFile() {
 	ChunkHeader nextChunk;
 	_playbackParseState = kFileStateCheckFormat;
-	nextChunk = readChunk();
+	nextChunk = readChunkHeader();
 	while ((_playbackParseState != kFileStateDone) && (_playbackParseState != kFileStateError)) {
 		if (processChunk(nextChunk)) {
-			nextChunk = readChunk();
+			nextChunk = readChunkHeader();
 		}
 	}
 	return _playbackParseState == kFileStateDone;
 }
 
-ChunkHeader EventRecorder::readChunk() {
+ChunkHeader EventRecorder::readChunkHeader() {
 	ChunkHeader result;
 	result.id = _playbackFile->readUint32LE();
 	result.len = _playbackFile->readUint32LE();
@@ -588,7 +591,7 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			warning("Unknown playback file signature");
 			_playbackParseState = kFileStateError;
 		}
-	break;
+		break;
 	case kFileStateCheckVersion:
 		if ((nextChunk.id == MKTAG('V','E','R','S')) && checkPlaybackFileVersion()) {
 			_playbackParseState = kFileStateSelectSection;
@@ -596,41 +599,39 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			_recordMode = kPassthrough;
 			_playbackParseState = kFileStateError;
 		}
-	break;
+		break;
 	case kFileStateSelectSection:
 		switch (nextChunk.id) {
 		case MKTAG('H','E','A','D'): 
 			_playbackParseState = kFileStateProcessHeader;
-		break;
+			break;
 		case MKTAG('H','A','S','H'): 
 			_playbackParseState = kFileStateProcessHash;
-		break;
+			break;
 		case MKTAG('R','A','N','D'): 
 			_playbackParseState = kFileStateProcessRandom;
-		break;
+			break;
 		case MKTAG('R','C','D','S'): 
 			_playbackParseState = kFileStateDone;
 			return false;
-		break;
 		default:
 			_playbackFile->skip(nextChunk.len);
-		break;
+			break;
 		}
-	break;
+		break;
 	case kFileStateProcessHeader:
 		switch (nextChunk.id) {
 		case MKTAG('H','A','U','T'): 
 			readAuthor(nextChunk);
-		break;
+			break;
 		case MKTAG('H','C','M','T'):
 			readComment(nextChunk);
-		break;
+			break;
 		default:
 			_playbackParseState = kFileStateSelectSection;
 			return false;
-		break;
 		}
-	break;
+		break;
 	case kFileStateProcessHash:
 		if (nextChunk.id == MKTAG('H','R','C','D')) {
 			readHashMap(nextChunk);
@@ -638,7 +639,7 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			_playbackParseState = kFileStateSelectSection;
 			return false;
 		}
-	break;
+		break;
 	case kFileStateProcessRandom:
 		if (nextChunk.id == MKTAG('R','R','C','D')) {
 			processRndSeedRecord(nextChunk);
@@ -646,7 +647,7 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			_playbackParseState = kFileStateSelectSection;
 			return false;
 		}
-	break;
+		break;
 	}
 	return true;
 }
@@ -655,7 +656,7 @@ bool EventRecorder::checkPlaybackFileVersion() {
 	uint32 version;
 	version = _playbackFile->readUint32LE();
 	if (version != RECORD_VERSION) {
-		warning("Incorrect playback file version. Current version is %d", RECORD_VERSION);
+		warning("Incorrect playback file version. Expected version %d, but got %d.", RECORD_VERSION, version);
 		return false;
 	}
 	return true;
@@ -689,11 +690,11 @@ String EventRecorder::readString(int len) {
 	char buf[50];
 	int readSize = 49;
 	while (len > 0)	{
-		if (len > 49) {
+		if (len <= 49) {
 			readSize = len;
 		}
-		_playbackFile->read(buf, len);
-		buf[len] = 0;
+		_playbackFile->read(buf, readSize);
+		buf[readSize] = 0;
 		result += buf;
 		len -= readSize;
 	}
@@ -739,16 +740,16 @@ void EventRecorder::writeHeader() {
 }
 
 void EventRecorder::writeGameHash() {
-	uint32 hashSectionLength = 0;
-	for (hashDictionary::iterator i = _hashRecords.begin(); i != _hashRecords.end(); ++i) {
-		hashSectionLength = hashSectionLength + i->_key.size() + i->_value.size() + 8;
+	uint32 hashSectionSize = 0;
+	for (StringMap::iterator i = _hashRecords.begin(); i != _hashRecords.end(); ++i) {
+		hashSectionSize = hashSectionSize + i->_key.size() + i->_value.size() + 8;
 	}
 	if (_hashRecords.size() == 0) {
 		return;
 	}
 	_recordFile->writeUint32LE(MKTAG('H','A','S','H'));
-	_recordFile->writeUint32LE(hashSectionLength);
-	for (hashDictionary::iterator i = _hashRecords.begin(); i != _hashRecords.end(); ++i) {
+	_recordFile->writeUint32LE(hashSectionSize);
+	for (StringMap::iterator i = _hashRecords.begin(); i != _hashRecords.end(); ++i) {
 		_recordFile->writeUint32LE(MKTAG('H','R','C','D'));
 		_recordFile->writeUint32LE(i->_key.size() + i->_value.size());
 		_recordFile->writeString(i->_key);
@@ -757,15 +758,15 @@ void EventRecorder::writeGameHash() {
 }
 
 void EventRecorder::writeRandomRecords() {
-	uint32 randomSectionLength = 0;
+	uint32 randomSectionSize = 0;
 	for (randomSeedsDictionary::iterator i = _randomSourceRecords.begin(); i != _randomSourceRecords.end(); ++i) {
-		randomSectionLength = randomSectionLength + i->_key.size() + 12;
+		randomSectionSize = randomSectionSize + i->_key.size() + 12;
 	}
 	if (_randomSourceRecords.size() == 0) {
 		return;
 	}
 	_recordFile->writeUint32LE(MKTAG('R','A','N','D'));
-	_recordFile->writeUint32LE(randomSectionLength);
+	_recordFile->writeUint32LE(randomSectionSize);
 	for (randomSeedsDictionary::iterator i = _randomSourceRecords.begin(); i != _randomSourceRecords.end(); ++i) {
 		_recordFile->writeUint32LE(MKTAG('R','R','C','D'));
 		_recordFile->writeUint32LE(i->_key.size() + 4);

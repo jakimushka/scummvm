@@ -84,9 +84,8 @@ public:
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 	void registerMixerManager(SdlMixerManager* mixerManager);
 private:	
-	typedef HashMap<String, String, IgnoreCase_Hash, IgnoreCase_EqualTo> hashDictionary;
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
-	enum PlaybackFileState{
+	enum PlaybackFileState {
 		kFileStateCheckFormat,
 		kFileStateCheckVersion,
 		kFileStateProcessHash,
@@ -98,7 +97,7 @@ private:
 		kFileStateError
 	};
 	bool parsePlaybackFile();
-	ChunkHeader readChunk();
+	ChunkHeader readChunkHeader();
 	bool processChunk(ChunkHeader &nextChunk);
 	bool checkPlaybackFileVersion();
 	void readAuthor(ChunkHeader chunk);
@@ -122,7 +121,7 @@ private:
 	bool notifyEvent(const Event &ev);
 	String getAuthor();
 	String getComment();
-	String findMd5ByFileName(const ADGameDescription* gameDesc, const String &fileName);
+	String findMD5ByFileName(const ADGameDescription* gameDesc, const String &fileName);
 	Common::String readString(int len);
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
@@ -142,7 +141,7 @@ private:
 	RecorderEvent _nextEvent;
 	RecorderEvent _nextAudioEvent;
 	randomSeedsDictionary _randomSourceRecords;
-	hashDictionary _hashRecords;
+	StringMap _hashRecords;
 	Queue<RecorderEvent> _eventsQueue;
 	bool _recordSubtitles;	
 	uint8 _engineSpeedMultiplier;
