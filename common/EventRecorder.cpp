@@ -29,12 +29,13 @@
 #include "common/random.h"
 #include "common/savefile.h"
 #include "common/textconsole.h"
-
+#include "graphics/thumbnail.h"
 namespace Common {
 
 DECLARE_SINGLETON(EventRecorder);
 
 #define RECORD_VERSION 1
+#define kDefaultScreenshotPeriod 60000;
 
 uint32 readTime(ReadStream *inFile) {
 	uint32 d = inFile->readByte();
@@ -60,6 +61,7 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 		return;
 	}
 	_recordCount++;
+	uint32 thumbnailSize;
 	event.type = (EventType)_playbackFile->readUint32LE();
 	switch (event.type) {	
 	case EVENT_TIMER:
@@ -78,6 +80,13 @@ void EventRecorder::readEvent(RecorderEvent &event) {
 	case EVENT_AUDIO:
 		event.time = _playbackFile->readUint32LE();
 		event.count = _playbackFile->readUint32LE();
+		break;
+	case EVENT_SCREENSHOT:
+		event.time = _playbackFile->readUint32LE();
+		_playbackFile->skip(4); //Skip thumbnail id
+		 thumbnailSize = _playbackFile->readUint32BE() - 8;
+		_playbackFile->skip(thumbnailSize);
+		readEvent(event);
 		break;
 	case EVENT_MOUSEMOVE:
 	case EVENT_LBUTTONDOWN:
@@ -246,6 +255,7 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		timerEvent.type = EVENT_TIMER;
 		timerEvent.time = _fakeTimer;
 		writeEvent(timerEvent);
+		MakeScreenShot();
 	}
 
 	if (_recordMode == kRecorderPlayback) {
@@ -438,7 +448,11 @@ void EventRecorder::init(Common::String gameId, const ADGameDescription* gameDes
 	_playbackFile = NULL;
 	_recordFile = NULL;
 	_recordCount = 0;
-
+	_lastScreenshotTime = 0;
+	_screenshotPeriod = ConfMan.getInt("screenshot_period");
+	if (_screenshotPeriod == 0) {
+		_screenshotPeriod = kDefaultScreenshotPeriod;
+	}
 	String recordModeString = ConfMan.get("record_mode");
 	if (recordModeString.compareToIgnoreCase("record") == 0) {
 		_recordMode = kRecorderRecord;
@@ -824,15 +838,17 @@ void EventRecorder::writeGameSettings() {
 void EventRecorder::getConfigFromDomain(ConfigManager::Domain* domain) {
 	for (ConfigManager::Domain::iterator entry = domain->begin(); entry!= domain->end(); ++entry) {
 		_settingsRecords[entry->_key] = entry->_value;
-		_settingsSectionSize = _settingsSectionSize + entry->_key.size() + entry->_value.size() + 24;
 	}
 }
 
 void EventRecorder::getConfig() {
-	_settingsSectionSize = 0;
 	getConfigFromDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
 	getConfigFromDomain(ConfMan.getActiveDomain());
 	getConfigFromDomain(ConfMan.getDomain(ConfMan.kTransientDomain));
+	_settingsSectionSize = 0;
+	for (StringMap::iterator i = _settingsRecords.begin(); i != _settingsRecords.end(); ++i) {
+		_settingsSectionSize = _settingsSectionSize + i->_key.size() + i->_value.size() + 24;
+	}
 }
 
 bool EventRecorder::processSettingsRecord(ChunkHeader chunk) {
@@ -857,7 +873,7 @@ void EventRecorder::applyPlaybackSettings() {
 		String currentValue = ConfMan.get(i->_key);
 		if (currentValue != i->_value) {
 			warning("Config value <%s>: %s -> %s", i->_key.c_str(), i->_value.c_str(), currentValue.c_str());
-			ConfMan.set(i->_key,i->_value);
+			ConfMan.set(i->_key, i->_value);
 		}
 	}
 	removeDifferentEntriesInDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
@@ -874,4 +890,12 @@ void EventRecorder::removeDifferentEntriesInDomain(ConfigManager::Domain* domain
 	}
 }
 
+void EventRecorder::MakeScreenShot() {
+	if (((_fakeTimer - _lastScreenshotTime) > _screenshotPeriod) && _headerDumped) {
+		_lastScreenshotTime = _fakeTimer;
+		_recordFile->writeUint32LE(EVENT_SCREENSHOT);
+		_recordFile->writeUint32LE(_fakeTimer);
+		Graphics::saveScreenShot(*_recordFile);
+	}
+}
 } // End of namespace Common
