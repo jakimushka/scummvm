@@ -171,6 +171,8 @@ void EventRecorder::dumpRecordsToFile() {
 		dumpHeaderToFile();
 		_headerDumped = true;
 	}
+	_recordFile->writeUint32LE(MKTAG('E','V','N','T'));
+	_recordFile->writeUint32LE(_tmpRecordFile.pos());
 	_recordFile->write(_recordBuffer, _tmpRecordFile.pos());
 	_tmpRecordFile.seek(0);
 }
@@ -183,10 +185,6 @@ void EventRecorder::dumpHeaderToFile() {
 	writeRandomRecords();
 	writeGameSettings();
 	writeScreenSettings();
-	_recordFile->writeUint32LE(MKTAG('R','C','D','S'));
-	//we don't know how many records will be in this section and this value will not used later
-	//I write zero to avoid creation of temporary file
-	_recordFile->writeUint32LE(0);
 }
 
 EventRecorder::EventRecorder() : _tmpRecordFile(_recordBuffer, kRecordBuffSize) {
@@ -941,8 +939,6 @@ void EventRecorder::MakeScreenShot() {
 		dumpRecordsToFile();
 		_recordCount = 0;
 		_lastScreenshotTime = _fakeTimer;
-		_recordFile->writeUint32LE(EVENT_SCREENSHOT);
-		_recordFile->writeUint32LE(_fakeTimer);
 		Graphics::saveScreenShot(*_recordFile);
 	}
 }
