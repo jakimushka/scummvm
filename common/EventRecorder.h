@@ -181,7 +181,7 @@ private:
 	SeekableReadStream *_playbackFile;
 	uint32 _lastScreenshotTime;
 	uint32 _screenshotPeriod;
-	void MakeScreenShot();
+	void saveScreenShot();
 
 	enum RecordMode {
 		kPassthrough = 0,

@@ -26,6 +26,7 @@
 #include "backends/mixer/sdl/sdl-mixer.h"
 #include "common/bufferedstream.h"
 #include "common/config-manager.h"
+#include "common/md5.h"
 #include "common/random.h"
 #include "common/savefile.h"
 #include "common/textconsole.h"
@@ -256,7 +257,7 @@ void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
 		timerEvent.type = EVENT_TIMER;
 		timerEvent.time = _fakeTimer;
 		writeEvent(timerEvent);
-		MakeScreenShot();
+		saveScreenShot();
 	}
 
 	if (_recordMode == kRecorderPlayback) {
@@ -946,12 +947,25 @@ void EventRecorder::removeDifferentEntriesInDomain(ConfigManager::Domain* domain
 	}
 }
 
-void EventRecorder::MakeScreenShot() {
+void EventRecorder::saveScreenShot() {
 	if (((_fakeTimer - _lastScreenshotTime) > _screenshotPeriod) && _headerDumped) {
 		dumpRecordsToFile();
 		_recordCount = 0;
 		_lastScreenshotTime = _fakeTimer;
-		Graphics::saveScreenShot(*_recordFile);
+		Graphics::Surface screen;
+		if (!createScreenShot(screen)) {
+			warning("Can't save screenshot");
+			return;
+		}
+		saveThumbnail(*_recordFile, screen);
+
+		MemoryReadStream bitmapStream((const byte*)screen.pixels, screen.w * screen.h * screen.format.bytesPerPixel);
+		computeStreamMD5(bitmapStream, md5);
+		uint8 md5[16];
+		_recordFile->writeUint32LE(MKTAG('M','D','5',' '));
+		_recordFile->writeUint32LE(16);
+		_recordFile->write(md5, 16);
+		screen.free();
 	}
 }
 
