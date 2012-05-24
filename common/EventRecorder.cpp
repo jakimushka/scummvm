@@ -365,7 +365,10 @@ void EventRecorder::getNextEvent() {
 				readEventsToBuffer(header.len);
 				break;
 			case MKTAG('B','M','H','T'):
-				readAndCheckScreenShot();
+				loadScreenShot();
+				break;
+			case MKTAG('M','D','5',' '):
+				checkRecordedMD5();
 				break;
 			default:
 				_playbackFile->skip(header.len);
@@ -667,7 +670,7 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			_playbackParseState = kFileStateDone;
 			return false;
 		case MKTAG('T','H','M','B'): 
-			readAndCheckScreenShot();
+			loadScreenShot();
 			_playbackParseState = kFileStateDone;
 			return false;
 		case MKTAG('S','E','T','T'):
@@ -859,19 +862,8 @@ void EventRecorder::writeScreenSettings() {
 void EventRecorder::processScreenSettings() {
 	uint16 width = _playbackFile->readUint16LE();
 	uint16 height = _playbackFile->readUint16LE();
-	reallocBitmapBuff(width, height, kDefaultBPP);
 }
 
-void EventRecorder::reallocBitmapBuff(uint16 width, uint16 height, byte bpp) {
-	uint32 newBitmapBuffSize = width * height * bpp;
-	if (_bitmapBuffSize != newBitmapBuffSize) {
-		_bitmapBuffSize = newBitmapBuffSize;
-		if (_bitmapBuff != NULL) {
-			free(_bitmapBuff);
-		}
-		_bitmapBuff = (byte*)malloc(_bitmapBuffSize);
-	}
-}
 
 void EventRecorder::writeGameSettings() {
 	getConfig();
@@ -952,54 +944,30 @@ void EventRecorder::saveScreenShot() {
 		dumpRecordsToFile();
 		_recordCount = 0;
 		_lastScreenshotTime = _fakeTimer;
-		Graphics::Surface screen;
-		if (!createScreenShot(screen)) {
-			warning("Can't save screenshot");
-			return;
-		}
-		saveThumbnail(*_recordFile, screen);
-
-		MemoryReadStream bitmapStream((const byte*)screen.pixels, screen.w * screen.h * screen.format.bytesPerPixel);
-		computeStreamMD5(bitmapStream, md5);
 		uint8 md5[16];
+		saveScreenAndComputeMD5(_recordFile, md5);
 		_recordFile->writeUint32LE(MKTAG('M','D','5',' '));
 		_recordFile->writeUint32LE(16);
 		_recordFile->write(md5, 16);
-		screen.free();
 	}
 }
 
-void EventRecorder::readAndCheckScreenShot() {
-	Graphics::Surface screenShot;
+void EventRecorder::loadScreenShot() {
 	readScreenshotFromPlaybackFile();
-	createScreenShot(screenShot);
-	Graphics::saveScreenShot(*_screenshotsFile);
-	uint16 b1;
-	uint16 b2;
-	if (screenShot.w * screenShot.h * screenShot.format.bytesPerPixel != _bitmapBuffSize) {
-		warning("Recorded and current screenshots have different sizes");
-		return;
-	}
-	switch(screenShot.format.bytesPerPixel) {
-		case 2: {
-			uint16 *src = (uint16*)_bitmapBuff;
-			uint16 *dst = (uint16*)screenShot.pixels;
-			for (int i = 0; i < _bitmapBuffSize/2; i++){
-				b1 = FROM_BE_16(*src);
-				b2 = READ_LE_UINT16(dst);
-				if (b1 != b2) {
-					warning("Recorded and current screenshots are different");
-					return;
-				}
-				src++;
-				dst++;
-			}
-			break;
-		}
-		default:
-			warning("Unsupprorted pixel format");
-			break;
-	}
+	saveScreenAndComputeMD5(_screenshotsFile, _lastScreenMD5);
+}
+
+bool EventRecorder::saveScreenAndComputeMD5(WriteStream* stream, uint8 md5[16]) {
+	Graphics::Surface screen;
+	if (!createScreenShot(screen)) {
+		warning("Can't save screenshot");
+		return false;
+	}	
+	Graphics::saveThumbnail(*stream);
+	MemoryReadStream bitmapStream((const byte*)screen.pixels, screen.w * screen.h * screen.format.bytesPerPixel);
+	computeStreamMD5(bitmapStream, md5);
+	screen.free();
+	return true;
 }
 
 void EventRecorder::readScreenshotFromPlaybackFile() {
@@ -1011,8 +979,7 @@ void EventRecorder::readScreenshotFromPlaybackFile() {
 	screenShotWidth = _playbackFile->readUint16BE();
 	screenShotHeight = _playbackFile->readUint16BE();
 	screenShotBpp = _playbackFile->readByte();
-	reallocBitmapBuff(screenShotWidth, screenShotHeight, screenShotBpp);
-	_playbackFile->read(_bitmapBuff, _bitmapBuffSize);
+	_playbackFile->skip(screenShotWidth*screenShotHeight*screenShotBpp);
 }
 
 void EventRecorder::readEventsToBuffer(uint32 size) {
@@ -1020,4 +987,14 @@ void EventRecorder::readEventsToBuffer(uint32 size) {
 	_tmpPlaybackFile.seek(0);
 	_eventsSize = size;	
 }
+
+void EventRecorder::checkRecordedMD5() {
+	uint8 md5[16];
+	_playbackFile->read(md5, 16);
+	if (memcmp(md5, _lastScreenMD5, 16) != 0) {
+		warning("Recorded and current screenshots are different");
+	}
+}
+
+
 } // End of namespace Common

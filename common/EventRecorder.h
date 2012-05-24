@@ -121,7 +121,8 @@ private:
 	void writeVersion();
 	void writeHeader();
 	void writeFormatId();
-	void readAndCheckScreenShot();
+	void loadScreenShot();
+	bool saveScreenAndComputeMD5(WriteStream* stream, uint8 md5[16]);
 	void readScreenshotFromPlaybackFile();
 	void writeGameHash();
 	void writeRandomRecords();
@@ -151,7 +152,6 @@ private:
 	void writeScreenSettings();
 	void readEventsToBuffer(uint32 size);
 	void processScreenSettings();
-	void reallocBitmapBuff(uint16 widht, uint16 height, byte bpp);
 	uint32 _bitmapBuffSize;
 	byte *_bitmapBuff;
 	int _settingsSectionSize;
@@ -181,8 +181,9 @@ private:
 	SeekableReadStream *_playbackFile;
 	uint32 _lastScreenshotTime;
 	uint32 _screenshotPeriod;
+	uint8 _lastScreenMD5[16];
 	void saveScreenShot();
-
+	void checkRecordedMD5();
 	enum RecordMode {
 		kPassthrough = 0,
 		kRecorderRecord = 1,
