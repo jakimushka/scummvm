@@ -669,7 +669,7 @@ bool EventRecorder::processChunk(ChunkHeader &nextChunk) {
 			readEventsToBuffer(nextChunk.len);
 			_playbackParseState = kFileStateDone;
 			return false;
-		case MKTAG('T','H','M','B'): 
+		case MKTAG('B','M','H','T'): 
 			loadScreenShot();
 			_playbackParseState = kFileStateDone;
 			return false;
@@ -854,6 +854,7 @@ void EventRecorder::writeRandomRecords() {
 
 void EventRecorder::writeScreenSettings() {
 	_recordFile->writeUint32LE(MKTAG('S','C','R','N'));
+	//Chunk size = 4 (width(2 bytes) + height(2 bytes))
 	_recordFile->writeUint32LE(4);
 	_recordFile->writeUint16LE(g_system->getWidth());
 	_recordFile->writeSint16LE(g_system->getHeight());
@@ -945,32 +946,34 @@ void EventRecorder::saveScreenShot() {
 		_recordCount = 0;
 		_lastScreenshotTime = _fakeTimer;
 		uint8 md5[16];
-		saveScreenAndComputeMD5(_recordFile, md5);
+		Graphics::Surface screen;
+		if (!grabScreenAndComputeMD5(screen, md5)) {
+			return;
+		}
 		_recordFile->writeUint32LE(MKTAG('M','D','5',' '));
 		_recordFile->writeUint32LE(16);
 		_recordFile->write(md5, 16);
+		Graphics::saveThumbnail(*_recordFile, screen);
+		screen.free();
 	}
 }
 
+//TODO: Implement showing screenshots difference in case of different MD5 hashes
 void EventRecorder::loadScreenShot() {
-	readScreenshotFromPlaybackFile();
-	saveScreenAndComputeMD5(_screenshotsFile, _lastScreenMD5);
+	skipScreenshot();
 }
 
-bool EventRecorder::saveScreenAndComputeMD5(WriteStream* stream, uint8 md5[16]) {
-	Graphics::Surface screen;
+bool EventRecorder::grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]) {
 	if (!createScreenShot(screen)) {
 		warning("Can't save screenshot");
 		return false;
 	}	
-	Graphics::saveThumbnail(*stream);
 	MemoryReadStream bitmapStream((const byte*)screen.pixels, screen.w * screen.h * screen.format.bytesPerPixel);
 	computeStreamMD5(bitmapStream, md5);
-	screen.free();
 	return true;
 }
 
-void EventRecorder::readScreenshotFromPlaybackFile() {
+void EventRecorder::skipScreenshot() {
 	uint32 screenShotSize;
 	uint16 screenShotWidth;
 	uint16 screenShotHeight;
@@ -989,11 +992,18 @@ void EventRecorder::readEventsToBuffer(uint32 size) {
 }
 
 void EventRecorder::checkRecordedMD5() {
-	uint8 md5[16];
-	_playbackFile->read(md5, 16);
-	if (memcmp(md5, _lastScreenMD5, 16) != 0) {
+	uint8 currentMD5[16];
+	uint8 savedMD5[16];
+	Graphics::Surface screen;
+	if (!grabScreenAndComputeMD5(screen, currentMD5)) {
+		return;
+	}
+	_playbackFile->read(savedMD5, 16);
+	if (memcmp(savedMD5, currentMD5, 16) != 0) {
 		warning("Recorded and current screenshots are different");
 	}
+	Graphics::saveThumbnail(*_screenshotsFile, screen);
+	screen.free();
 }
 
 

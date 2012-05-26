@@ -122,8 +122,8 @@ private:
 	void writeHeader();
 	void writeFormatId();
 	void loadScreenShot();
-	bool saveScreenAndComputeMD5(WriteStream* stream, uint8 md5[16]);
-	void readScreenshotFromPlaybackFile();
+	bool grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
+	void skipScreenshot();
 	void writeGameHash();
 	void writeRandomRecords();
 	bool openRecordFile(const String &gameId);
@@ -181,7 +181,6 @@ private:
 	SeekableReadStream *_playbackFile;
 	uint32 _lastScreenshotTime;
 	uint32 _screenshotPeriod;
-	uint8 _lastScreenMD5[16];
 	void saveScreenShot();
 	void checkRecordedMD5();
 	enum RecordMode {
