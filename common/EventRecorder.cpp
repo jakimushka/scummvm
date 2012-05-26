@@ -179,6 +179,10 @@ EventRecorder::EventRecorder() : _tmpRecordFile(_recordBuffer, kRecordBuffSize),
 	_recorderMutex = g_system->createMutex();
 	_recordMode = kPassthrough;
 	_bitmapBuff = NULL;
+	_playbackFile = NULL;
+	_recordFile = NULL;
+	_screenshotsFile = NULL;
+
 }
 
 EventRecorder::~EventRecorder() {
@@ -469,9 +473,6 @@ uint32 EventRecorder::getRandomSeed(const String &name) {
 }
 
 void EventRecorder::init(Common::String gameId, const ADGameDescription* gameDesc) {
-	_playbackFile = NULL;
-	_recordFile = NULL;
-	_screenshotsFile = NULL;
 	_recordCount = 0;
 	_lastScreenshotTime = 0;
 	_bitmapBuffSize = 0;
