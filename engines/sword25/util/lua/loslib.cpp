@@ -17,6 +17,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#include "common/EventRecorder.h"
 #include "common/system.h"
 #include "common/textconsole.h"
 
@@ -63,7 +64,7 @@ static int os_getenv (lua_State *L) {
 
 static int os_clock (lua_State *L) {
   // Non-portable call to clock() replaced by invocation of OSystem::getMillis.
-  lua_pushnumber(L, ((lua_Number)g_system->getMillis())/(lua_Number)1000);
+  lua_pushnumber(L, ((lua_Number)g_eventRec.getMillis())/(lua_Number)1000);
   return 1;
 }
 

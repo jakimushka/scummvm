@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/EventRecorder.h"
 #include "base/plugins.h"
 #include "engines/advancedDetector.h"
 
@@ -64,6 +65,7 @@ public:
 
 bool Sword25MetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
 	if (desc) {
+		g_eventRec.init(desc->gameid, desc);
 		*engine = new Sword25::Sword25Engine(syst, desc);
 	}
 	return desc != 0;
