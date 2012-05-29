@@ -32,6 +32,8 @@
 #include "common/memstream.h"
 #include "backends/mixer/sdl/sdl-mixer.h"
 #include "backends/mixer/nullmixer/nullsdl-mixer.h"
+#include "backends/timer/sdl/sdl-timer.h"
+#include "backends/timer/default/default-timer.h"
 #include "engines/advancedDetector.h"
 #include "common/hashmap.h"
 #include "common/config-manager.h"
@@ -81,9 +83,11 @@ public:
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager* getMixerManager();
+	TimerManager* getTimerManager();
 	uint32 getRandomSeed(const String &name);
 	void init(Common::String gameid, const ADGameDescription* desc = NULL);
 	void registerMixerManager(SdlMixerManager* mixerManager);
+	void registerTimerManager(TimerManager* timerManager);
 private:	
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
 	enum PlaybackFileState {
@@ -117,7 +121,9 @@ private:
 	MutexRef _recorderMutex;
 	SdlMixerManager* _realMixerManager;
 	NullSdlMixerManager* _fakeMixerManager;
+	TimerManager* _timerManager;
 	void switchMixer();
+	void switchTimerManagers();
 	void writeVersion();
 	void writeHeader();
 	void writeFormatId();
