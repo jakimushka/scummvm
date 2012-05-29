@@ -78,10 +78,8 @@ DefaultTimerManager::~DefaultTimerManager() {
 	_head = 0;
 }
 
-void DefaultTimerManager::handler() {
+void DefaultTimerManager::handler(const uint32 curTime) {
 	Common::StackLock lock(_mutex);
-
-	const uint32 curTime = g_system->getMillis();
 
 	// Repeat as long as there is a TimerSlot that is scheduled to fire.
 	TimerSlot *slot = _head->next;

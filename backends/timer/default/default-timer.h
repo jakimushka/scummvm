@@ -47,7 +47,7 @@ public:
 	/**
 	 * Timer callback, to be invoked at regular time intervals by the backend.
 	 */
-	void handler();
+	void handler(const uint32 curTime);
 };
 
 #endif

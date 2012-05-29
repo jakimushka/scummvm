@@ -30,7 +30,7 @@
 #include "common/textconsole.h"
 
 static Uint32 timer_handler(Uint32 interval, void *param) {
-	((DefaultTimerManager *)param)->handler();
+	((DefaultTimerManager *)param)->handler(g_system->getMillis());
 	return interval;
 }
 
