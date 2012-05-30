@@ -27,7 +27,7 @@
 
 #include "kyra/kyra_mr.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 Common::Error KyraEngine_MR::saveGameStateIntern(int slot, const char *saveName, const Graphics::Surface *thumb) {
@@ -259,7 +259,7 @@ Common::Error KyraEngine_MR::loadGameState(int slot) {
 	_itemInHand = in.readSint16();
 
 	if (header.originalSave) {
-		uint32 currentTime = g_eventRec.getMillis();
+		uint32 currentTime = _system->getMillis();
 
 		for (int i = 0; i < 6; ++i)
 			_timer->setDelay(i, in.readSint32LE());

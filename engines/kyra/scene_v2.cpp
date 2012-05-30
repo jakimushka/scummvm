@@ -21,7 +21,7 @@
  */
 
 #include "kyra/kyra_v2.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -37,15 +37,15 @@ void KyraEngine_v2::freeSceneAnims() {
 }
 
 void KyraEngine_v2::updateSpecialSceneScripts() {
-	uint32 nextTime = g_eventRec.getMillis() + _tickLength;
+	uint32 nextTime = _system->getMillis() + _tickLength;
 	const int startScript = _lastProcessedSceneScript;
 
-	while (g_eventRec.getMillis() <= nextTime) {
-		if (_sceneSpecialScriptsTimer[_lastProcessedSceneScript] <= g_eventRec.getMillis() &&
+	while (_system->getMillis() <= nextTime) {
+		if (_sceneSpecialScriptsTimer[_lastProcessedSceneScript] <= _system->getMillis() &&
 		        !_specialSceneScriptState[_lastProcessedSceneScript]) {
 			_specialSceneScriptRunFlag = true;
 
-			while (_specialSceneScriptRunFlag && _sceneSpecialScriptsTimer[_lastProcessedSceneScript] <= g_eventRec.getMillis()) {
+			while (_specialSceneScriptRunFlag && _sceneSpecialScriptsTimer[_lastProcessedSceneScript] <= _system->getMillis()) {
 				if (!_emc->run(&_sceneSpecialScripts[_lastProcessedSceneScript]))
 					_specialSceneScriptRunFlag = false;
 			}

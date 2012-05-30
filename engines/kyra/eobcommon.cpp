@@ -31,7 +31,7 @@
 
 #include "common/config-manager.h"
 #include "common/translation.h"
-#include "common/EventRecorder.h"
+
 #include "audio/mididrv.h"
 #include "audio/mixer.h"
 
@@ -499,7 +499,7 @@ Common::Error EoBCoreEngine::init() {
 	_monsterFlashOverlay[0] = _monsterStoneOverlay[0] = 0;
 
 	// Prevent autosave on game startup
-	_lastAutosave = g_eventRec.getMillis();
+	_lastAutosave = _system->getMillis();
 
 #ifdef ENABLE_KEYMAPPER
 	_eventMan->getKeymapper()->pushKeymap(kKeymapName, true);
@@ -613,9 +613,9 @@ void EoBCoreEngine::startupNew() {
 }
 
 void EoBCoreEngine::runLoop() {
-	_envAudioTimer = g_eventRec.getMillis() + (rollDice(1, 10, 3) * 18 * _tickLength);
+	_envAudioTimer = _system->getMillis() + (rollDice(1, 10, 3) * 18 * _tickLength);
 	_flashShapeTimer = 0;
-	_drawSceneTimer = g_eventRec.getMillis();
+	_drawSceneTimer = _system->getMillis();
 
 	_screen->setFont(Screen::FID_6_FNT);
 	_screen->setScreenDim(7);
@@ -637,10 +637,10 @@ void EoBCoreEngine::runLoop() {
 		if (_sceneUpdateRequired)
 			drawScene(1);
 
-		if (_envAudioTimer >= g_eventRec.getMillis() || (_flags.gameID == GI_EOB1 && (_currentLevel == 0 || _currentLevel > 3)))
+		if (_envAudioTimer >= _system->getMillis() || (_flags.gameID == GI_EOB1 && (_currentLevel == 0 || _currentLevel > 3)))
 			continue;
 
-		_envAudioTimer = g_eventRec.getMillis() + (rollDice(1, 10, 3) * 18 * _tickLength);
+		_envAudioTimer = _system->getMillis() + (rollDice(1, 10, 3) * 18 * _tickLength);
 		snd_processEnvironmentalSoundEffect(_flags.gameID == GI_EOB1 ? 30 : (rollDice(1, 2, -1) ? 27 : 28), _currentBlock + rollDice(1, 12, -1));
 		updateEnvironmentalSfx(0);
 		turnUndeadAuto();
@@ -1595,7 +1595,7 @@ void EoBCoreEngine::delay(uint32 millis, bool, bool) {
 	while (millis && !shouldQuit() && !(_allowSkip && skipFlag())) {
 		updateInput();
 		uint32 step = MIN<uint32>(millis, (_tickLength / 5));
-		g_eventRec.delayMillis(step);
+		_system->delayMillis(step);
 		millis -= step;
 	}
 }

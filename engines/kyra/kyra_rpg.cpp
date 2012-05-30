@@ -24,7 +24,7 @@
 
 #include "kyra/kyra_rpg.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -320,7 +320,7 @@ uint16 KyraRpgEngine::processDialogue() {
 }
 
 void KyraRpgEngine::delayUntil(uint32 time, bool, bool doUpdate, bool isMainLoop) {
-	uint32 curTime = g_eventRec.getMillis();
+	uint32 curTime = _system->getMillis();
 	if (time > curTime)
 		delay(time - curTime, doUpdate, isMainLoop);
 }

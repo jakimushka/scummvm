@@ -26,7 +26,7 @@
 #include "common/config-manager.h"
 #include "common/error.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 KyraEngine_v2::KyraEngine_v2(OSystem *system, const GameFlags &flags, const EngineDesc &desc) : KyraEngine_v1(system, flags), _desc(desc) {
@@ -132,7 +132,7 @@ void KyraEngine_v2::pauseEngineIntern(bool pause) {
 	KyraEngine_v1::pauseEngineIntern(pause);
 
 	if (!pause) {
-		uint32 pausedTime = g_eventRec.getMillis() - _pauseStart;
+		uint32 pausedTime = _system->getMillis() - _pauseStart;
 
 		for (int i = 0; i < ARRAYSIZE(_sceneSpecialScriptsTimer); ++i) {
 			if (_sceneSpecialScriptsTimer[i])
@@ -140,12 +140,12 @@ void KyraEngine_v2::pauseEngineIntern(bool pause) {
 		}
 
 	} else {
-		_pauseStart = g_eventRec.getMillis();
+		_pauseStart = _system->getMillis();
 	}
 }
 
 void KyraEngine_v2::delay(uint32 amount, bool updateGame, bool isMainLoop) {
-	uint32 start = g_eventRec.getMillis();
+	uint32 start = _system->getMillis();
 	do {
 		if (updateGame) {
 			if (_chatText)
@@ -157,8 +157,8 @@ void KyraEngine_v2::delay(uint32 amount, bool updateGame, bool isMainLoop) {
 		}
 
 		if (amount > 0)
-			g_eventRec.delayMillis(amount > 10 ? 10 : amount);
-	} while (!skipFlag() && g_eventRec.getMillis() < start + amount && !shouldQuit());
+			_system->delayMillis(amount > 10 ? 10 : amount);
+	} while (!skipFlag() && _system->getMillis() < start + amount && !shouldQuit());
 }
 
 bool KyraEngine_v2::checkSpecialSceneExit(int num, int x, int y) {
@@ -233,12 +233,12 @@ void KyraEngine_v2::updateCharPosWithUpdate() {
 }
 
 int KyraEngine_v2::updateCharPos(int *table, int force) {
-	if (_updateCharPosNextUpdate > g_eventRec.getMillis() && !force)
+	if (_updateCharPosNextUpdate > _system->getMillis() && !force)
 		return 0;
 	_mainCharacter.x1 += _charAddXPosTable[_mainCharacter.facing];
 	_mainCharacter.y1 += _charAddYPosTable[_mainCharacter.facing];
 	updateCharAnimFrame(table);
-	_updateCharPosNextUpdate = g_eventRec.getMillis() + getCharacterWalkspeed() * _tickLength;
+	_updateCharPosNextUpdate = _system->getMillis() + getCharacterWalkspeed() * _tickLength;
 	return 1;
 }
 

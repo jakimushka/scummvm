@@ -29,7 +29,7 @@
 
 #include "common/savefile.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 #include "graphics/scaler.h"
 
 namespace Kyra {
@@ -534,8 +534,7 @@ int GUI_LoK::buttonMenuCallback(Button *caller) {
 }
 
 void GUI_LoK::getInput() {
-	uint32 now = g_eventRec.getMillis(true);
-	debugC(3, kDebugLevelEventRec, "%s_1(%d)", __FUNCTION__, now);
+	uint32 now = _vm->_system->getMillis();
 
 	_vm->checkInput(_menuButtonList);
 	_vm->removeInputTop();
@@ -545,8 +544,7 @@ void GUI_LoK::getInput() {
 		_lastScreenUpdate = now;
 	}
 
-	g_eventRec.delayMillis(3,true);
-	debugC(3, kDebugLevelEventRec, "%s_2(3)", __FUNCTION__);
+	_vm->_system->delayMillis(3);
 }
 
 int GUI_LoK::resumeGame(Button *button) {

@@ -142,7 +142,8 @@ void Sound::voiceStop(const Audio::SoundHandle *handle) {
 }
 
 bool Sound::voiceIsPlaying(const Audio::SoundHandle *handle) const {
-	if (!handle) {		for (int h = 0; h < kNumChannelHandles; ++h) {
+	if (!handle) {
+		for (int h = 0; h < kNumChannelHandles; ++h) {
 			if (_mixer->isSoundHandleActive(_soundChannels[h]))
 				return true;
 		}

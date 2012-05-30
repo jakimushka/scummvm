@@ -27,7 +27,7 @@
 #include "kyra/script_eob.h"
 #include "kyra/timer.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 
@@ -36,7 +36,7 @@ namespace Kyra {
 void EoBCoreEngine::loadLevel(int level, int sub) {
 	_currentLevel = level;
 	_currentSub = sub;
-	uint32 end = g_eventRec.getMillis() + 500;
+	uint32 end = _system->getMillis() + 500;
 
 	readLevelFileData(level);
 
@@ -206,7 +206,7 @@ Common::String EoBCoreEngine::initLevelData(int sub) {
 		_scriptTimersMode = *pos++;
 		_scriptTimers[0].ticks = READ_LE_UINT16(pos);
 		_scriptTimers[0].func = 0;
-		_scriptTimers[0].next = g_eventRec.getMillis() + _scriptTimers[0].ticks * _tickLength;
+		_scriptTimers[0].next = _system->getMillis() + _scriptTimers[0].ticks * _tickLength;
 		pos += 2;
 	} else {
 		for (int i = 0; i < 2; i++) {
@@ -548,13 +548,13 @@ void EoBCoreEngine::drawScene(int refresh) {
 		_sceneDrawPage2 = 0;
 	}
 
-	uint32 ct = g_eventRec.getMillis();
+	uint32 ct = _system->getMillis();
 	if (_flashShapeTimer > ct) {
 		int diff = _flashShapeTimer - ct;
 		while ((diff > 0) && !shouldQuit()) {
 			updateInput();
 			uint32 step = MIN<uint32>(diff, _tickLength / 5);
-			g_eventRec.delayMillis(step);
+			_system->delayMillis(step);
 			diff -= step;
 		}
 	}
@@ -575,7 +575,7 @@ void EoBCoreEngine::drawScene(int refresh) {
 
 	if (_sceneDefaultUpdate) {
 		_sceneDefaultUpdate = false;
-		_drawSceneTimer = g_eventRec.getMillis() + 4 * _tickLength;
+		_drawSceneTimer = _system->getMillis() + 4 * _tickLength;
 	}
 
 	_sceneUpdateRequired = false;

@@ -30,7 +30,7 @@
 #include "common/system.h"
 
 #include "base/version.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 class EoBIntroPlayer {
@@ -151,7 +151,7 @@ void EoBIntroPlayer::openingCredits() {
 
 	for (int i = 0; i < 4 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
 		_screen->loadBitmap(_filesOpening[i], 5, 3, 0);
-		uint32 nextFrameTimer = g_eventRec.getMillis() + _openingFrmDelay[i + 1] * _vm->_tickLength;
+		uint32 nextFrameTimer = _vm->_system->getMillis() + _openingFrmDelay[i + 1] * _vm->_tickLength;
 		_screen->convertPage(3, 4, _vm->_cgaMappingAlt);
 		_screen->crossFadeRegion(0, 50, 0, 50, 320, 102, 4, 0);
 		_vm->delayUntil(nextFrameTimer);
@@ -185,7 +185,7 @@ void EoBIntroPlayer::tower() {
 	_screen->setCurPage(0);
 
 	for (int i = 0; i < 64 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 2) {
-		uint32 end = g_eventRec.getMillis() + 2 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 2 * _vm->_tickLength;
 		_screen->copyRegion(0, 142 - i, 96, 0, 128, i + 1, 4, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(0, 0, 96, i + 1, 128, 167 - i, 2, 0, Screen::CR_NO_P_CHECK);
 		if (!i)
@@ -195,7 +195,7 @@ void EoBIntroPlayer::tower() {
 	}
 
 	for (int i = 0; i < 24 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 2) {
-		uint32 end = g_eventRec.getMillis() + 2 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 2 * _vm->_tickLength;
 		_screen->copyRegion(0, 79 - i, 96, 0, 24, 65 + i, 4, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(104, 79 - i, 200, 0, 24, 65 + i, 4, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(24, 110, 120, i + 31, 80, 34, 4, 0, Screen::CR_NO_P_CHECK);
@@ -206,7 +206,7 @@ void EoBIntroPlayer::tower() {
 	}
 
 	for (int i = 0; i < 56 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 2) {
-		uint32 end = g_eventRec.getMillis() + 2 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 2 * _vm->_tickLength;
 		_screen->copyRegion(0, 56, 96, i, 24, 54, 4, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(104, 56, 200, i, 24, 54, 4, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(0, 110, 96, 54 + i, 128, 34, 4, 0, Screen::CR_NO_P_CHECK);
@@ -258,7 +258,7 @@ void EoBIntroPlayer::orb() {
 	_vm->snd_playSoundEffect(6);
 
 	for (int i = -1; i < 4 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 		if (i >= 0)
 			_screen->drawShape(2, shp[i], 16, 16, 0);
 		_screen->drawShape(2, shp[4], 0, 0, 0);
@@ -274,7 +274,7 @@ void EoBIntroPlayer::orb() {
 	_vm->snd_playSoundEffect(6);
 
 	for (int i = 3; i > -2 && !_vm->shouldQuit() && !_vm->skipFlag(); i--) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 		_screen->fillRect(16, 16, 143, 119, 12, 2);
 		if (i >= 0)
 			_screen->drawShape(2, shp[i], 16, 16, 0);
@@ -313,7 +313,7 @@ void EoBIntroPlayer::waterdeepEntry() {
 	_vm->snd_playSoundEffect(6);
 
 	for (int i = 0; i < 4 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 		_screen->drawShape(0, shp[i], 80, 24, 0);
 		delete[] shp[i];
 		_screen->updateScreen();
@@ -339,7 +339,7 @@ void EoBIntroPlayer::waterdeepEntry() {
 	_screen->convertPage(3, 4, _vm->_cgaMappingAlt);
 
 	for (int i = 0; i < 3 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 		_screen->fillRect(0, 0, 159, 135, 12, 2);
 		_screen->drawShape(2, shp[i], 0, 0, 0);
 		_screen->copyRegion(0, 0, 80, 24, 160, 136, 2, 0, Screen::CR_NO_P_CHECK);
@@ -360,7 +360,7 @@ void EoBIntroPlayer::waterdeepEntry() {
 	int cy = 11;
 
 	for (int i = 0; i < 70 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 
 		_screen->copyRegion(cx - 2, cy - 2, 0, 0, 48, 36, 4, 4, Screen::CR_NO_P_CHECK);
 		_screen->drawShape(4, shp3[((i & 3) == 3) ? 1 : (i & 3)], cx, cy, 0);
@@ -403,7 +403,7 @@ void EoBIntroPlayer::king() {
 	int h = 1;
 
 	for (int i = 0; i < 10 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->copyRegion(x << 3, y << 3, x << 3, y << 3, w << 3, h << 3, 4, 0, Screen::CR_NO_P_CHECK);
 		if (x > 6)
 			x --;
@@ -441,7 +441,7 @@ void EoBIntroPlayer::king() {
 
 	for (bool runloop = true; runloop && !_vm->shouldQuit() && !_vm->skipFlag();) {
 		runloop = false;
-		uint32 end = g_eventRec.getMillis() + 2 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 2 * _vm->_tickLength;
 
 		for (int i = 0; i < 4; i++) {
 			if (dy[i] <= 82)
@@ -497,7 +497,7 @@ void EoBIntroPlayer::hands() {
 	_vm->snd_playSoundEffect(11);
 
 	for (int i = -22; i <= 20 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 167, 63, 157);
 		_screen->drawShape(2, shp1, i, 4, 0);
 		_screen->drawShape(2, shp2, 105 - i, 4, 0);
@@ -525,7 +525,7 @@ void EoBIntroPlayer::hands() {
 	_vm->delay(15 * _vm->_tickLength);
 
 	for (int i = -80; i <= 0 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 135, 63, 157);
 		_screen->drawShape(2, shp1, 32, i, 0);
 		_screen->drawShape(2, shp2, 40, i + 64, 0);
@@ -538,7 +538,7 @@ void EoBIntroPlayer::hands() {
 	_vm->delay(5 * _vm->_tickLength);
 
 	for (int i = 0; i > -54 && !_vm->shouldQuit() && !_vm->skipFlag(); i -= 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 135, 63, 157);
 		_screen->drawShape(2, shp3, 12, 64 + i, 0);
 		_screen->drawShape(2, shp1, 32, i, 0);
@@ -565,7 +565,7 @@ void EoBIntroPlayer::hands() {
 	_vm->snd_playSoundEffect(11);
 
 	for (int i = -56; i <= -8 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 143, 95, 157);
 		_screen->drawShape(2, shp1, i, i, 0);
 		_screen->drawShape(2, shp2, (i == -8) ? 55 : 52, (i == -8) ? 52 : 49, 0);
@@ -591,7 +591,7 @@ void EoBIntroPlayer::hands() {
 
 	int dy = 90;
 	for (int i = -40; i <= 0 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 87, 112, 157);
 		_screen->drawShape(2, shp2, 0, dy, 0);
 		_screen->copyRegion(0, 0, 120, 48, 88, 112, 2, 0, Screen::CR_NO_P_CHECK);
@@ -603,7 +603,7 @@ void EoBIntroPlayer::hands() {
 	_vm->snd_playSoundEffect(13);
 
 	for (int i = -40; i <= 0 && !_vm->shouldQuit() && !_vm->skipFlag(); i += 4) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->fillRect(0, 0, 87, 39, 157);
 		_screen->drawShape(2, shp1, 0, i, 0);
 		_screen->copyRegion(0, 0, 120, 48, 88, 112, 2, 0, Screen::CR_NO_P_CHECK);
@@ -639,7 +639,7 @@ void EoBIntroPlayer::waterdeepExit() {
 	int cy = 128;
 
 	for (int i = 0; i < 70 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 3 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 3 * _vm->_tickLength;
 		int fx = cx - 2;
 		if (fx < 160)
 			fx = 160;
@@ -690,7 +690,7 @@ void EoBIntroPlayer::waterdeepExit() {
 	cy = 136;
 	int dy = 0;
 	for (int i = 0; i < 19 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->copyRegion(cx, cy, 80, dy + 16, 160, 8, 2, 0, Screen::CR_NO_P_CHECK);
 		cy += 8;
 		dy += 8;
@@ -706,7 +706,7 @@ void EoBIntroPlayer::waterdeepExit() {
 	_vm->delay(60 * _vm->_tickLength);
 
 	for (int i = 0; i < 56 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() +_vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() +_vm->_tickLength;
 		_screen->copyRegion(0, 136 + i, 80, 16, 160, 56 - i, 2, 0, Screen::CR_NO_P_CHECK);
 		_screen->copyRegion(160, 0, 80, 72 - i, 160, 96 + i, 2, 0, Screen::CR_NO_P_CHECK);
 		_screen->updateScreen();
@@ -714,7 +714,7 @@ void EoBIntroPlayer::waterdeepExit() {
 	}
 
 	for (int i = 1; i < 48 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->copyRegion(160, i, 80, 16, 160, 152, 2, 0, Screen::CR_NO_P_CHECK);
 		_screen->updateScreen();
 		_vm->delayUntil(end);
@@ -745,14 +745,14 @@ void EoBIntroPlayer::tunnel() {
 	delete[] shp2;
 
 	for (int i = 0; i < 3 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + 8 * _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + 8 * _vm->_tickLength;
 		_screen->copyRegion(0, 0, 80, 32, 160, 120, 4, 0, Screen::CR_NO_P_CHECK);
 		_vm->snd_playSoundEffect(7);
 		_screen->updateScreen();
 		_vm->delayUntil(end);
 		_screen->copyRegion(0, 0, 80, 32, 160, 120, 2, 0, Screen::CR_NO_P_CHECK);
 		_vm->snd_playSoundEffect(7);
-		end = g_eventRec.getMillis() + 8 * _vm->_tickLength;
+		end = _vm->_system->getMillis() + 8 * _vm->_tickLength;
 		_screen->updateScreen();
 		_vm->delayUntil(end);
 	}
@@ -787,7 +787,7 @@ void EoBIntroPlayer::tunnel() {
 	_vm->snd_playSoundEffect(4);
 
 	for (int i = 0; i < 30 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		if (i == 0)
 			_screen->fillRect(0, 168, 319, 199, 12, 0);
 		_screen->copyRegion(80, 25 + (_vm->_rnd.getRandomNumber(255) & 7), 80, 24, 160, 144, 2, 0, Screen::CR_NO_P_CHECK);
@@ -798,12 +798,12 @@ void EoBIntroPlayer::tunnel() {
 	_vm->snd_playSoundEffect(9);
 
 	for (int i = 0; i < 6 && !_vm->shouldQuit() && !_vm->skipFlag(); i++) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->copyRegion(_tvlX1[i] << 3, _tvlY1[i], _tvlX2[i] << 3, _tvlY2[i], _tvlW[i] << 3, _tvlH[i], 4, 2, Screen::CR_NO_P_CHECK);
 		for (int ii = 0; ii < 4 && !_vm->shouldQuit() && !_vm->skipFlag(); ii++) {
 			_screen->updateScreen();
 			_vm->delayUntil(end);
-			end = g_eventRec.getMillis() + _vm->_tickLength;
+			end = _vm->_system->getMillis() + _vm->_tickLength;
 			_screen->copyRegion(80, 25 + (_vm->_rnd.getRandomNumber(255) & 7), 80, 24, 160, 144, 2, 0, Screen::CR_NO_P_CHECK);
 		}
 	}
@@ -905,7 +905,7 @@ void EoBIntroPlayer::boxMorphTransition(int targetDestX, int targetDestY, int ta
 	int w = 1;
 	int h = 1;
 	for (bool runloop = true; runloop && !_vm->shouldQuit() && !_vm->skipFlag();) {
-		uint32 end = g_eventRec.getMillis() + _vm->_tickLength;
+		uint32 end = _vm->_system->getMillis() + _vm->_tickLength;
 		_screen->copyRegion(targetSrcX << 3, targetSrcY << 3, targetDestX << 3, targetDestY << 3, w << 3, h << 3, 2, 0, Screen::CR_NO_P_CHECK);
 		if (originX1 < targetDestX)
 			_screen->copyRegion(312, 0, originX1 << 3, 0, 8, 176, 0, 0, Screen::CR_NO_P_CHECK);
@@ -956,7 +956,7 @@ void EoBIntroPlayer::boxMorphTransition(int targetDestX, int targetDestY, int ta
 void EoBIntroPlayer::whirlTransition() {
 	for (int i = 0; i < 2; i++) {
 		for (int ii = 0; ii < 8; ii++) {
-			uint32 e = g_eventRec.getMillis() + 3;
+			uint32 e = _vm->_system->getMillis() + 3;
 			if (ii & 1) {
 				for (int iii = i + ii; iii < 320; iii += 8)
 					_screen->drawClippedLine(iii, 0, iii, 199, 12);
@@ -965,9 +965,9 @@ void EoBIntroPlayer::whirlTransition() {
 					_screen->drawClippedLine(0, iii, 319, iii, 12);
 			}
 			_screen->updateScreen();
-			uint32 c = g_eventRec.getMillis();
+			uint32 c = _vm->_system->getMillis();
 			if (e > c)
-				g_eventRec.delayMillis(e - c);
+				_vm->_system->delayMillis(e - c);
 		}
 	}
 }

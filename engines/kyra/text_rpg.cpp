@@ -25,7 +25,7 @@
 
 #include "kyra/kyra_rpg.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -535,7 +535,7 @@ void TextDisplayer_rpg::textPageBreak() {
 
 	uint32 speechPartTime = 0;
 	if (vm()->speechEnabled() && vm()->_activeVoiceFileTotalTime && _numCharsTotal)
-		speechPartTime = g_eventRec.getMillis() + ((_numCharsPrinted * vm()->_activeVoiceFileTotalTime) / _numCharsTotal);
+		speechPartTime = vm()->_system->getMillis() + ((_numCharsPrinted * vm()->_activeVoiceFileTotalTime) / _numCharsTotal);
 
 	const ScreenDim *dim = _screen->getScreenDim(_screen->curDimIndex());
 
@@ -581,7 +581,7 @@ void TextDisplayer_rpg::textPageBreak() {
 			vm()->update();
 
 			if (vm()->speechEnabled()) {
-				if (((g_eventRec.getMillis() > speechPartTime) || (vm()->snd_updateCharacterSpeech() != 2)) && speechPartTime) {
+				if (((vm()->_system->getMillis() > speechPartTime) || (vm()->snd_updateCharacterSpeech() != 2)) && speechPartTime) {
 					loop = false;
 					inputFlag = vm()->_keyMap[Common::KEYCODE_RETURN];
 					break;

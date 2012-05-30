@@ -28,7 +28,7 @@
 #include "common/memstream.h"
 #include "common/system.h"
 #include "common/config-manager.h"
-#include "common/EventRecorder.h"
+
 #include "engines/util.h"
 
 #include "graphics/cursorman.h"
@@ -1039,8 +1039,7 @@ void Screen::shuffleScreen(int sx, int sy, int w, int h, int srcPage, int dstPag
 	int32 start, now;
 	int wait;
 	for (y = 0; y < h && !_vm->shouldQuit(); ++y) {
-		start = (int32)g_eventRec.getMillis(true);
-		debug("screen.cpp::shuffleScreen(start = %d)",start);
+		start = (int32)_system->getMillis();
 		int y_cur = y;
 		for (x = 0; x < w; ++x) {
 			int i = sx + x_offs[x];
@@ -1056,8 +1055,7 @@ void Screen::shuffleScreen(int sx, int sy, int w, int h, int srcPage, int dstPag
 		// forcing full update for now
 		_forceFullUpdate = true;
 		updateScreen();
-		now = (int32)g_eventRec.getMillis(true);
-		debug("screen.cpp::shuffleScreen_now(now = %d)",now);
+		now = (int32)_system->getMillis();
 		wait = ticks * _vm->tickLength() - (now - start);
 		if (wait > 0)
 			_vm->delay(wait);
@@ -3334,7 +3332,7 @@ void Screen::crossFadeRegion(int x1, int y1, int x2, int y2, int w, int h, int s
 
 	for (int i = 0; i < h; i++) {
 		int iH = i;
-		uint32 end = g_eventRec.getMillis() + 3;
+		uint32 end = _system->getMillis() + 3;
 		for (int ii = 0; ii < w; ii++) {
 			int sX = (x1 + wB[ii]);
 			int sY = (y1 + hB[iH]);
@@ -3353,9 +3351,9 @@ void Screen::crossFadeRegion(int x1, int y1, int x2, int y2, int w, int h, int s
 		if (!(i % 10))
 			updateScreen();
 
-		uint32 cur = g_eventRec.getMillis();
+		uint32 cur = _system->getMillis();
 		if (end > cur)
-			g_eventRec.delayMillis(end - cur);
+			_system->delayMillis(end - cur);
 	}
 
 	updateScreen();

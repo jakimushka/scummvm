@@ -32,7 +32,7 @@
 #include "common/savefile.h"
 #include "common/system.h"
 #include "common/config-manager.h"
-#include "common/EventRecorder.h"
+
 #include "graphics/scaler.h"
 
 #include "backends/keymapper/keymapper.h"
@@ -694,7 +694,7 @@ void LoLEngine::gui_toggleButtonDisplayMode(int shapeIndex, int mode) {
 		if (!_lastButtonShape)
 			return;
 
-		t = g_eventRec.getMillis();
+		t = _system->getMillis();
 		if (_buttonPressTimer > t)
 			delay(_buttonPressTimer - t);
 
@@ -733,7 +733,7 @@ void LoLEngine::gui_toggleButtonDisplayMode(int shapeIndex, int mode) {
 		_screen->setCurPage(cp);
 	}
 
-	_buttonPressTimer = g_eventRec.getMillis() + 6 * _tickLength;
+	_buttonPressTimer = _system->getMillis() + 6 * _tickLength;
 }
 
 void LoLEngine::gui_toggleFightButtons(bool disable) {
@@ -1350,7 +1350,7 @@ int LoLEngine::clickedInventorySlot(Button *button) {
 		KyraEngine_v1::snd_playSoundEffect(99);
 
 		for (int i = 0; i < 25; i++) {
-			uint32 delayTimer = g_eventRec.getMillis() + 7 * _tickLength;
+			uint32 delayTimer = _system->getMillis() + 7 * _tickLength;
 			_screen->copyRegion(button->x, button->y - 3, 0, 0, 25, 27, 2, 2);
 			wsa->displayFrame(i, 2, 0, 0, 0x4000, 0, 0);
 			_screen->copyRegion(0, 0, button->x, button->y - 3, 25, 27, 2, 0);
@@ -1624,9 +1624,9 @@ int LoLEngine::clickedRestParty(Button *button) {
 		if (a > 15)
 			a = 15;
 
-		uint32 delay1 = g_eventRec.getMillis() + h * _tickLength;
-		uint32 delay2 = g_eventRec.getMillis() + m * _tickLength;
-		uint32 delay3 = g_eventRec.getMillis() + a * _tickLength;
+		uint32 delay1 = _system->getMillis() + h * _tickLength;
+		uint32 delay2 = _system->getMillis() + m * _tickLength;
+		uint32 delay3 = _system->getMillis() + a * _tickLength;
 
 		_partyAwake = false;
 		_updateFlags |= 1;
@@ -1665,7 +1665,7 @@ int LoLEngine::clickedRestParty(Button *button) {
 			}
 
 			if (!_partyAwake) {
-				if (g_eventRec.getMillis() > delay3) {
+				if (_system->getMillis() > delay3) {
 					for (int i = 0; i < 4; i++) {
 						if (!(needPoisoningFlags & (1 << i)))
 							continue;
@@ -1673,10 +1673,10 @@ int LoLEngine::clickedRestParty(Button *button) {
 						if (_characters[i].flags & 8)
 							needPoisoningFlags &= ~(1 << i);
 					}
-					delay3 = g_eventRec.getMillis() + a * _tickLength;
+					delay3 = _system->getMillis() + a * _tickLength;
 				}
 
-				if (g_eventRec.getMillis() > delay1) {
+				if (_system->getMillis() > delay1) {
 					for (int i = 0; i < 4; i++) {
 						if (!(needHealingFlags & (1 << i)))
 							continue;
@@ -1685,10 +1685,10 @@ int LoLEngine::clickedRestParty(Button *button) {
 						if (_characters[i].hitPointsCur == _characters[i].hitPointsMax)
 							needHealingFlags &= ~(1 << i);
 					}
-					delay1 = g_eventRec.getMillis() + h * _tickLength;
+					delay1 = _system->getMillis() + h * _tickLength;
 				}
 
-				if (g_eventRec.getMillis() > delay2) {
+				if (_system->getMillis() > delay2) {
 					for (int i = 0; i < 4; i++) {
 						if (!(needMagicGainFlags & (1 << i)))
 							continue;
@@ -1697,7 +1697,7 @@ int LoLEngine::clickedRestParty(Button *button) {
 						if (_characters[i].magicPointsCur == _characters[i].magicPointsMax)
 							needMagicGainFlags &= ~(1 << i);
 					}
-					delay2 = g_eventRec.getMillis() + m * _tickLength;
+					delay2 = _system->getMillis() + m * _tickLength;
 				}
 				_screen->updateScreen();
 			}
@@ -2396,11 +2396,11 @@ int GUI_LoL::runMenu(Menu &menu) {
 			processHighlights(*_currentMenu);
 
 			if (_currentMenu == &_savenameMenu) {
-				if (textCursorTimer <= g_eventRec.getMillis()) {
+				if (textCursorTimer <= _vm->_system->getMillis()) {
 					Screen::FontId f = _screen->setFont(Screen::FID_9_FNT);
 					fC = _screen->getTextWidth(_saveDescription);
 					textCursorStatus ^= 1;
-					textCursorTimer = g_eventRec.getMillis() + 20 * _vm->_tickLength;
+					textCursorTimer = _vm->_system->getMillis() + 20 * _vm->_tickLength;
 					_screen->fillRect((d->sx << 3) + fC, d->sy, (d->sx << 3) + fC + wW, d->sy + d->h - (_vm->gameFlags().use16ColorMode ? 2 : 1), textCursorStatus ? d->unk8 : d->unkA, 0);
 					_screen->updateScreen();
 					f = _screen->setFont(f);

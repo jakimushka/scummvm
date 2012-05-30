@@ -24,7 +24,6 @@
 #include "kyra/animator_lok.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 namespace Kyra {
 
@@ -198,7 +197,7 @@ void KyraEngine_LoK::wipeDownMouseItem(int xpos, int ypos) {
 	while (height >= 0) {
 		restoreItemRect1(xpos, ypos);
 		_screen->setNewShapeHeight(_shapes[216 + _itemInHand], height);
-		uint32 nextTime = g_eventRec.getMillis() + 1 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 1 * _tickLength;
 		_screen->drawShape(0, _shapes[216 + _itemInHand], xpos, y, 0, 0);
 		_screen->updateScreen();
 		y += 2;
@@ -517,7 +516,7 @@ void KyraEngine_LoK::itemDropDown(int x, int y, int destX, int destY, byte freeI
 			++addY;
 			drawY = tempY - 16;
 			backUpItemRect0(drawX, drawY);
-			uint32 nextTime = g_eventRec.getMillis() + 1 * _tickLength;
+			uint32 nextTime = _system->getMillis() + 1 * _tickLength;
 			_screen->drawShape(0, _shapes[216 + item], drawX, drawY, 0, 0);
 			_screen->updateScreen();
 			delayUntil(nextTime);
@@ -554,7 +553,7 @@ void KyraEngine_LoK::itemDropDown(int x, int y, int destX, int destY, byte freeI
 				drawX = (unkX >> 4) - 8;
 				drawY = tempY - 16;
 				backUpItemRect0(drawX, drawY);
-				uint32 nextTime = g_eventRec.getMillis() + 1 * _tickLength;
+				uint32 nextTime = _system->getMillis() + 1 * _tickLength;
 				_screen->drawShape(0, _shapes[216 + item], drawX, drawY, 0, 0);
 				_screen->updateScreen();
 				delayUntil(nextTime);
@@ -608,7 +607,7 @@ void KyraEngine_LoK::itemSpecialFX1(int x, int y, int item) {
 		_screen->setNewShapeHeight(shape, i);
 		--startY;
 		restoreItemRect0(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 1 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 1 * _tickLength;
 		_screen->drawShape(0, shape, x, startY, 0, 0);
 		_screen->updateScreen();
 		delayUntil(nextTime);
@@ -627,8 +626,7 @@ void KyraEngine_LoK::itemSpecialFX2(int x, int y, int item) {
 
 	for (int i = 201; i <= 205; ++i) {
 		restoreItemRect0(x, y);
-		uint32 nextTime = g_eventRec.getMillis(true) + 3 * _tickLength;
-		debug("items_lok.cpp::itemSpecialFX2_first(nextTime = %d)",nextTime);
+		uint32 nextTime = _system->getMillis() + 3 * _tickLength;
 		_screen->drawShape(0, _shapes[i], x, y + yAdd, 0, 0);
 		_screen->updateScreen();
 		delayUntil(nextTime);
@@ -636,8 +634,7 @@ void KyraEngine_LoK::itemSpecialFX2(int x, int y, int item) {
 
 	for (int i = 204; i >= 201; --i) {
 		restoreItemRect0(x, y);
-		uint32 nextTime = g_eventRec.getMillis(true) + 3 * _tickLength;
-		debug("items_lok.cpp::itemSpecialFX2_second(nextTime = %d)",nextTime);
+		uint32 nextTime = _system->getMillis() + 3 * _tickLength;
 		_screen->drawShape(0, _shapes[216 + item], x, y, 0, 0);
 		_screen->drawShape(0, _shapes[i], x, y + yAdd, 0, 0);
 		_screen->updateScreen();
@@ -689,7 +686,7 @@ void KyraEngine_LoK::magicOutMouseItem(int animIndex, int itemPos) {
 
 	for (int shape = _magicMouseItemStartFrame[animIndex]; shape <= _magicMouseItemEndFrame[animIndex]; ++shape) {
 		restoreItemRect1(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 4 * _tickLength;
 		_screen->drawShape(0, _shapes[216 + _itemInHand], x + 4, y + 3, 0, 0);
 		if (tableIndex == -1)
 			_screen->drawShape(0, _shapes[shape], x, y, 0, 0);
@@ -707,7 +704,7 @@ void KyraEngine_LoK::magicOutMouseItem(int animIndex, int itemPos) {
 
 	for (int shape = _magicMouseItemStartFrame2[animIndex]; shape <= _magicMouseItemEndFrame2[animIndex]; ++shape) {
 		restoreItemRect1(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 4 * _tickLength;
 		_screen->drawShape(0, _shapes[216 + _itemInHand], x + 4, y + 3, 0, 0);
 		if (tableIndex == -1)
 			_screen->drawShape(0, _shapes[shape], x, y, 0, 0);
@@ -771,7 +768,7 @@ void KyraEngine_LoK::magicInMouseItem(int animIndex, int item, int itemPos) {
 
 	for (int shape = _magicMouseItemStartFrame[animIndex]; shape <= _magicMouseItemEndFrame[animIndex]; ++shape) {
 		restoreItemRect1(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 4 * _tickLength;
 		if (tableIndex == -1)
 			_screen->drawShape(0, _shapes[shape], x, y, 0, 0);
 		else
@@ -782,7 +779,7 @@ void KyraEngine_LoK::magicInMouseItem(int animIndex, int item, int itemPos) {
 
 	for (int shape = _magicMouseItemStartFrame2[animIndex]; shape <= _magicMouseItemEndFrame2[animIndex]; ++shape) {
 		restoreItemRect1(x, y);
-		uint32 nextTime = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 nextTime = _system->getMillis() + 4 * _tickLength;
 		if (tableIndex == -1)
 			_screen->drawShape(0, _shapes[shape], x, y, 0, 0);
 		else

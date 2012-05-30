@@ -22,7 +22,7 @@
 
 #include "kyra/kyra_mr.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -95,7 +95,7 @@ void KyraEngine_MR::setCommandLineRestoreTimer(int secs) {
 }
 
 void KyraEngine_MR::setNextIdleAnimTimer() {
-	_nextIdleAnim = g_eventRec.getMillis() + _rnd.getRandomNumberRng(10, 15) * 1000;
+	_nextIdleAnim = _system->getMillis() + _rnd.getRandomNumberRng(10, 15) * 1000;
 }
 
 } // End of namespace Kyra

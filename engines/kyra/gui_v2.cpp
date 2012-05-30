@@ -27,7 +27,7 @@
 
 #include "common/savefile.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 GUI_v2::GUI_v2(KyraEngine_v2 *vm) : GUI_v1(vm), _vm(vm), _screen(vm->screen_v2()) {
@@ -787,7 +787,7 @@ const char *GUI_v2::nameInputProcess(char *buffer, int x, int y, uint8 c1, uint8
 			x2 -= getCharWidth(buffer[curPos]);
 			drawTextfieldBlock(x2, y2, c3);
 			_screen->updateScreen();
-			_lastScreenUpdate = g_eventRec.getMillis();
+			_lastScreenUpdate = _vm->_system->getMillis();
 		} else if ((uint8)inputKey > 31 && (uint8)inputKey < (_vm->gameFlags().lang == Common::JA_JPN ? 128 : 226) && curPos < bufferSize) {
 			of = _screen->setFont(Screen::FID_8_FNT);
 			if (x2 + getCharWidth(inputKey) + 7 < 0x11F) {
@@ -798,7 +798,7 @@ const char *GUI_v2::nameInputProcess(char *buffer, int x, int y, uint8 c1, uint8
 				drawTextfieldBlock(x2, y2, c3);
 				++curPos;
 				_screen->updateScreen();
-				_lastScreenUpdate = g_eventRec.getMillis();
+				_lastScreenUpdate = _vm->_system->getMillis();
 			}
 			_screen->setFont(of);
 		}

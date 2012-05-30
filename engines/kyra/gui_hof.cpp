@@ -27,7 +27,7 @@
 #include "kyra/sound.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 #include "graphics/scaler.h"
 
 namespace Kyra {
@@ -291,7 +291,7 @@ void KyraEngine_HoF::scrollInventoryWheel() {
 			_screen->updateScreen();
 		}
 
-		uint32 endTime = g_eventRec.getMillis() + _tickLength;
+		uint32 endTime = _system->getMillis() + _tickLength;
 
 		int y = (i * 981) >> 8;
 		if (y >= 23 || i == 6) {
@@ -522,7 +522,7 @@ void KyraEngine_HoF::bookLoop() {
 			_screen->updateScreen();
 			_screen->showMouse();
 		}
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 	_screen->clearPage(2);
 }
@@ -996,7 +996,7 @@ int GUI_HoF::gameOptionsTalkie(Button *caller) {
 		_vm->saveGameStateIntern(999, "Autosave", &thumb);
 		thumb.free();
 
-		_vm->_lastAutosave = g_eventRec.getMillis();
+		_vm->_lastAutosave = _vm->_system->getMillis();
 
 		_vm->loadCCodeBuffer("C_CODE.XXX");
 		if (_vm->_flags.isTalkie)

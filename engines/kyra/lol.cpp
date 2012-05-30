@@ -29,7 +29,7 @@
 #include "kyra/util.h"
 #include "kyra/debugger.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "audio/audiostream.h"
 
 #include "common/config-manager.h"
@@ -957,7 +957,7 @@ void LoLEngine::readSettings() {
 void LoLEngine::update() {
 	updateSequenceBackgroundAnimations();
 
-	if (_updateCharNum != -1 && g_eventRec.getMillis() > _updatePortraitNext)
+	if (_updateCharNum != -1 && _system->getMillis() > _updatePortraitNext)
 		updatePortraitSpeechAnim();
 
 	if (_flagsTable[31] & 0x08 || !(_updateFlags & 4))
@@ -1149,7 +1149,7 @@ void LoLEngine::setCharacterUpdateEvent(int charNum, int updateType, int updateD
 
 		l->characterUpdateEvents[i] = updateType;
 		l->characterUpdateDelay[i] = updateDelay;
-		_timer->setNextRun(3, g_eventRec.getMillis());
+		_timer->setNextRun(3, _system->getMillis());
 		_timer->resetNextRun();
 		_timer->enable(3);
 		break;
@@ -1232,7 +1232,7 @@ void LoLEngine::updatePortraitSpeechAnim() {
 			gui_drawCharPortraitWithStats(_updateCharNum);
 		else
 			gui_drawCharFaceShape(_updateCharNum, x, y, 0);
-		_updatePortraitNext = g_eventRec.getMillis() + 10 * _tickLength;
+		_updatePortraitNext = _system->getMillis() + 10 * _tickLength;
 	} else if (_resetPortraitAfterSpeechAnim != 0) {
 		faceFrameRefresh(_updateCharNum);
 		if (redraw) {
@@ -1263,7 +1263,7 @@ void LoLEngine::stopPortraitSpeechAnim() {
 void LoLEngine::initTextFading(int textType, int clearField) {
 	if (_textColorFlag == textType || !textType) {
 		_fadeText = true;
-		_palUpdateTimer = g_eventRec.getMillis();
+		_palUpdateTimer = _system->getMillis();
 	}
 
 	if (!clearField)
@@ -1406,7 +1406,7 @@ void LoLEngine::setCharacterMagicOrHitPoints(int charNum, int type, int points, 
 
 			i += step;
 
-			uint32 delayTimer = g_eventRec.getMillis() + _tickLength;
+			uint32 delayTimer = _system->getMillis() + _tickLength;
 
 			gui_drawLiveMagicBar(barData[type][0] + _activeCharsXpos[charNum], 175, i, 0, pointsMax, 5, 32, barData[type][1], _flags.use16ColorMode ? 0x44 : 1, barData[type][3]);
 			_screen->printText(getLangString(barData[type][4]), barData[type][0] + _activeCharsXpos[charNum], 144, barData[type][2], 0);
@@ -1669,7 +1669,7 @@ void LoLEngine::fadeText() {
 	if (!_fadeText)
 		return;
 
-	if (_screen->fadeColor(192, 252, (g_eventRec.getMillis() - _palUpdateTimer) / _tickLength, 60))
+	if (_screen->fadeColor(192, 252, (_system->getMillis() - _palUpdateTimer) / _tickLength, 60))
 		return;
 
 	if (_needSceneRestore)
@@ -1967,7 +1967,7 @@ void LoLEngine::delay(uint32 millis, bool doUpdate, bool) {
 			updateInput();
 
 		uint32 step = MIN<uint32>(millis, _tickLength);
-		g_eventRec.delayMillis(step);
+		_system->delayMillis(step);
 		millis -= step;
 	}
 }
@@ -2117,7 +2117,7 @@ int LoLEngine::processMagicSpark(int charNum, int spellLevel) {
 	}
 
 	for (int i = 0, d = ((spellLevel << 1) + 12); i < d; i++) {
-		uint32 delayTimer = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 delayTimer = _system->getMillis() + 4 * _tickLength;
 		_screen->copyPage(12, 2);
 
 		for (int ii = 0; ii <= spellLevel; ii++) {
@@ -2237,7 +2237,7 @@ int LoLEngine::processMagicHeal(int charNum, int spellLevel) {
 	snd_playSoundEffect(68, -1);
 
 	for (int i = 0; i < 16; i++) {
-		uint32 delayTimer = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 delayTimer = _system->getMillis() + 4 * _tickLength;
 
 		for (charNum = ch; charNum < n; charNum++) {
 			if (!(_characters[charNum].flags & 1))
@@ -2361,7 +2361,7 @@ int LoLEngine::processMagicIce(int charNum, int spellLevel) {
 
 	playSpellAnimation(0, 0, 0, 2, 0, 0, 0, s.getData(), tpal.getData(), 40, false);
 
-	_screen->fadePaletteStep(s.getData(), tpal.getData(), g_eventRec.getMillis(), _tickLength);
+	_screen->fadePaletteStep(s.getData(), tpal.getData(), _system->getMillis(), _tickLength);
 	if (mov->opened()) {
 		int r = true;
 		if (spellLevel > 2) {
@@ -2430,7 +2430,7 @@ int LoLEngine::processMagicIce(int charNum, int spellLevel) {
 
 	playSpellAnimation(0, 0, 0, 2, 0, 0, 0, tpal.getData(), swampCol.getData(), 40, 0);
 
-	_screen->fadePaletteStep(tpal.getData(), swampCol.getData(), g_eventRec.getMillis(), _tickLength);
+	_screen->fadePaletteStep(tpal.getData(), swampCol.getData(), _system->getMillis(), _tickLength);
 
 	if (breakWall)
 		breakIceWall(tpal.getData(), swampCol.getData());
@@ -2506,7 +2506,7 @@ int LoLEngine::processMagicFireball(int charNum, int spellLevel) {
 
 	for (i = 0; i < numFireballs;) {
 		_screen->setCurPage(drawPage1);
-		uint32 ctime = g_eventRec.getMillis();
+		uint32 ctime = _system->getMillis();
 
 		for (int ii = 0; ii < MIN(fbCnt, 3); ii++) {
 			FireballState *fb = fireballState[ii];
@@ -2575,7 +2575,7 @@ int LoLEngine::processMagicFireball(int charNum, int spellLevel) {
 			}
 		}
 
-		int del = _tickLength - (g_eventRec.getMillis() - ctime);
+		int del = _tickLength - (_system->getMillis() - ctime);
 		if (del > 0)
 			delay(del);
 
@@ -2760,7 +2760,7 @@ int LoLEngine::processMagicFog() {
 	snd_playSoundEffect(145, -1);
 
 	for (int curFrame = 0; curFrame < numFrames; curFrame++) {
-		uint32 delayTimer = g_eventRec.getMillis() + 3 * _tickLength;
+		uint32 delayTimer = _system->getMillis() + 3 * _tickLength;
 		_screen->copyPage(12, 2);
 		mov->displayFrame(curFrame % numFrames, 2, 112, 0, 0x5000, _transparencyTable1, _transparencyTable2);
 		_screen->copyRegion(112, 0, 112, 0, 176, 120, 2, 0, Screen::CR_NO_P_CHECK);
@@ -2882,11 +2882,11 @@ int LoLEngine::processMagicVaelansCube() {
 
 	snd_playSoundEffect(146, -1);
 
-	uint32 ctime = g_eventRec.getMillis();
-	uint32 endTime = g_eventRec.getMillis() + 70 * _tickLength;
+	uint32 ctime = _system->getMillis();
+	uint32 endTime = _system->getMillis() + 70 * _tickLength;
 
-	while (g_eventRec.getMillis() < endTime) {
-		_screen->fadePaletteStep(tmpPal1, tmpPal2, g_eventRec.getMillis() - ctime, 70 * _tickLength);
+	while (_system->getMillis() < endTime) {
+		_screen->fadePaletteStep(tmpPal1, tmpPal2, _system->getMillis() - ctime, 70 * _tickLength);
 		updateInput();
 	}
 
@@ -2911,11 +2911,11 @@ int LoLEngine::processMagicVaelansCube() {
 		o = m->nextAssignedObject;
 	}
 
-	ctime = g_eventRec.getMillis();
-	endTime = g_eventRec.getMillis() + 70 * _tickLength;
+	ctime = _system->getMillis();
+	endTime = _system->getMillis() + 70 * _tickLength;
 
-	while (g_eventRec.getMillis() < endTime) {
-		_screen->fadePaletteStep(tmpPal2, tmpPal1, g_eventRec.getMillis() - ctime, 70 * _tickLength);
+	while (_system->getMillis() < endTime) {
+		_screen->fadePaletteStep(tmpPal2, tmpPal1, _system->getMillis() - ctime, 70 * _tickLength);
 		updateInput();
 	}
 
@@ -3035,7 +3035,7 @@ void LoLEngine::drinkBezelCup(int numUses, int charNum) {
 		increaseCharacterHitpoints(charNum, step / 256, true);
 		gui_drawCharPortraitWithStats(charNum);
 
-		uint32 etime = g_eventRec.getMillis() + 4 * _tickLength;
+		uint32 etime = _system->getMillis() + 4 * _tickLength;
 
 		_screen->copyRegion(0, 0, x, y, w, h, 2, 2, Screen::CR_NO_P_CHECK);
 		mov->displayFrame(frm, 2, x, y, _flags.use16ColorMode ? 0x4000 : 0x5000, _transparencyTable1, _transparencyTable2);
@@ -3089,7 +3089,7 @@ void LoLEngine::transferSpellToScollAnimation(int charNum, int spell, int slot) 
 		_screen->copyPage(3, 10);
 		for (int i = 0; i < 9; i++) {
 			int h = (slot + 1) * 9 + i + 1;
-			uint32 delayTimer = g_eventRec.getMillis() + _tickLength;
+			uint32 delayTimer = _system->getMillis() + _tickLength;
 			_screen->copyPage(10, 3);
 			_screen->copyRegion(216, 0, 8, 0, 96, 120, 3, 3, Screen::CR_NO_P_CHECK);
 			_screen->copyRegion(112, 0, 12, 0, 87, 15, 2, 2, Screen::CR_NO_P_CHECK);
@@ -3144,7 +3144,7 @@ void LoLEngine::transferSpellToScollAnimation(int charNum, int spell, int slot) 
 	playSpellAnimation(mov, 26, 52, 5, _activeCharsXpos[charNum], 148, 0, 0, 0, 0, true);
 
 	for (int i = 16; i > 0; i--) {
-		uint32 delayTimer = g_eventRec.getMillis() + _tickLength;
+		uint32 delayTimer = _system->getMillis() + _tickLength;
 		_screen->copyPage(12, 2);
 
 		int wsaX = vX + (((((cX - vX) << 8) / 16) * i) >> 8) - 16;
@@ -3199,7 +3199,7 @@ void LoLEngine::playSpellAnimation(WSAMovie_v2 *mov, int firstFrame, int lastFra
 
 	int w2 = w;
 	int h2 = h;
-	uint32 startTime = g_eventRec.getMillis();
+	uint32 startTime = _system->getMillis();
 
 	if (x < 0)
 		w2 += x;
@@ -3212,7 +3212,7 @@ void LoLEngine::playSpellAnimation(WSAMovie_v2 *mov, int firstFrame, int lastFra
 	bool fin = false;
 
 	while (!fin) {
-		uint32 delayTimer = g_eventRec.getMillis() + _tickLength * frameDelay;
+		uint32 delayTimer = _system->getMillis() + _tickLength * frameDelay;
 
 		if (mov || callback)
 			_screen->copyPage(12, 2);
@@ -3228,7 +3228,7 @@ void LoLEngine::playSpellAnimation(WSAMovie_v2 *mov, int firstFrame, int lastFra
 			_screen->updateScreen();
 		}
 
-		uint32 tm = g_eventRec.getMillis();
+		uint32 tm = _system->getMillis();
 		uint32 del = (delayTimer > tm) ? (delayTimer - tm) : 0;
 
 		do {
@@ -3244,7 +3244,7 @@ void LoLEngine::playSpellAnimation(WSAMovie_v2 *mov, int firstFrame, int lastFra
 				continue;
 			}
 
-			if (!_screen->fadePaletteStep(pal1, pal2, g_eventRec.getMillis() - startTime, _tickLength * fadeDelay) && !mov)
+			if (!_screen->fadePaletteStep(pal1, pal2, _system->getMillis() - startTime, _tickLength * fadeDelay) && !mov)
 				return;
 
 			if (del) {
@@ -3855,7 +3855,7 @@ void LoLEngine::launchMagicViper() {
 	int frm = v[0];
 
 	for (bool running = true; running;) {
-		uint32 etime = g_eventRec.getMillis() + 5 * _tickLength;
+		uint32 etime = _system->getMillis() + 5 * _tickLength;
 		_screen->copyPage(12, 2);
 
 		if (frm == v[2])
@@ -4034,7 +4034,7 @@ void LoLEngine::displayAutomap() {
 	_screen->copyPage(2, 0);
 	_screen->updateScreen();
 	_screen->fadePalette(_screen->getPalette(3), 10);
-	uint32 delayTimer = g_eventRec.getMillis() + 8 * _tickLength;
+	uint32 delayTimer = _system->getMillis() + 8 * _tickLength;
 
 	while (!exitAutomap && !shouldQuit()) {
 		if (_mapUpdateNeeded) {
@@ -4044,9 +4044,9 @@ void LoLEngine::displayAutomap() {
 			_mapUpdateNeeded = false;
 		}
 
-		if (g_eventRec.getMillis() >= delayTimer) {
+		if (_system->getMillis() >= delayTimer) {
 			redrawMapCursor();
-			delayTimer = g_eventRec.getMillis() + 8 * _tickLength;
+			delayTimer = _system->getMillis() + 8 * _tickLength;
 		}
 
 		int f = checkInput(0) & 0xff;

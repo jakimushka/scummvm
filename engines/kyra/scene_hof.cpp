@@ -23,7 +23,7 @@
 #include "kyra/kyra_hof.h"
 #include "kyra/sound.h"
 #include "kyra/resource.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -82,7 +82,7 @@ void KyraEngine_HoF::enterNewScene(uint16 newScene, int facing, int unk1, int un
 	uint32 waitTime = 0;
 	if (_sceneList[newScene].sound != _lastMusicCommand) {
 		newSoundFile = true;
-		waitTime = g_eventRec.getMillis() + 1000;
+		waitTime = _system->getMillis() + 1000;
 		_sound->beginFadeOut();
 	}
 
@@ -114,10 +114,10 @@ void KyraEngine_HoF::enterNewScene(uint16 newScene, int facing, int unk1, int un
 	if (newSoundFile) {
 		if (_sound->getMusicType() == Sound::kAdLib) {
 			while (_sound->isPlaying())
-				g_eventRec.delayMillis(10);
+				_system->delayMillis(10);
 		} else {
-			while (waitTime > g_eventRec.getMillis())
-				g_eventRec.delayMillis(10);
+			while (waitTime > _system->getMillis())
+				_system->delayMillis(10);
 		}
 		snd_loadSoundFile(_sceneList[newScene].sound);
 	}

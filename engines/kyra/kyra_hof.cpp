@@ -27,7 +27,7 @@
 #include "kyra/debugger.h"
 #include "kyra/util.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 #include "common/config-manager.h"
 
@@ -180,7 +180,7 @@ void KyraEngine_HoF::pauseEngineIntern(bool pause) {
 	KyraEngine_v2::pauseEngineIntern(pause);
 
 	if (!pause) {
-		uint32 pausedTime = g_eventRec.getMillis() - _pauseStart;
+		uint32 pausedTime = _system->getMillis() - _pauseStart;
 		_pauseStart = 0;
 
 		// sequence player
@@ -474,7 +474,7 @@ void KyraEngine_HoF::runLoop() {
 				break;
 		}
 
-		if (g_eventRec.getMillis() > _nextIdleAnim)
+		if (_system->getMillis() > _nextIdleAnim)
 			showIdleAnim();
 
 		if (queryGameFlag(0x159)) {
@@ -517,7 +517,7 @@ void KyraEngine_HoF::runLoop() {
 		//if (queryGameFlag(0x1EE) && inputFlag)
 		//	sub_13B19(inputFlag);
 
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 }
 
@@ -1369,7 +1369,7 @@ void KyraEngine_HoF::uninitAnimationShapes(int count, uint8 *filedata) {
 }
 
 void KyraEngine_HoF::setNextIdleAnimTimer() {
-	_nextIdleAnim = g_eventRec.getMillis() + _rnd.getRandomNumberRng(10, 15) * 60 * _tickLength;
+	_nextIdleAnim = _system->getMillis() + _rnd.getRandomNumberRng(10, 15) * 60 * _tickLength;
 }
 
 void KyraEngine_HoF::showIdleAnim() {
@@ -1482,7 +1482,7 @@ void KyraEngine_HoF::snd_playVoiceFile(int id) {
 
 		while (!_sound->voicePlay(vocFile, &_speechHandle)) {
 			updateWithText();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 	}
 }
@@ -1571,12 +1571,12 @@ void KyraEngine_HoF::loadInvWsa(const char *filename, int run_, int delayTime, i
 		_screen->copyRegion(_invWsa.x, _invWsa.y, _invWsa.x, _invWsa.y, _invWsa.w, _invWsa.h, 0, _invWsa.page, Screen::CR_NO_P_CHECK);
 
 	_invWsa.running = true;
-	_invWsa.timer = g_eventRec.getMillis();
+	_invWsa.timer = _system->getMillis();
 
 	if (run_) {
 		while (_invWsa.running && !skipFlag() && !shouldQuit()) {
 			update();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		if (skipFlag()) {
@@ -1597,7 +1597,7 @@ void KyraEngine_HoF::updateInvWsa() {
 	if (!_invWsa.running || !_invWsa.wsa)
 		return;
 
-	if (_invWsa.timer > g_eventRec.getMillis())
+	if (_invWsa.timer > _system->getMillis())
 		return;
 
 	_invWsa.wsa->displayFrame(_invWsa.curFrame, _invWsa.page, 0, 0, 0, 0, 0);
@@ -1605,7 +1605,7 @@ void KyraEngine_HoF::updateInvWsa() {
 	if (_invWsa.page)
 		_screen->copyRegion(_invWsa.x, _invWsa.y, _invWsa.x, _invWsa.y, _invWsa.w, _invWsa.h, _invWsa.page, 0, Screen::CR_NO_P_CHECK);
 
-	_invWsa.timer = g_eventRec.getMillis() + _invWsa.delay * _tickLength;
+	_invWsa.timer = _system->getMillis() + _invWsa.delay * _tickLength;
 
 	++_invWsa.curFrame;
 	if (_invWsa.curFrame >= _invWsa.lastFrame)
@@ -1699,7 +1699,7 @@ void KyraEngine_HoF::cauldronItemAnim(int item) {
 			mouseY += 2;
 		else if (mouseY > mouseDstY)
 			mouseY -= 2;
-		uint32 waitEnd = g_eventRec.getMillis() + _tickLength;
+		uint32 waitEnd = _system->getMillis() + _tickLength;
 		setMousePos(mouseX, mouseY);
 		_system->updateScreen();
 		delayUntil(waitEnd);
@@ -1710,7 +1710,7 @@ void KyraEngine_HoF::cauldronItemAnim(int item) {
 			mouseX += 2;
 		else if (mouseX > mouseDstX)
 			mouseX -= 2;
-		uint32 waitEnd = g_eventRec.getMillis() + _tickLength;
+		uint32 waitEnd = _system->getMillis() + _tickLength;
 		setMousePos(mouseX, mouseY);
 		_system->updateScreen();
 		delayUntil(waitEnd);
@@ -1718,7 +1718,7 @@ void KyraEngine_HoF::cauldronItemAnim(int item) {
 
 	if (itemIsFlask(item)) {
 		setHandItem(19);
-		delayUntil(g_eventRec.getMillis()+_tickLength*30);
+		delayUntil(_system->getMillis()+_tickLength*30);
 		setHandItem(18);
 	} else {
 		_screen->hideMouse();
@@ -1728,7 +1728,7 @@ void KyraEngine_HoF::cauldronItemAnim(int item) {
 		int curY = y;
 		for (int i = 0; i < 12; i += 2, curY += 2) {
 			restoreGfxRect32x32(x, y);
-			uint32 waitEnd = g_eventRec.getMillis() + _tickLength;
+			uint32 waitEnd = _system->getMillis() + _tickLength;
 			_screen->drawShape(0, shape, x, curY, 0, 0);
 			_screen->updateScreen();
 			delayUntil(waitEnd);
@@ -1739,7 +1739,7 @@ void KyraEngine_HoF::cauldronItemAnim(int item) {
 		for (int i = 16; i > 0; i -= 2, curY += 2) {
 			_screen->setNewShapeHeight(shape, i);
 			restoreGfxRect32x32(x, y);
-			uint32 waitEnd = g_eventRec.getMillis() + _tickLength;
+			uint32 waitEnd = _system->getMillis() + _tickLength;
 			_screen->drawShape(0, shape, x, curY, 0, 0);
 			_screen->updateScreen();
 			delayUntil(waitEnd);

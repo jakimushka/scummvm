@@ -22,7 +22,7 @@
 
 #include "kyra/text_mr.h"
 #include "kyra/resource.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -266,9 +266,9 @@ void KyraEngine_MR::objectChatInit(const char *str, int object, int vocHigh, int
 	_chatTextEnabled = textEnabled();
 	if (_chatTextEnabled) {
 		objectChatPrintText(str, object);
-		_chatEndTime = g_eventRec.getMillis() + chatCalcDuration(str) * _tickLength;
+		_chatEndTime = _system->getMillis() + chatCalcDuration(str) * _tickLength;
 	} else {
-		_chatEndTime = g_eventRec.getMillis();
+		_chatEndTime = _system->getMillis();
 	}
 
 	if (speechEnabled()) {
@@ -347,12 +347,12 @@ void KyraEngine_MR::objectChatWaitToFinish() {
 		_mainCharacter.animFrame = curFrame;
 		updateCharacterAnim(0);
 
-		uint32 nextFrame = g_eventRec.getMillis() + delayTime * _tickLength;
+		uint32 nextFrame = _system->getMillis() + delayTime * _tickLength;
 
-		while (g_eventRec.getMillis() < nextFrame && !shouldQuit()) {
+		while (_system->getMillis() < nextFrame && !shouldQuit()) {
 			updateWithText();
 
-			const uint32 curTime = g_eventRec.getMillis();
+			const uint32 curTime = _system->getMillis();
 			if ((textEnabled() && !speechEnabled() && curTime > endTime) || (speechEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 				snd_stopVoice();
 				resetSkipFlag();
@@ -396,11 +396,11 @@ void KyraEngine_MR::badConscienceChatWaitToFinish() {
 	const uint32 endTime = _chatEndTime;
 	resetSkipFlag();
 
-	uint32 nextFrame = g_eventRec.getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
+	uint32 nextFrame = _system->getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
 
 	int frame = _badConscienceFrameTable[_badConscienceAnim+24];
 	while (running && !shouldQuit()) {
-		if (nextFrame < g_eventRec.getMillis()) {
+		if (nextFrame < _system->getMillis()) {
 			++frame;
 			if (_badConscienceFrameTable[_badConscienceAnim+32] < frame)
 				frame = _badConscienceFrameTable[_badConscienceAnim+24];
@@ -408,12 +408,12 @@ void KyraEngine_MR::badConscienceChatWaitToFinish() {
 			updateSceneAnim(0x0E, frame);
 			updateWithText();
 
-			nextFrame = g_eventRec.getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
+			nextFrame = _system->getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
 		}
 
 		updateWithText();
 
-		const uint32 curTime = g_eventRec.getMillis();
+		const uint32 curTime = _system->getMillis();
 		if ((textEnabled() && !speechEnabled() && curTime > endTime) || (speechEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 			snd_stopVoice();
 			resetSkipFlag();
@@ -452,11 +452,11 @@ void KyraEngine_MR::goodConscienceChatWaitToFinish() {
 	const uint32 endTime = _chatEndTime;
 	resetSkipFlag();
 
-	uint32 nextFrame = g_eventRec.getMillis() + _rnd.getRandomNumberRng(3, 6) * _tickLength;
+	uint32 nextFrame = _system->getMillis() + _rnd.getRandomNumberRng(3, 6) * _tickLength;
 
 	int frame = _goodConscienceFrameTable[_goodConscienceAnim+15];
 	while (running && !shouldQuit()) {
-		if (nextFrame < g_eventRec.getMillis()) {
+		if (nextFrame < _system->getMillis()) {
 			++frame;
 			if (_goodConscienceFrameTable[_goodConscienceAnim+20] < frame)
 				frame = _goodConscienceFrameTable[_goodConscienceAnim+15];
@@ -464,12 +464,12 @@ void KyraEngine_MR::goodConscienceChatWaitToFinish() {
 			updateSceneAnim(0x0F, frame);
 			updateWithText();
 
-			nextFrame = g_eventRec.getMillis() + _rnd.getRandomNumberRng(3, 6) * _tickLength;
+			nextFrame = _system->getMillis() + _rnd.getRandomNumberRng(3, 6) * _tickLength;
 		}
 
 		updateWithText();
 
-		const uint32 curTime = g_eventRec.getMillis();
+		const uint32 curTime = _system->getMillis();
 		if ((textEnabled() && !speechEnabled() && curTime > endTime) || (speechEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 			snd_stopVoice();
 			resetSkipFlag();
@@ -544,9 +544,9 @@ void KyraEngine_MR::albumChatInit(const char *str, int object, int vocHigh, int 
 
 	if (textEnabled()) {
 		objectChatPrintText(str, object);
-		_chatEndTime = g_eventRec.getMillis() + chatCalcDuration(str) * _tickLength;
+		_chatEndTime = _system->getMillis() + chatCalcDuration(str) * _tickLength;
 	} else {
-		_chatEndTime = g_eventRec.getMillis();
+		_chatEndTime = _system->getMillis();
 	}
 
 	if (speechEnabled()) {
@@ -572,7 +572,7 @@ void KyraEngine_MR::albumChatWaitToFinish() {
 	uint32 nextFrame = 0;
 	int frame = 12;
 	while (running && !shouldQuit()) {
-		if (nextFrame < g_eventRec.getMillis()) {
+		if (nextFrame < _system->getMillis()) {
 			++frame;
 			if (frame > 22)
 				frame = 13;
@@ -581,7 +581,7 @@ void KyraEngine_MR::albumChatWaitToFinish() {
 			_album.wsa->displayFrame(frame, 2, -100, 90, 0x4000, 0, 0);
 			albumUpdateRect();
 
-			nextFrame = g_eventRec.getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
+			nextFrame = _system->getMillis() + _rnd.getRandomNumberRng(4, 8) * _tickLength;
 		}
 
 		if (_album.nextPage != 14)
@@ -589,7 +589,7 @@ void KyraEngine_MR::albumChatWaitToFinish() {
 		else
 			_screen->updateScreen();
 
-		const uint32 curTime = g_eventRec.getMillis();
+		const uint32 curTime = _system->getMillis();
 		if ((textEnabled() && !speechEnabled() && curTime > endTime) || (speechEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 			snd_stopVoice();
 			resetSkipFlag();
@@ -821,7 +821,7 @@ void KyraEngine_MR::npcChatSequence(const char *str, int object, int vocHigh, in
 			_emc->start(&_dialogScriptState, _dialogScriptFuncProc);
 		}
 
-		const uint32 curTime = g_eventRec.getMillis();
+		const uint32 curTime = _system->getMillis();
 		if ((textEnabled() && !speechEnabled() && curTime > endTime) || (speechEnabled() && !snd_voiceIsPlaying()) || skipFlag()) {
 			snd_stopVoice();
 			resetSkipFlag();

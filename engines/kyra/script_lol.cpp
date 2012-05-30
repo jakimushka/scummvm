@@ -27,7 +27,7 @@
 #include "kyra/timer.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -2208,7 +2208,7 @@ int LoLEngine::olol_restoreMagicShroud(EMCState *script) {
 	_screen->generateFadeTable(tpal2, *tpal4, *tpal1, 4);
 
 	for (int i = 0; i < 21; i++) {
-		uint32 etime = g_eventRec.getMillis() + 20 * _tickLength;
+		uint32 etime = _system->getMillis() + 20 * _tickLength;
 		mov->displayFrame(i, 0, 0, 0, 0, 0, 0);
 		_screen->setScreenPalette(**tpal3++);
 		_screen->updateScreen();
@@ -2223,7 +2223,7 @@ int LoLEngine::olol_restoreMagicShroud(EMCState *script) {
 	_screen->fadePalette(**tpal3++, 300);
 
 	for (int i = 22; i < 38; i++) {
-		uint32 etime = g_eventRec.getMillis() + 12 * _tickLength;
+		uint32 etime = _system->getMillis() + 12 * _tickLength;
 		mov->displayFrame(i, 0, 0, 0, 0, 0, 0);
 		if (i == 22 || i == 24 || i == 28 || i == 32) {
 			snd_playSoundEffect(131, -1);
@@ -2594,7 +2594,7 @@ int LoLEngine::tlol_fadeInScene(const TIM *tim, const uint16 *param) {
 		overlay = _res->fileData(filename, 0);
 
 		for (int i = 0; i < 3; ++i) {
-			uint32 endTime = g_eventRec.getMillis() + 10 * _tickLength;
+			uint32 endTime = _system->getMillis() + 10 * _tickLength;
 			_screen->copyBlockAndApplyOverlayOutro(4, 2, overlay);
 			_screen->copyRegion(0, 0, 0, 0, 320, 200, 2, 0, Screen::CR_NO_P_CHECK);
 			_screen->updateScreen();

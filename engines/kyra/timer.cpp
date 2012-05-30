@@ -21,7 +21,7 @@
  */
 
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -63,15 +63,13 @@ void TimerManager::pause(bool p) {
 
 		if (_isPaused == 1) {
 			_isPaused = true;
-			_pauseStart = g_eventRec.getMillis(true);
-			debugC(3, kDebugLevelEventRec, "%s(_pauseStart = %d)", __FUNCTION__, _pauseStart);
+			_pauseStart = _system->getMillis();
 		}
 	} else if (!p && _isPaused > 0) {
 		--_isPaused;
 
 		if (_isPaused == 0) {
-			const uint32 pausedTime = g_eventRec.getMillis(true) - _pauseStart;
-			debugC(3, kDebugLevelEventRec, "%s(pausedTime = %d)", __FUNCTION__, pausedTime);
+			const uint32 pausedTime = _system->getMillis() - _pauseStart;
 			_nextRun += pausedTime;
 
 			for (Iterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
@@ -109,24 +107,19 @@ void TimerManager::addTimer(uint8 id, TimerFunc *func, int countdown, bool enabl
 }
 
 void TimerManager::update() {
-	uint32 timerUpdateTime = g_eventRec.getMillis(true);
-	debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, timerUpdateTime, _nextRun);
-	if (timerUpdateTime < _nextRun || _isPaused)
+	if (_system->getMillis() < _nextRun || _isPaused)
 		return;
 
 	_nextRun += 99999;
 
 	for (Iterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
 		if (pos->enabled == 1 && pos->countdown >= 0) {
-			timerUpdateTime = g_eventRec.getMillis(true);
-			debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, timerUpdateTime, _nextRun);
-			if (pos->nextRun <= timerUpdateTime) {
+			if (pos->nextRun <= _system->getMillis()) {
 				if (pos->func && pos->func->isValid()) {
 					(*pos->func)(pos->id);
 				}
 
-				uint32 curTime = g_eventRec.getMillis(true);
-				debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, curTime);
+				uint32 curTime = _system->getMillis();
 				pos->lastUpdate = curTime;
 				pos->nextRun = curTime + pos->countdown * _vm->tickLength();
 			}
@@ -137,7 +130,7 @@ void TimerManager::update() {
 }
 
 void TimerManager::resync() {
-	const uint32 curTime = _isPaused ? _pauseStart : g_eventRec.getMillis();
+	const uint32 curTime = _isPaused ? _pauseStart : _system->getMillis();
 
 	_nextRun = 0;	// force rerun
 	Common::for_each(_timers.begin(), _timers.end(), TimerResync(_vm, curTime));
@@ -153,8 +146,7 @@ void TimerManager::setCountdown(uint8 id, int32 countdown) {
 		timer->countdown = countdown;
 
 		if (countdown >= 0) {
-			uint32 curTime = g_eventRec.getMillis(true);
-			debugC(3, kDebugLevelEventRec, "%s(%d, %d)", __FUNCTION__, curTime, countdown);
+			uint32 curTime = _system->getMillis();
 			timer->lastUpdate = curTime;
 			timer->nextRun = curTime + countdown * _vm->tickLength();
 			if (timer->enabled & 2)
@@ -188,7 +180,7 @@ void TimerManager::setNextRun(uint8 id, uint32 nextRun) {
 	Iterator timer = Common::find_if(_timers.begin(), _timers.end(), TimerEqual(id));
 	if (timer != _timers.end()) {
 		if (timer->enabled & 2)
-			timer->pauseStartTime = g_eventRec.getMillis();
+			timer->pauseStartTime = _system->getMillis();
 		timer->nextRun = nextRun;
 		return;
 	}
@@ -214,10 +206,10 @@ void TimerManager::pauseSingleTimer(uint8 id, bool p) {
 	}
 
 	if (p) {
-		timer->pauseStartTime = g_eventRec.getMillis();
+		timer->pauseStartTime = _system->getMillis();
 		timer->enabled |= 2;
 	} else if (timer->pauseStartTime) {
-		int32 elapsedTime = g_eventRec.getMillis() - timer->pauseStartTime;
+		int32 elapsedTime = _system->getMillis() - timer->pauseStartTime;
 		timer->enabled &= (~2);
 		timer->lastUpdate += elapsedTime;
 		timer->nextRun += elapsedTime;
@@ -252,7 +244,7 @@ void TimerManager::disable(uint8 id) {
 }
 
 void TimerManager::loadDataFromFile(Common::SeekableReadStream &file, int version) {
-	const uint32 loadTime = _isPaused ? _pauseStart : g_eventRec.getMillis();
+	const uint32 loadTime = _isPaused ? _pauseStart : _system->getMillis();
 
 	if (version <= 7) {
 		_nextRun = 0;
@@ -298,7 +290,8 @@ void TimerManager::loadDataFromFile(Common::SeekableReadStream &file, int versio
 }
 
 void TimerManager::saveDataToFile(Common::WriteStream &file) const {
-	const uint32 saveTime = _isPaused ? _pauseStart : g_eventRec.getMillis(true);
+	const uint32 saveTime = _isPaused ? _pauseStart : _system->getMillis();
+
 	file.writeByte(count());
 	for (CIterator pos = _timers.begin(); pos != _timers.end(); ++pos) {
 		file.writeByte(pos->id);

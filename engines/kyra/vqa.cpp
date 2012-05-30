@@ -31,7 +31,7 @@
 
 #include "kyra/vqa.h"
 #include "kyra/resource.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 #include "audio/audiostream.h"
@@ -581,7 +581,7 @@ void VQAMovie::play() {
 	if (!_opened)
 		return;
 
-	startTick = g_eventRec.getMillis();
+	startTick = _system->getMillis();
 
 	// First, handle any sound chunk that appears before the first frame.
 	// At least in some versions, it will contain half a second of audio,
@@ -661,7 +661,7 @@ void VQAMovie::play() {
 			if (_vm->_mixer->isSoundHandleActive(_sound))
 				elapsedTime = _vm->_mixer->getSoundElapsedTime(_sound);
 			else
-				elapsedTime = g_eventRec.getMillis() - startTick;
+				elapsedTime = _system->getMillis() - startTick;
 
 			if (elapsedTime >= (i * 1000) / _header.frameRate)
 				break;
@@ -683,7 +683,7 @@ void VQAMovie::play() {
 				}
 			}
 
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		_screen->updateScreen();

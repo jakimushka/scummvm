@@ -31,7 +31,7 @@
 #include "kyra/resource.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 #include "graphics/cursorman.h"
 #include "graphics/palette.h"
 
@@ -1062,7 +1062,7 @@ void Screen_EoB::drawExplosion(int scale, int radius, int numElements, int stepS
 		l = 0;
 
 		for (int i = 0; i < numElements; i++) {
-			uint32 end = g_eventRec.getMillis() + 1;
+			uint32 end = _system->getMillis() + 1;
 			if (ptr4[i] <= 0)
 				ptr4[i]++;
 			else
@@ -1096,9 +1096,9 @@ void Screen_EoB::drawExplosion(int scale, int radius, int numElements, int stepS
 					setPagePixel(0, px, py, pxVal2);
 					if (i % 5 == 0)  {
 						updateScreen();
-						uint32 cur = g_eventRec.getMillis();
+						uint32 cur = _system->getMillis();
 						if (end > cur)
-							g_eventRec.delayMillis(end - cur);
+							_system->delayMillis(end - cur);
 					}
 				}
 			} else {
@@ -1191,7 +1191,7 @@ void Screen_EoB::drawVortex(int numElements, int radius, int stepSize, int, int 
 
 		i = 0;
 		int r = (stepSize >> 1) + (stepSize >> 2) + (stepSize >> 3);
-		uint32 nextDelay = g_eventRec.getMillis() + 1;
+		uint32 nextDelay = _system->getMillis() + 1;
 
 		for (int ii = 0; ii < numElements; ii++) {
 			if (pixDelay[ii] == 0) {
@@ -1229,9 +1229,9 @@ void Screen_EoB::drawVortex(int numElements, int radius, int stepSize, int, int 
 					setPagePixel(0, px, py, tc2);
 					if (ii % 15 == 0)  {
 						updateScreen();
-						uint32 cur = g_eventRec.getMillis();
+						uint32 cur = _system->getMillis();
 						if (nextDelay > cur)
-							g_eventRec.delayMillis(nextDelay - cur);
+							_system->delayMillis(nextDelay - cur);
 						nextDelay += 1;
 					}
 				}
@@ -1251,7 +1251,7 @@ void Screen_EoB::fadeTextColor(Palette *pal, int color1, int rate) {
 
 	for (bool loop = true; loop;) {
 		loop = true;
-		uint32 end = g_eventRec.getMillis() + _vm->tickLength();
+		uint32 end = _system->getMillis() + _vm->tickLength();
 
 		loop = false;
 		for (int ii = 0; ii < 3; ii++) {
@@ -1268,9 +1268,9 @@ void Screen_EoB::fadeTextColor(Palette *pal, int color1, int rate) {
 		if (loop) {
 			setScreenPalette(*pal);
 			updateScreen();
-			uint32 cur = g_eventRec.getMillis();
+			uint32 cur = _system->getMillis();
 			if (end > cur)
-				g_eventRec.delayMillis(end - cur);
+				_system->delayMillis(end - cur);
 		}
 	}
 }

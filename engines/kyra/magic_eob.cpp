@@ -25,7 +25,7 @@
 #include "kyra/eobcommon.h"
 #include "kyra/resource.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 void EoBCoreEngine::useMagicBookOrSymbol(int charIndex, int type) {
@@ -715,7 +715,7 @@ void EoBCoreEngine::removeMagicWeaponItem(Item item) {
 }
 
 void EoBCoreEngine::updateWallOfForceTimers() {
-	uint32 ct = g_eventRec.getMillis();
+	uint32 ct = _system->getMillis();
 	for (int i = 0; i < 5; i++) {
 		if (!_wallsOfForce[i].block)
 			continue;
@@ -1072,7 +1072,7 @@ void EoBCoreEngine::spellCallback_start_wallOfForce() {
 
 	memset(_levelBlockProperties[bl].walls, 74, 4);
 	_wallsOfForce[s].block = bl;
-	_wallsOfForce[s].duration = g_eventRec.getMillis() + (((getMageLevel(_openBookChar) * 546) >> 1) + 546) * _tickLength;
+	_wallsOfForce[s].duration = _system->getMillis() + (((getMageLevel(_openBookChar) * 546) >> 1) + 546) * _tickLength;
 	_sceneUpdateRequired = true;
 }
 

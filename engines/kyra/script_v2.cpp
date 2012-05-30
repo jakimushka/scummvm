@@ -23,7 +23,7 @@
 #include "kyra/kyra_v2.h"
 #include "kyra/screen_v2.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -117,8 +117,8 @@ int KyraEngine_v2::o2_addSpecialExit(EMCState *script) {
 int KyraEngine_v2::o2_delay(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_v2::o2_delay(%p) (%d, %d)", (const void *)script, stackPos(0), stackPos(1));
 	if (stackPos(1)) {
-		uint32 maxWaitTime = g_eventRec.getMillis() + stackPos(0) * _tickLength;
-		while (g_eventRec.getMillis() < maxWaitTime) {
+		uint32 maxWaitTime = _system->getMillis() + stackPos(0) * _tickLength;
+		while (_system->getMillis() < maxWaitTime) {
 			int inputFlag = checkInput(0);
 			removeInputTop();
 
@@ -129,7 +129,7 @@ int KyraEngine_v2::o2_delay(EMCState *script) {
 				updateWithText();
 			else
 				update();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 	} else {
 		delay(stackPos(0) * _tickLength, true);
@@ -156,9 +156,9 @@ int KyraEngine_v2::o2_getShapeFlag1(EMCState *script) {
 int KyraEngine_v2::o2_waitForConfirmationClick(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_v2::o2_waitForConfirmationClick(%p) (%d)", (const void *)script, stackPos(0));
 	resetSkipFlag();
-	uint32 maxWaitTime = g_eventRec.getMillis() + stackPos(0) * _tickLength;
+	uint32 maxWaitTime = _system->getMillis() + stackPos(0) * _tickLength;
 
-	while (g_eventRec.getMillis() < maxWaitTime) {
+	while (_system->getMillis() < maxWaitTime) {
 		int inputFlag = checkInput(0);
 		removeInputTop();
 
@@ -169,7 +169,7 @@ int KyraEngine_v2::o2_waitForConfirmationClick(EMCState *script) {
 		}
 
 		update();
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 
 	_sceneScriptState.regs[1] = _mouseX;
@@ -235,7 +235,7 @@ int KyraEngine_v2::o2_runAnimationScript(EMCState *script) {
 int KyraEngine_v2::o2_setSpecialSceneScriptRunTime(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_v2::o2_setSpecialSceneScriptRunTime(%p) (%d, %d)", (const void *)script, stackPos(0), stackPos(1));
 	assert(stackPos(0) >= 0 && stackPos(0) < 10);
-	_sceneSpecialScriptsTimer[stackPos(0)] = g_eventRec.getMillis() + stackPos(1) * _tickLength;
+	_sceneSpecialScriptsTimer[stackPos(0)] = _system->getMillis() + stackPos(1) * _tickLength;
 	return 0;
 }
 

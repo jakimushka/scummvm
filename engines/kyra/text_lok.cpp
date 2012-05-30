@@ -25,7 +25,7 @@
 #include "kyra/animator_lok.h"
 #include "kyra/sprites.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -35,8 +35,7 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	bool runLoop = true;
 	uint8 currPage;
 
-	uint32 timeToEnd = strlen(chatStr) * 8 * _tickLength + g_eventRec.getMillis(true);
-	debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, timeToEnd);
+	uint32 timeToEnd = strlen(chatStr) * 8 * _tickLength + _system->getMillis();
 
 	if (textEnabled() && !speechEnabled() && chatDuration != -1) {
 		switch (_configTextspeed) {
@@ -62,19 +61,15 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 	_timer->disable(18);
 	_timer->disable(19);
 
-	uint32 timeAtStart = g_eventRec.getMillis(true);
-	debugC(3, kDebugLevelEventRec, "%s_1(timeAtStart = %d)", __FUNCTION__, timeAtStart);
+	uint32 timeAtStart = _system->getMillis();
 	uint32 loopStart;
 	while (runLoop) {
-		loopStart = g_eventRec.getMillis(true);
-		debugC(3, kDebugLevelEventRec, "%s_2(loopStart = %d)", __FUNCTION__, loopStart);
+		loopStart = _system->getMillis();
 		if (_currentCharacter->sceneId == 210)
 			if (seq_playEnd())
 				break;
 
-		uint32 chatacterSays = g_eventRec.getMillis(true);
-		debugC(3, kDebugLevelEventRec, "%s_3(chatacterSays = %d, timeToEnd =%d)", __FUNCTION__, chatacterSays, timeToEnd);
-		if (chatacterSays > timeToEnd && !hasUpdatedNPCs) {
+		if (_system->getMillis() > timeToEnd && !hasUpdatedNPCs) {
 			hasUpdatedNPCs = true;
 			_timer->disable(15);
 			_currHeadShape = 4;
@@ -103,32 +98,22 @@ void KyraEngine_LoK::waitForChatToFinish(int vocFile, int16 chatDuration, const 
 
 		_animator->copyChangedObjectsForward(0);
 		updateTextFade();
-		chatacterSays = g_eventRec.getMillis(true);
-		if (chatacterSays == 19570) {
-			debug("%d",chatacterSays);
-		}
-		debugC(3, kDebugLevelEventRec, "%s_4(%d, %d, %d, %d, %d)", __FUNCTION__, chatacterSays, chatDuration, chatacterSays - timeAtStart, printText, snd_voiceIsPlaying());
 
-		if (((chatDuration < (int16)(chatacterSays - timeAtStart)) && chatDuration != -1 && printText) || (!printText && !snd_voiceIsPlaying()))
+		if (((chatDuration < (int16)(_system->getMillis() - timeAtStart)) && chatDuration != -1 && printText) || (!printText && !snd_voiceIsPlaying()))
 			break;
 
 		uint32 nextTime = loopStart + _tickLength;
-		debugC(3, kDebugLevelEventRec, "%s_5(%d, %d, %d)", __FUNCTION__, nextTime, loopStart, _tickLength);
 
-		uint32 chatmills;
-		while ((chatmills = g_eventRec.getMillis(true)) < nextTime) {
-			debugC(3, kDebugLevelEventRec, "%s_6(%d,%d)", __FUNCTION__, chatmills, nextTime);
+		while (_system->getMillis() < nextTime) {
 			updateInput();
 
 			if (skipFlag()) {
 				runLoop = false;
 				break;
 			}
-			
-			chatmills =  g_eventRec.getMillis(true);
-			debugC(3, kDebugLevelEventRec, "%s_7(%d)", __FUNCTION__, nextTime - chatmills);
-			if (nextTime - chatmills >= 10) {
-				g_eventRec.delayMillis(10,true);
+
+			if (nextTime - _system->getMillis() >= 10) {
+				_system->delayMillis(10);
 				_system->updateScreen();
 			}
 		}

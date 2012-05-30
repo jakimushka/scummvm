@@ -24,7 +24,6 @@
 #include "kyra/screen.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 namespace Kyra {
 
@@ -49,9 +48,7 @@ int KyraEngine_v1::o1_getRand(EMCState *script) {
 	int max = stackPos(1);
 	if (max < min)
 		SWAP(min, max);
-	int result = _rnd.getRandomNumberRng(min, max);
-	debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, result);
-	return result;
+	return _rnd.getRandomNumberRng(min, max);
 }
 
 int KyraEngine_v1::o1_hideMouse(EMCState *script) {

@@ -29,7 +29,6 @@
 #include "kyra/sound.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 namespace Kyra {
 
@@ -194,7 +193,7 @@ int KyraEngine_LoK::o1_sceneAnimOff(EMCState *script) {
 
 int KyraEngine_LoK::o1_getElapsedSeconds(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_LoK::o1_getElapsedSeconds(%p) ()", (const void *)script);
-	return g_eventRec.getMillis() / 1000;
+	return _system->getMillis() / 1000;
 }
 
 int KyraEngine_LoK::o1_mouseIsPointer(EMCState *script) {
@@ -423,8 +422,7 @@ int KyraEngine_LoK::o1_runWSAFromBeginningToEnd(EMCState *script) {
 	int wsaFrame = 0;
 
 	while (running) {
-		const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-		debugC(3, kDebugLevelEventRec, "%s(continueTime = %d)", __FUNCTION__, continueTime);
+		const uint32 continueTime = waitTime * _tickLength + _system->getMillis();
 
 		_movieObjects[wsaIndex]->displayFrame(wsaFrame++, 0, xpos, ypos, 0, 0, 0);
 		if (wsaFrame >= _movieObjects[wsaIndex]->frames())
@@ -446,9 +444,7 @@ int KyraEngine_LoK::o1_displayWSAFrame(EMCState *script) {
 	int waitTime = stackPos(3);
 	int wsaIndex = stackPos(4);
 	_screen->hideMouse();
-	uint32 msecs = g_eventRec.getMillis(true);
-	const uint32 continueTime = waitTime * _tickLength + msecs;
-	debugC(3, kDebugLevelEventRec, "%s(%d, %d, %d, %d)", __FUNCTION__, continueTime, waitTime, tickLength(), msecs);
+	const uint32 continueTime = waitTime * _tickLength + _system->getMillis();
 	_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 	delayUntil(continueTime, false, true);
 	_screen->showMouse();
@@ -480,7 +476,7 @@ int KyraEngine_LoK::o1_runWSAFrames(EMCState *script) {
 	int wsaIndex = stackPos(5);
 	_screen->hideMouse();
 	for (; startFrame <= endFrame; ++startFrame) {
-		const uint32 nextRun = g_eventRec.getMillis() + delayTime * _tickLength;
+		const uint32 nextRun = _system->getMillis() + delayTime * _tickLength;
 		_movieObjects[wsaIndex]->displayFrame(startFrame, 0, xpos, ypos, 0, 0, 0);
 		delayUntil(nextRun, false, true);
 	}
@@ -667,8 +663,7 @@ int KyraEngine_LoK::o1_displayWSAFrameOnHidPage(EMCState *script) {
 	int wsaIndex = stackPos(4);
 
 	_screen->hideMouse();
-	const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-	debugC(3, kDebugLevelEventRec, "%s(continueTime = %d)", __FUNCTION__, continueTime);
+	const uint32 continueTime = waitTime * _tickLength + _system->getMillis();
 	_movieObjects[wsaIndex]->displayFrame(frame, 2, xpos, ypos, 0, 0, 0);
 	delayUntil(continueTime, false, true);
 	_screen->showMouse();
@@ -705,11 +700,9 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 					specialTime = ABS(specialTime);
 				}
 
-				debugC(3, kDebugLevelEventRec, "%s_1(voiceTime = %d, specialTime = %d)", __FUNCTION__, voiceTime, specialTime);
 				voiceTime *= specialTime;
 				voiceTime /= 100;
 
-				debugC(3, kDebugLevelEventRec, "%s_2(voiceSync = %d, voicePlayedTime = %d)", __FUNCTION__, voiceSync, _sound->voicePlayedTime(_speechHandle));
 				if (voiceSync) {
 					uint32 voicePlayedTime = _sound->voicePlayedTime(_speechHandle);
 					if (voicePlayedTime >= voiceTime)
@@ -719,7 +712,6 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 				}
 
 				waitTime = voiceTime / displayFrames;
-				debugC(3, kDebugLevelEventRec, "%s_3(voiceTime = %d, displayFrames = %d)", __FUNCTION__, voiceTime, displayFrames);
 				waitTime /= _tickLength;
 			}
 		}
@@ -740,7 +732,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 		_movieObjects[wsaIndex]->displayFrame(18, 0, xpos, ypos, 0, 0, 0);
 		// We call delayMillis manually here to avoid the screen getting
 		// updated.
-		g_eventRec.delayMillis(waitTime * _tickLength);
+		_system->delayMillis(waitTime * _tickLength);
 		return 0;
 	}
 
@@ -750,9 +742,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 		if (endFrame >= startFrame) {
 			int frame = startFrame;
 			while (endFrame >= frame) {
-				uint32 msecs= g_eventRec.getMillis(true);
-				const uint32 continueTime = waitTime * _tickLength + msecs;
-				debugC(3, kDebugLevelEventRec, "%s_1(%d, %d, %d, %d)", __FUNCTION__, msecs, waitTime, _tickLength, continueTime);
+				const uint32 continueTime = waitTime * _tickLength + _system->getMillis();
 				_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 				delayUntil(continueTime, false, true);
 				++frame;
@@ -760,8 +750,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 		} else {
 			int frame = startFrame;
 			while (endFrame <= frame) {
-				const uint32 continueTime = waitTime * _tickLength + g_eventRec.getMillis(true);
-				debugC(3, kDebugLevelEventRec, "%s_2(%d)", __FUNCTION__, continueTime);
+				const uint32 continueTime = waitTime * _tickLength + _system->getMillis();
 				_movieObjects[wsaIndex]->displayFrame(frame, 0, xpos, ypos, 0, 0, 0);
 				delayUntil(continueTime, false, true);
 				--frame;
@@ -1016,9 +1005,8 @@ int KyraEngine_LoK::o1_walkCharacterToPoint(EMCState *script) {
 
 		setCharacterPosition(character, 0);
 		++curPos;
-		uint32 delaytime = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
-		debugC(3, kDebugLevelEventRec, "%s(%d)", __FUNCTION__, delaytime);
-		delayUntil(nextFrame = delaytime, true, true);
+
+		delayUntil(nextFrame = _timer->getDelay(5 + character) * _tickLength + _system->getMillis(), true, true);
 	}
 	return 0;
 }
@@ -1273,7 +1261,7 @@ int KyraEngine_LoK::o1_makeAmuletAppear(EMCState *script) {
 		_screen->hideMouse();
 		snd_playSoundEffect(0x70);
 		for (int i = 0; _amuleteAnim[i] != 0xFF; ++i) {
-			const uint32 nextTime = g_eventRec.getMillis() + 5 * _tickLength;
+			const uint32 nextTime = _system->getMillis() + 5 * _tickLength;
 
 			uint8 code = _amuleteAnim[i];
 			if (code == 3 || code == 7)

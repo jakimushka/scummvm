@@ -24,7 +24,6 @@
 #include "kyra/sound.h"
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 namespace Kyra {
 
@@ -84,7 +83,7 @@ void KyraEngine_LoK::snd_voiceWaitForFinish(bool ingame) {
 		if (ingame)
 			delay(10, true);
 		else
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 	}
 }
 

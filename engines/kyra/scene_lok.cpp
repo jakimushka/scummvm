@@ -26,7 +26,7 @@
 #include "kyra/sprites.h"
 #include "kyra/animator_lok.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -226,7 +226,7 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 	switch (facing) {
 	case 0:
 		while (ypos < ch->y1) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + _system->getMillis();
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -234,7 +234,7 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 2:
 		while (ch->x1 < xpos) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + _system->getMillis();
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -242,7 +242,7 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 4:
 		while (ypos > ch->y1) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + _system->getMillis();
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -250,7 +250,7 @@ void KyraEngine_LoK::moveCharacterToPos(int character, int facing, int xpos, int
 
 	case 6:
 		while (ch->x1 > xpos) {
-			nextFrame = _timer->getDelay(5 + character) * _tickLength + g_eventRec.getMillis(true);
+			nextFrame = _timer->getDelay(5 + character) * _tickLength + _system->getMillis();
 			setCharacterPositionWithUpdate(character);
 			delayUntil(nextFrame, true);
 		}
@@ -939,11 +939,8 @@ int KyraEngine_LoK::processSceneChange(int *table, int unk1, int frameReset) {
 		if (temp)
 			++table;
 
-		nextFrame = _timer->getDelay(5) * _tickLength + g_eventRec.getMillis(true);
-		debugC(3, kDebugLevelEventRec, "%s_1(%d)", __FUNCTION__, nextFrame);
-		uint32 processSceneChangemsec;
-		while ((processSceneChangemsec = g_eventRec.getMillis(true)) < nextFrame) {
-			debugC(3, kDebugLevelEventRec, "%s_2(%d)", __FUNCTION__, processSceneChangemsec);
+		nextFrame = _timer->getDelay(5) * _tickLength + _system->getMillis();
+		while (_system->getMillis() < nextFrame) {
 			_timer->update();
 
 			if (_currentCharacter->sceneId == 210) {
@@ -955,12 +952,9 @@ int KyraEngine_LoK::processSceneChange(int *table, int unk1, int frameReset) {
 				}
 			}
 
-			uint32 processSceneChangemsecCondition = g_eventRec.getMillis(true);
-			debugC(3, kDebugLevelEventRec, "%s_3(%d)", __FUNCTION__, processSceneChangemsecCondition);
-			if ((nextFrame - processSceneChangemsecCondition) >= 10)
+			if ((nextFrame - _system->getMillis()) >= 10)
 				delay(10, true);
 		}
-		debugC(3, kDebugLevelEventRec, "%s_4(%d)", __FUNCTION__, processSceneChangemsec);
 	}
 
 	if (frameReset && !(_brandonStatusBit & 2))

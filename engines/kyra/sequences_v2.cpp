@@ -22,7 +22,7 @@
 
 #include "kyra/kyra_v2.h"
 #include "kyra/resource.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -97,9 +97,9 @@ void KyraEngine_v2::processAnimationScript(int allowSkip, int resetChar) {
 		else
 			update();
 
-		uint32 delayEnd = g_eventRec.getMillis() + _animDelayTime * _tickLength;
+		uint32 delayEnd = _system->getMillis() + _animDelayTime * _tickLength;
 
-		while ((!skipFlag() || !allowSkip) && g_eventRec.getMillis() < delayEnd)
+		while ((!skipFlag() || !allowSkip) && _system->getMillis() < delayEnd)
 			delay(10, true);
 
 		if (skipFlag()) {

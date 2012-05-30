@@ -24,7 +24,7 @@
 #include "kyra/screen_mr.h"
 #include "kyra/sound.h"
 #include "kyra/resource.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -70,7 +70,7 @@ void KyraEngine_MR::enterNewScene(uint16 sceneId, int facing, int unk1, int unk2
 	uint32 waitUntilTimer = 0;
 	if (_lastMusicCommand != _sceneList[sceneId].sound) {
 		fadeOutMusic(60);
-		waitUntilTimer = g_eventRec.getMillis() + 60 * _tickLength;
+		waitUntilTimer = _system->getMillis() + 60 * _tickLength;
 	}
 
 	_chatAltFlag = false;
@@ -126,8 +126,8 @@ void KyraEngine_MR::enterNewScene(uint16 sceneId, int facing, int unk1, int unk2
 	_sceneExit3 = _sceneList[sceneId].exit3;
 	_sceneExit4 = _sceneList[sceneId].exit4;
 
-	while (g_eventRec.getMillis() < waitUntilTimer)
-		g_eventRec.delayMillis(10);
+	while (_system->getMillis() < waitUntilTimer)
+		_system->delayMillis(10);
 
 	initSceneScript(unk3);
 

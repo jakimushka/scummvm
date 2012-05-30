@@ -24,7 +24,7 @@
 #include "kyra/timer.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -180,7 +180,7 @@ int KyraEngine_HoF::o2_displayWsaFrame(EMCState *script) {
 	int backUp = stackPos(8);
 
 	_screen->hideMouse();
-	const uint32 endTime = g_eventRec.getMillis() + waitTime * _tickLength;
+	const uint32 endTime = _system->getMillis() + waitTime * _tickLength;
 	_wsaSlots[slot]->displayFrame(frame, dstPage, x, y, copyParam | 0xC000, 0, 0);
 	_screen->updateScreen();
 
@@ -212,7 +212,7 @@ int KyraEngine_HoF::o2_displayWsaSequentialFramesLooping(EMCState *script) {
 	while (curTime < maxTimes) {
 		if (startFrame < endFrame) {
 			for (int i = startFrame; i <= endFrame; ++i) {
-				const uint32 endTime = g_eventRec.getMillis() + waitTime * _tickLength;
+				const uint32 endTime = _system->getMillis() + waitTime * _tickLength;
 				_wsaSlots[slot]->displayFrame(i, 0, x, y, 0xC000 | copyFlags, 0, 0);
 
 				if (!skipFlag()) {
@@ -222,7 +222,7 @@ int KyraEngine_HoF::o2_displayWsaSequentialFramesLooping(EMCState *script) {
 			}
 		} else {
 			for (int i = startFrame; i >= endFrame; --i) {
-				const uint32 endTime = g_eventRec.getMillis() + waitTime * _tickLength;
+				const uint32 endTime = _system->getMillis() + waitTime * _tickLength;
 				_wsaSlots[slot]->displayFrame(i, 0, x, y, 0xC000 | copyFlags, 0, 0);
 
 				if (!skipFlag()) {
@@ -258,7 +258,7 @@ int KyraEngine_HoF::o2_displayWsaSequentialFrames(EMCState *script) {
 	_screen->hideMouse();
 
 	while (currentFrame <= lastFrame) {
-		const uint32 endTime = g_eventRec.getMillis() + frameDelay;
+		const uint32 endTime = _system->getMillis() + frameDelay;
 		_wsaSlots[index]->displayFrame(currentFrame++, 0, stackPos(0), stackPos(1), copyParam, 0, 0);
 		if (!skipFlag()) {
 			_screen->updateScreen();
@@ -286,7 +286,7 @@ int KyraEngine_HoF::o2_displayWsaSequence(EMCState *script) {
 	const int lastFrame = _wsaSlots[index]->frames();
 
 	while (currentFrame <= lastFrame) {
-		const uint32 endTime = g_eventRec.getMillis() + frameDelay;
+		const uint32 endTime = _system->getMillis() + frameDelay;
 		_wsaSlots[index]->displayFrame(currentFrame++, 0, stackPos(0), stackPos(1), copyParam, 0, 0);
 		if (!skipFlag()) {
 			if (doUpdate)
@@ -422,7 +422,7 @@ int KyraEngine_HoF::o2_wipeDownMouseItem(EMCState *script) {
 		for (int curY = y, height = 16; height > 0; height -= 2, curY += 2) {
 			restoreGfxRect32x32(x, y);
 			_screen->setNewShapeHeight(shape, height);
-			uint32 waitTime = g_eventRec.getMillis() + _tickLength;
+			uint32 waitTime = _system->getMillis() + _tickLength;
 			_screen->drawShape(0, shape, x, curY, 0, 0);
 			_screen->updateScreen();
 			delayUntil(waitTime);
@@ -439,7 +439,7 @@ int KyraEngine_HoF::o2_wipeDownMouseItem(EMCState *script) {
 
 int KyraEngine_HoF::o2_getElapsedSecs(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_HoF::o2_getElapsedSecs(%p) ()", (const void *)script);
-	return g_eventRec.getMillis() / 1000;
+	return _system->getMillis() / 1000;
 }
 
 int KyraEngine_HoF::o2_getTimerDelay(EMCState *script) {
@@ -805,7 +805,7 @@ int KyraEngine_HoF::o2_showLetter(EMCState *script) {
 			running = false;
 
 		_screen->updateScreen();
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 
 	_screen->hideMouse();
@@ -894,7 +894,7 @@ int KyraEngine_HoF::o2_updateSceneAnim(EMCState *script) {
 			(stackPos(0) == 3 && _mainCharacter.sceneId == 33) ||
 			((stackPos(0) == 1 || stackPos(0) == 2) && _mainCharacter.sceneId == 19) ||
 			((stackPos(0) == 1 || stackPos(0) == 2) && _mainCharacter.sceneId == 27))
-		_sceneSpecialScriptsTimer[_lastProcessedSceneScript] = g_eventRec.getMillis() + _tickLength * 6;
+		_sceneSpecialScriptsTimer[_lastProcessedSceneScript] = _system->getMillis() + _tickLength * 6;
 
 	_specialSceneScriptRunFlag = false;
 	return 0;
@@ -945,13 +945,13 @@ int KyraEngine_HoF::o2_addCauldronStateTableEntry(EMCState *script) {
 
 int KyraEngine_HoF::o2_setCountDown(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_HoF::o2_setCountDown(%p) (%d)", (const void *)script, stackPos(0));
-	_scriptCountDown = g_eventRec.getMillis() + stackPos(0) * _tickLength;
+	_scriptCountDown = _system->getMillis() + stackPos(0) * _tickLength;
 	return 0;
 }
 
 int KyraEngine_HoF::o2_getCountDown(EMCState *script) {
 	debugC(3, kDebugLevelScriptFuncs, "KyraEngine_HoF::o2_getCountDown(%p)", (const void *)script);
-	uint32 time = g_eventRec.getMillis();
+	uint32 time = _system->getMillis();
 	return (time > _scriptCountDown) ? 0 : (_scriptCountDown - time) / _tickLength;
 }
 

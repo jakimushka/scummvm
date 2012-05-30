@@ -22,7 +22,7 @@
 
 #include "kyra/eobcommon.h"
 #include "kyra/timer.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 #ifdef ENABLE_EOB
@@ -38,10 +38,10 @@ void EoBCoreEngine::setupTimers() {
 	_timer->addTimer(0x21, TimerV2(timerProcessMonsters), 20, true);
 	_timer->addTimer(0x22, TimerV2(timerProcessMonsters), 20, true);
 	_timer->addTimer(0x23, TimerV2(timerProcessMonsters), 20, true);
-	_timer->setNextRun(0x20, g_eventRec.getMillis());
-	_timer->setNextRun(0x21, g_eventRec.getMillis() + 7 * _tickLength);
-	_timer->setNextRun(0x22, g_eventRec.getMillis() + 14 * _tickLength);
-	_timer->setNextRun(0x23, g_eventRec.getMillis() + 14 * _tickLength);
+	_timer->setNextRun(0x20, _system->getMillis());
+	_timer->setNextRun(0x21, _system->getMillis() + 7 * _tickLength);
+	_timer->setNextRun(0x22, _system->getMillis() + 14 * _tickLength);
+	_timer->setNextRun(0x23, _system->getMillis() + 14 * _tickLength);
 	_timer->addTimer(0x30, TimerV2(timerSpecialCharacterUpdate), 50, false);
 	_timer->addTimer(0x31, TimerV2(timerSpecialCharacterUpdate), 50, false);
 	_timer->addTimer(0x32, TimerV2(timerSpecialCharacterUpdate), 50, false);
@@ -56,7 +56,7 @@ void EoBCoreEngine::setupTimers() {
 }
 
 void EoBCoreEngine::setCharEventTimer(int charIndex, uint32 countdown, int evnt, int updateExistingTimer) {
-	uint32 ntime = g_eventRec.getMillis() + countdown * _tickLength;
+	uint32 ntime = _system->getMillis() + countdown * _tickLength;
 	uint8 timerId = 0x30 | (charIndex & 0x0f);
 	EoBCharacter *c = &_characters[charIndex];
 
@@ -124,7 +124,7 @@ void EoBCoreEngine::setupCharacterTimers() {
 			if (c->timers[ii] && c->timers[ii] < nextTimer)
 				nextTimer = c->timers[ii];
 		}
-		uint32 ctime = g_eventRec.getMillis();
+		uint32 ctime = _system->getMillis();
 
 		if (nextTimer == 0xffffffff)
 			_timer->disable(0x30 | i);
@@ -137,7 +137,7 @@ void EoBCoreEngine::setupCharacterTimers() {
 }
 
 void EoBCoreEngine::advanceTimers(uint32 millis) {
-	uint32 ct = g_eventRec.getMillis();
+	uint32 ct = _system->getMillis();
 	for (int i = 0; i < 6; i++) {
 		EoBCharacter *c = &_characters[i];
 		for (int ii = 0; ii < 10; ii++) {
@@ -225,7 +225,7 @@ void EoBCoreEngine::timerProcessMonsters(int timerNum) {
 void EoBCoreEngine::timerSpecialCharacterUpdate(int timerNum) {
 	int charIndex = timerNum & 0x0f;
 	EoBCharacter *c = &_characters[charIndex];
-	uint32 ctime =  g_eventRec.getMillis();
+	uint32 ctime =  _system->getMillis();
 
 	for (int i = 0; i < 10; i++) {
 		if (!c->timers[i])

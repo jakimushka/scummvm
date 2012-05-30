@@ -29,7 +29,6 @@
 #include "common/system.h"
 
 #include "audio/audiostream.h"
-#include "common/EventRecorder.h"
 
 namespace Kyra {
 
@@ -278,7 +277,7 @@ int LoLEngine::snd_stopMusic() {
 	if (_sound->musicEnabled()) {
 		if (_sound->isPlaying()) {
 			_sound->beginFadeOut();
-			g_eventRec.delayMillis(3 * _tickLength);
+			_system->delayMillis(3 * _tickLength);
 		}
 
 		_sound->haltTrack();

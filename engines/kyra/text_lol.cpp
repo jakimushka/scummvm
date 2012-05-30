@@ -27,7 +27,7 @@
 #include "kyra/screen_lol.h"
 #include "kyra/timer.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "common/system.h"
 
 namespace Kyra {
@@ -74,7 +74,7 @@ void TextDisplayer_LoL::setupField(bool mode) {
 			_screen->copyRegion(0, 0, 80, y, 240, h, 3, _screen->_curPage, Screen::CR_NO_P_CHECK);
 
 			for (int i = 177; i > 141; i--) {
-				uint32 endTime = g_eventRec.getMillis() + _vm->_tickLength;
+				uint32 endTime = _vm->_system->getMillis() + _vm->_tickLength;
 				_screen->copyRegion(83, i - stepH + 1, 83, i - stepH, 235, stepY, 0, 0, Screen::CR_NO_P_CHECK);
 				_screen->copyRegion(83, i + 1, 83, i + 1, 235, 1, 2, 0, Screen::CR_NO_P_CHECK);
 				_vm->updateInput();
@@ -117,7 +117,7 @@ void TextDisplayer_LoL::expandField() {
 		_screen->copyRegion(83, y, 0, 0, 235, h, 0, 2, Screen::CR_NO_P_CHECK);
 
 		for (int i = 140; i < 177; i++) {
-			uint32 endTime = g_eventRec.getMillis() + _vm->_tickLength;
+			uint32 endTime = _vm->_system->getMillis() + _vm->_tickLength;
 			_screen->copyRegion(0, 0, 83, i - stepH, 235, h, 2, 0, Screen::CR_NO_P_CHECK);
 			_vm->updateInput();
 			_screen->updateScreen();

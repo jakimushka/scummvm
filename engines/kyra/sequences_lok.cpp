@@ -32,7 +32,7 @@
 #include "common/system.h"
 #include "common/savefile.h"
 #include "common/list.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 void KyraEngine_LoK::seq_demo() {
@@ -204,12 +204,12 @@ bool KyraEngine_LoK::seq_introLogos() {
 		_screen->copyRegion(0, 91, 0, 8, 320, 104, 6, 2);
 		_screen->copyRegion(0, 0, 0, 112, 320, 64, 6, 2);
 
-		uint32 start = g_eventRec.getMillis();
+		uint32 start = _system->getMillis();
 		bool doneFlag = false;
 		int oldDistance = 0;
 
 		do {
-			uint32 now = g_eventRec.getMillis();
+			uint32 now = _system->getMillis();
 
 			// The smallest y2 we ever draw the screen for is 65.
 			int distance = (now - start) / _tickLength;
@@ -1054,14 +1054,14 @@ int KyraEngine_LoK::seq_playEnd() {
 		_screen->_curPage = 0;
 		_beadStateVar = 0;
 		_malcolmFlag = 0;
-		_unkEndSeqVar2 = g_eventRec.getMillis() + 600 * _tickLength;
+		_unkEndSeqVar2 = _system->getMillis() + 600 * _tickLength;
 
 		_screen->copyRegion(312, 0, 312, 0, 8, 136, 0, 2);
 	}
 
 	// TODO: better handling. This timer shouldn't count when the menu is open or something.
 	if (_unkEndSeqVar2 != -1) {
-		if (g_eventRec.getMillis() > (uint32)_unkEndSeqVar2) {
+		if (_system->getMillis() > (uint32)_unkEndSeqVar2) {
 			_unkEndSeqVar2 = -1;
 			if (!_malcolmFlag)
 				_malcolmFlag = 1;
@@ -1097,7 +1097,7 @@ int KyraEngine_LoK::seq_playEnd() {
 			_screen->setScreenPalette(_screen->getPalette(0));
 			_screen->shuffleScreen(8, 8, 304, 128, 2, 0, 1, 0);
 
-			uint32 nextTime = g_eventRec.getMillis() + 120 * _tickLength;
+			uint32 nextTime = _system->getMillis() + 120 * _tickLength;
 
 			_finalA = createWSAMovie();
 			assert(_finalA);
@@ -1111,7 +1111,7 @@ int KyraEngine_LoK::seq_playEnd() {
 					snd_playSoundEffect(0x3E);
 				else if (i == 20)
 					snd_playSoundEffect(_flags.platform == Common::kPlatformPC98 ? 0x13 : 0x0E);
-				nextTime = g_eventRec.getMillis() + 8 * _tickLength;
+				nextTime = _system->getMillis() + 8 * _tickLength;
 				_finalA->displayFrame(i, 0, 8, 8, 0, 0, 0);
 				_screen->updateScreen();
 			}
@@ -1192,7 +1192,7 @@ void KyraEngine_LoK::seq_playEnding() {
 
 		while (!shouldQuit()) {
 			seq_playCreditsAmiga();
-			delayUntil(g_eventRec.getMillis() + 300 * _tickLength);
+			delayUntil(_system->getMillis() + 300 * _tickLength);
 		}
 	} else {
 		seq_playCredits();
@@ -1316,7 +1316,7 @@ void KyraEngine_LoK::seq_playCredits() {
 	bool finished = false;
 	int bottom = 201;
 	while (!finished && !shouldQuit()) {
-		uint32 startLoop = g_eventRec.getMillis();
+		uint32 startLoop = _system->getMillis();
 
 		if (bottom > 175) {
 			_screen->copyRegion(0, 32, 0, 32, 320, 128, 4, 2, Screen::CR_NO_P_CHECK);
@@ -1351,11 +1351,11 @@ void KyraEngine_LoK::seq_playCredits() {
 			finished = true;
 		}
 
-		uint32 now = g_eventRec.getMillis();
+		uint32 now = _system->getMillis();
 		uint32 nextLoop = startLoop + _tickLength * 5;
 
 		if (nextLoop > now)
-			g_eventRec.delayMillis(nextLoop - now);
+			_system->delayMillis(nextLoop - now);
 	}
 
 	delete[] buffer;
@@ -1385,7 +1385,7 @@ void KyraEngine_LoK::seq_playCreditsAmiga() {
 	_screen->printText(theEnd, 0, 10, 31, 0);
 
 	for (int y = 18, h = 1; y >= 10 && !shouldQuit(); --y, ++h) {
-		uint32 endTime = g_eventRec.getMillis() + 3 * _tickLength;
+		uint32 endTime = _system->getMillis() + 3 * _tickLength;
 
 		_screen->copyRegion(0, y, x, 8, width, h, 2, 0, Screen::CR_NO_P_CHECK);
 		_screen->updateScreen();
@@ -1394,7 +1394,7 @@ void KyraEngine_LoK::seq_playCreditsAmiga() {
 	}
 
 	for (int y = 8; y <= 62 && !shouldQuit(); ++y) {
-		uint32 endTime = g_eventRec.getMillis() + 3 * _tickLength;
+		uint32 endTime = _system->getMillis() + 3 * _tickLength;
 
 		_screen->copyRegion(x, y, 0, 8, width, 11, 2, 2, Screen::CR_NO_P_CHECK);
 		_screen->printText(theEnd, 0, 9, 31, 0);
@@ -1443,7 +1443,7 @@ void KyraEngine_LoK::seq_playCreditsAmiga() {
 			if (!fillRectFlag)
 				_screen->fillRect(0, 0, 319, 20, 0);
 
-			uint32 nextTime = g_eventRec.getMillis() + 8 * _tickLength;
+			uint32 nextTime = _system->getMillis() + 8 * _tickLength;
 
 			if (centerFlag)
 				x = (320 - _screen->getTextWidth(stringBuffer)) / 2 - 8;
@@ -1456,7 +1456,7 @@ void KyraEngine_LoK::seq_playCreditsAmiga() {
 				_screen->updateScreen();
 
 				delayUntil(nextTime);
-				nextTime = g_eventRec.getMillis() + 8 * _tickLength;
+				nextTime = _system->getMillis() + 8 * _tickLength;
 			}
 
 			specialString = stringBuffer;
@@ -1489,25 +1489,25 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 		// Fall through to the next case
 
 	case 2:
-		if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() >= _malcolmTimer2) {
 			_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 			_screen->updateScreen();
-			_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 			++_malcolmFrame;
 			if (_malcolmFrame > 13) {
 				_malcolmFlag = 3;
-				_malcolmTimer1 = g_eventRec.getMillis() + 180 * _tickLength;
+				_malcolmTimer1 = _system->getMillis() + 180 * _tickLength;
 			}
 		}
 		break;
 
 	case 3:
-		if (g_eventRec.getMillis() < _malcolmTimer1) {
-			if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() < _malcolmTimer1) {
+			if (_system->getMillis() >= _malcolmTimer2) {
 				_malcolmFrame = _rnd.getRandomNumberRng(14, 17);
 				_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 				_screen->updateScreen();
-				_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+				_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 			}
 		} else {
 			_malcolmFlag = 4;
@@ -1516,10 +1516,10 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 		break;
 
 	case 4:
-		if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() >= _malcolmTimer2) {
 			_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 			_screen->updateScreen();
-			_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 			++_malcolmFrame;
 			if (_malcolmFrame > 25) {
 				_malcolmFrame = 26;
@@ -1530,10 +1530,10 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 		break;
 
 	case 5:
-		if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() >= _malcolmTimer2) {
 			_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 			_screen->updateScreen();
-			_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 			++_malcolmFrame;
 			if (_malcolmFrame > 31) {
 				_malcolmFrame = 32;
@@ -1544,10 +1544,10 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 
 	case 6:
 		if (_unkEndSeqVar4) {
-			if (_malcolmFrame <= 33 && g_eventRec.getMillis() >= _malcolmTimer2) {
+			if (_malcolmFrame <= 33 && _system->getMillis() >= _malcolmTimer2) {
 				_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 				_screen->updateScreen();
-				_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+				_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 				++_malcolmFrame;
 				if (_malcolmFrame > 33) {
 					_malcolmFlag = 7;
@@ -1564,15 +1564,15 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 			_malcolmFrame = 34;
 		} else if (_unkEndSeqVar5 == 2) {
 			_malcolmFlag = 3;
-			_malcolmTimer1 = g_eventRec.getMillis() + 180 * _tickLength;
+			_malcolmTimer1 = _system->getMillis() + 180 * _tickLength;
 		}
 		break;
 
 	case 8:
-		if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() >= _malcolmTimer2) {
 			_finalA->displayFrame(_malcolmFrame, 0, 8, 46, 0, 0, 0);
 			_screen->updateScreen();
-			_malcolmTimer2 = g_eventRec.getMillis() + 8 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 8 * _tickLength;
 			++_malcolmFrame;
 			if (_malcolmFrame > 37) {
 				_malcolmFlag = 0;
@@ -1586,7 +1586,7 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 		snd_playSoundEffect(12);
 		snd_playSoundEffect(12);
 		for (int i = 0; i < 18; ++i) {
-			_malcolmTimer2 = g_eventRec.getMillis() + 4 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 4 * _tickLength;
 			_finalC->displayFrame(i, 0, 16, 50, 0, 0, 0);
 			_screen->updateScreen();
 			delayUntil(_malcolmTimer2);
@@ -1602,16 +1602,16 @@ int KyraEngine_LoK::handleMalcolmFlag() {
 			_screen->bitBlitRects();
 			assert(_veryClever);
 			_text->printTalkTextMessage(_veryClever[0], 60, 31, 5, 0, 2);
-			_malcolmTimer2 = g_eventRec.getMillis() + 180 * _tickLength;
+			_malcolmTimer2 = _system->getMillis() + 180 * _tickLength;
 			_malcolmFlag = 11;
 		}
 		break;
 
 	case 11:
-		if (g_eventRec.getMillis() >= _malcolmTimer2) {
+		if (_system->getMillis() >= _malcolmTimer2) {
 			_text->restoreTalkTextMessageBkgd(2, 0);
 			_malcolmFlag = 3;
-			_malcolmTimer1 = g_eventRec.getMillis() + 180 * _tickLength;
+			_malcolmTimer1 = _system->getMillis() + 180 * _tickLength;
 		}
 		break;
 
@@ -1665,9 +1665,9 @@ int KyraEngine_LoK::handleBeadState() {
 		break;
 
 	case 2:
-		if (g_eventRec.getMillis() >= _beadStateTimer1) {
+		if (_system->getMillis() >= _beadStateTimer1) {
 			int x = 0, y = 0;
-			_beadStateTimer1 = g_eventRec.getMillis() + 4 * _tickLength;
+			_beadStateTimer1 = _system->getMillis() + 4 * _tickLength;
 			if (_beadState1.x == -1) {
 				assert(_panPagesTable);
 				_beadState1.width2 = _animator->fetchAnimWidth(_panPagesTable[19], 256);
@@ -1684,7 +1684,7 @@ int KyraEngine_LoK::handleBeadState() {
 			} else {
 				if (processBead(_beadState1.x, _beadState1.y, x, y, &_beadState2)) {
 					_beadStateVar = 3;
-					_beadStateTimer2 = g_eventRec.getMillis() + 240 * _tickLength;
+					_beadStateTimer2 = _system->getMillis() + 240 * _tickLength;
 					_unkEndSeqVar4 = 0;
 					_beadState1.dstX = _beadState1.x;
 					_beadState1.dstY = _beadState1.y;
@@ -1708,8 +1708,8 @@ int KyraEngine_LoK::handleBeadState() {
 		break;
 
 	case 3:
-		if (g_eventRec.getMillis() >= _beadStateTimer1) {
-			_beadStateTimer1 = g_eventRec.getMillis() + 4 * _tickLength;
+		if (_system->getMillis() >= _beadStateTimer1) {
+			_beadStateTimer1 = _system->getMillis() + 4 * _tickLength;
 			_screen->copyBlockToPage(_screen->_curPage, _beadState1.x, _beadState1.y, _beadState1.width << 3, _beadState1.height, _endSequenceBackUpRect);
 			_screen->addBitBlitRect(_beadState1.x, _beadState1.y, _beadState1.width2, _beadState1.height);
 
@@ -1727,7 +1727,7 @@ int KyraEngine_LoK::handleBeadState() {
 			if (_beadState1.tableIndex > 24)
 				_beadState1.tableIndex = 0;
 				_unkEndSeqVar4 = 1;
-			if (g_eventRec.getMillis() > _beadStateTimer2 && _malcolmFlag == 7 && !_unkAmuletVar && !_text->printed()) {
+			if (_system->getMillis() > _beadStateTimer2 && _malcolmFlag == 7 && !_unkAmuletVar && !_text->printed()) {
 				snd_playSoundEffect(0x0B);
 				if (_currentCharacter->x1 > 233 && _currentCharacter->x1 < 305 && _currentCharacter->y1 > 85 && _currentCharacter->y1 < 105 &&
 				        (_brandonStatusBit & 0x20)) {
@@ -1750,9 +1750,9 @@ int KyraEngine_LoK::handleBeadState() {
 		break;
 
 	case 4:
-		if (g_eventRec.getMillis() >= _beadStateTimer1) {
+		if (_system->getMillis() >= _beadStateTimer1) {
 			int x = 0, y = 0;
-			_beadStateTimer1 = g_eventRec.getMillis() + _tickLength;
+			_beadStateTimer1 = _system->getMillis() + _tickLength;
 			if (processBead(_beadState1.x, _beadState1.y, x, y, &_beadState2)) {
 				if (_brandonStatusBit & 20) {
 					_unkEndSeqVar5 = 2;
@@ -1779,22 +1779,22 @@ int KyraEngine_LoK::handleBeadState() {
 		break;
 
 	case 5:
-		if (g_eventRec.getMillis() >= _beadStateTimer1) {
-			_beadStateTimer1 = g_eventRec.getMillis() + _tickLength;
+		if (_system->getMillis() >= _beadStateTimer1) {
+			_beadStateTimer1 = _system->getMillis() + _tickLength;
 			int x = 0, y = 0;
 			if (processBead(_beadState1.x, _beadState1.y, x, y, &_beadState2)) {
 				if (_beadState2.dstX == 290) {
 					_screen->copyBlockToPage(_screen->_curPage, _beadState1.x, _beadState1.y, _beadState1.width << 3, _beadState1.height, _endSequenceBackUpRect);
 					uint32 nextRun = 0;
 					for (int i = 0; i < 8; ++i) {
-						nextRun = g_eventRec.getMillis() + _tickLength;
+						nextRun = _system->getMillis() + _tickLength;
 						_finalB->displayFrame(i, 0, 224, 8, 0, 0, 0);
 						_screen->updateScreen();
 						delayUntil(nextRun);
 					}
 					snd_playSoundEffect(0x0D);
 					for (int i = 7; i >= 0; --i) {
-						nextRun = g_eventRec.getMillis() + _tickLength;
+						nextRun = _system->getMillis() + _tickLength;
 						_finalB->displayFrame(i, 0, 224, 8, 0, 0, 0);
 						_screen->updateScreen();
 						delayUntil(nextRun);
@@ -1970,10 +1970,10 @@ void KyraEngine_LoK::updateKyragemFading() {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
 
-	if (g_eventRec.getMillis() < _kyragemFadingState.timerCount)
+	if (_system->getMillis() < _kyragemFadingState.timerCount)
 		return;
 
-	_kyragemFadingState.timerCount = g_eventRec.getMillis() + 4 * _tickLength;
+	_kyragemFadingState.timerCount = _system->getMillis() + 4 * _tickLength;
 
 	int palPos = 684;
 	for (int i = 0; i < 20; ++i) {
@@ -2031,7 +2031,7 @@ void KyraEngine_LoK::updateKyragemFading() {
 		break;
 	}
 
-	_kyragemFadingState.timerCount = g_eventRec.getMillis() + 120 * _tickLength;
+	_kyragemFadingState.timerCount = _system->getMillis() + 120 * _tickLength;
 }
 
 void KyraEngine_LoK::drawJewelPress(int jewel, int drawSpecial) {

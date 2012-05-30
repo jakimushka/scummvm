@@ -30,7 +30,7 @@
 #include "common/system.h"
 
 #include "graphics/scaler.h"
-#include "common/EventRecorder.h"
+
 namespace Kyra {
 
 void KyraEngine_MR::loadButtonShapes() {
@@ -191,9 +191,9 @@ void KyraEngine_MR::showInventory() {
 	_screen->copyRegion(0, 188, 0, 0, 320, 12, 0, 2, Screen::CR_NO_P_CHECK);
 
 	if (_inventoryScrollSpeed == -1) {
-		uint32 endTime = g_eventRec.getMillis() + _tickLength * 15;
+		uint32 endTime = _system->getMillis() + _tickLength * 15;
 		int times = 0;
-		while (g_eventRec.getMillis() < endTime) {
+		while (_system->getMillis() < endTime) {
 			_screen->copyRegion(0, 188, 0, 0, 320, 12, 0, 2, Screen::CR_NO_P_CHECK);
 			_screen->copyRegion(0, 188, 0, 0, 320, 12, 0, 2, Screen::CR_NO_P_CHECK);
 			++times;
@@ -213,7 +213,7 @@ void KyraEngine_MR::showInventory() {
 	int height = 12;
 	int y = 188;
 	int times = 0;
-	uint32 waitTill = g_eventRec.getMillis() + _tickLength;
+	uint32 waitTill = _system->getMillis() + _tickLength;
 
 	while (y > 144) {
 		_screen->copyRegion(0, 0, 0, y, 320, height, 2, 0, Screen::CR_NO_P_CHECK);
@@ -221,10 +221,10 @@ void KyraEngine_MR::showInventory() {
 
 		++times;
 		if (_inventoryScrollSpeed == 1 && times == 3) {
-			while (waitTill > g_eventRec.getMillis())
-				g_eventRec.delayMillis(10);
+			while (waitTill > _system->getMillis())
+				_system->delayMillis(10);
 			times = 0;
-			waitTill = g_eventRec.getMillis() + _tickLength;
+			waitTill = _system->getMillis() + _tickLength;
 		}
 
 		height += _inventoryScrollSpeed;
@@ -257,9 +257,9 @@ void KyraEngine_MR::hideInventory() {
 	_screen->copyRegion(0, 144, 0, 0, 320, 56, 0, 2, Screen::CR_NO_P_CHECK);
 
 	if (_inventoryScrollSpeed == -1) {
-		uint32 endTime = g_eventRec.getMillis() + _tickLength * 15;
+		uint32 endTime = _system->getMillis() + _tickLength * 15;
 		int times = 0;
-		while (g_eventRec.getMillis() < endTime) {
+		while (_system->getMillis() < endTime) {
 			_screen->copyRegion(0, 144, 0, 0, 320, 12, 0, 2, Screen::CR_NO_P_CHECK);
 			_screen->copyRegion(0, 144, 0, 0, 320, 12, 0, 2, Screen::CR_NO_P_CHECK);
 			++times;
@@ -278,7 +278,7 @@ void KyraEngine_MR::hideInventory() {
 
 	int y = 144;
 	int y2 = 144 + _inventoryScrollSpeed;
-	uint32 waitTill = g_eventRec.getMillis() + _tickLength;
+	uint32 waitTill = _system->getMillis() + _tickLength;
 	int times = 0;
 
 	while (y2 < 188) {
@@ -288,10 +288,10 @@ void KyraEngine_MR::hideInventory() {
 
 		++times;
 		if (_inventoryScrollSpeed == 1 && times == 3) {
-			while (waitTill > g_eventRec.getMillis())
-				g_eventRec.delayMillis(10);
+			while (waitTill > _system->getMillis())
+				_system->delayMillis(10);
 			times = 0;
-			waitTill = g_eventRec.getMillis() + _tickLength;
+			waitTill = _system->getMillis() + _tickLength;
 		}
 
 		y += _inventoryScrollSpeed;
@@ -555,15 +555,15 @@ int KyraEngine_MR::buttonMoodChange(Button *button) {
 		snd_playSoundEffect(0x2E, 0xC8);
 
 		while (_invWsaFrame != frameTable[_malcolmsMood]) {
-			uint32 endTime = g_eventRec.getMillis() + 2 * _tickLength;
+			uint32 endTime = _system->getMillis() + 2 * _tickLength;
 			_invWsaFrame += direction;
 
 			drawMalcolmsMoodPointer(_invWsaFrame, 0);
 			_screen->updateScreen();
 
-			while (endTime > g_eventRec.getMillis()) {
+			while (endTime > _system->getMillis()) {
 				update();
-				g_eventRec.delayMillis(10);
+				_system->delayMillis(10);
 			}
 		}
 
@@ -817,7 +817,7 @@ void KyraEngine_MR::processAlbum() {
 	for (int i = 0; i < 5; ++i)
 		buttonList = _gui->addButtonToList(buttonList, &albumButtons[i]);
 
-	_album.leftPage.timer = _album.rightPage.timer = g_eventRec.getMillis();
+	_album.leftPage.timer = _album.rightPage.timer = _system->getMillis();
 	albumNewPage();
 	_album.running = true;
 
@@ -854,7 +854,7 @@ void KyraEngine_MR::processAlbum() {
 		}
 
 		albumUpdateAnims();
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 
 	_album.leftPage.wsa->close();
@@ -892,12 +892,12 @@ void KyraEngine_MR::albumUpdateAnims() {
 	uint32 nextRun = 0;
 
 	nextRun = _album.leftPage.timer + 5 * _tickLength;
-	if (nextRun < g_eventRec.getMillis() && _album.leftPage.wsa->opened()) {
+	if (nextRun < _system->getMillis() && _album.leftPage.wsa->opened()) {
 		_album.leftPage.wsa->displayFrame(_album.leftPage.curFrame, 2, _albumWSAX[_album.nextPage+0], _albumWSAY[_album.nextPage+0], 0x4000, 0, 0);
 		_screen->copyRegion(40, 17, 40, 17, 87, 73, 2, 0, Screen::CR_NO_P_CHECK);
 
 		++_album.leftPage.curFrame;
-		_album.leftPage.timer = g_eventRec.getMillis();
+		_album.leftPage.timer = _system->getMillis();
 
 		if (_album.leftPage.curFrame > _album.leftPage.maxFrame) {
 			_album.leftPage.curFrame = 0;
@@ -911,12 +911,12 @@ void KyraEngine_MR::albumUpdateAnims() {
 	}
 
 	nextRun = _album.rightPage.timer + 5 * _tickLength;
-	if (nextRun < g_eventRec.getMillis() && _album.rightPage.wsa->opened()) {
+	if (nextRun < _system->getMillis() && _album.rightPage.wsa->opened()) {
 		_album.rightPage.wsa->displayFrame(_album.rightPage.curFrame, 2, _albumWSAX[_album.nextPage+1], _albumWSAY[_album.nextPage+1], 0x4000, 0, 0);
 		_screen->copyRegion(194, 20, 194, 20, 85, 69, 2, 0, Screen::CR_NO_P_CHECK);
 
 		++_album.rightPage.curFrame;
-		_album.rightPage.timer = g_eventRec.getMillis();
+		_album.rightPage.timer = _system->getMillis();
 
 		if (_album.rightPage.curFrame > _album.rightPage.maxFrame) {
 			_album.rightPage.curFrame = 0;
@@ -1366,7 +1366,7 @@ int GUI_MR::gameOptions(Button *caller) {
 		_vm->saveGameStateIntern(999, "Autosave", &thumb);
 		thumb.free();
 
-		_vm->_lastAutosave = g_eventRec.getMillis();
+		_vm->_lastAutosave = _vm->_system->getMillis();
 
 		if (!_vm->loadLanguageFile("ITEMS.", _vm->_itemFile))
 			error("Couldn't load ITEMS");

@@ -26,7 +26,7 @@
 #include "kyra/screen_lol.h"
 #include "kyra/resource.h"
 #include "kyra/sound.h"
-#include "common/EventRecorder.h"
+
 #include "base/version.h"
 
 #include "common/system.h"
@@ -234,9 +234,9 @@ void LoLEngine::showIntro() {
 			_screen->checkedPageUpdate(8, 4);
 
 		if (_tim->_palDiff) {
-			if (palNextFadeStep < g_eventRec.getMillis()) {
+			if (palNextFadeStep < _system->getMillis()) {
 				_tim->_palDelayAcc += _tim->_palDelayInc;
-				palNextFadeStep = g_eventRec.getMillis() + ((_tim->_palDelayAcc >> 8) * _tickLength);
+				palNextFadeStep = _system->getMillis() + ((_tim->_palDelayAcc >> 8) * _tickLength);
 				_tim->_palDelayAcc &= 0xFF;
 
 				if (!_screen->fadePalStep(_screen->getPalette(0), _tim->_palDiff)) {
@@ -246,7 +246,7 @@ void LoLEngine::showIntro() {
 			}
 		}
 
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 		_screen->updateScreen();
 	}
 	_screen->showMouse();
@@ -373,10 +373,10 @@ int LoLEngine::chooseCharacter() {
 	if (shouldQuit())
 		return -1;
 
-	uint32 waitTime = g_eventRec.getMillis() + 420 * _tickLength;
-	while (waitTime > g_eventRec.getMillis() && !skipFlag() && !shouldQuit()) {
+	uint32 waitTime = _system->getMillis() + 420 * _tickLength;
+	while (waitTime > _system->getMillis() && !skipFlag() && !shouldQuit()) {
 		updateInput();
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 	}
 
 	// HACK: Remove all input events
@@ -416,10 +416,10 @@ void LoLEngine::kingSelectionIntro() {
 		_screen->copyRegion(_selectionPosTable[_selectionChar4IdxTable[index] * 2 + 0], _selectionPosTable[_selectionChar4IdxTable[index] * 2 + 1], _charPreviews[3].x, _charPreviews[3].y, 32, 32, 4, 0);
 		_screen->updateScreen();
 
-		uint32 waitEnd = g_eventRec.getMillis() + 7 * _tickLength;
-		while (waitEnd > g_eventRec.getMillis() && _charSelection == -1 && !shouldQuit() && !skipFlag()) {
+		uint32 waitEnd = _system->getMillis() + 7 * _tickLength;
+		while (waitEnd > _system->getMillis() && _charSelection == -1 && !shouldQuit() && !skipFlag()) {
 			_charSelection = getCharSelection();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		if (speechEnabled())
@@ -459,10 +459,10 @@ void LoLEngine::kingSelectionReminder() {
 		_screen->copyRegion(_selectionPosTable[_reminderChar4IdxTable[index] * 2 + 0], _selectionPosTable[_reminderChar4IdxTable[index] * 2 + 1], _charPreviews[3].x, _charPreviews[3].y, 32, 32, 4, 0);
 		_screen->updateScreen();
 
-		uint32 waitEnd = g_eventRec.getMillis() + 8 * _tickLength;
-		while (waitEnd > g_eventRec.getMillis() && !shouldQuit()) {
+		uint32 waitEnd = _system->getMillis() + 8 * _tickLength;
+		while (waitEnd > _system->getMillis() && !shouldQuit()) {
 			_charSelection = getCharSelection();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		if (speechEnabled())
@@ -485,10 +485,10 @@ void LoLEngine::kingSelectionOutro() {
 		_chargenWSA->displayFrame(_chargenFrameTable[index], 0, 113, 0, 0, 0, 0);
 		_screen->updateScreen();
 
-		uint32 waitEnd = g_eventRec.getMillis() + 8 * _tickLength;
-		while (waitEnd > g_eventRec.getMillis() && !shouldQuit() && !skipFlag()) {
+		uint32 waitEnd = _system->getMillis() + 8 * _tickLength;
+		while (waitEnd > _system->getMillis() && !shouldQuit() && !skipFlag()) {
 			updateInput();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		if (speechEnabled())
@@ -507,12 +507,12 @@ void LoLEngine::kingSelectionOutro() {
 void LoLEngine::processCharacterSelection() {
 	_charSelection = -1;
 	while (!shouldQuit() && _charSelection == -1) {
-		uint32 nextKingMessage = g_eventRec.getMillis() + 900 * _tickLength;
+		uint32 nextKingMessage = _system->getMillis() + 900 * _tickLength;
 
-		while (nextKingMessage > g_eventRec.getMillis() && _charSelection == -1 && !shouldQuit()) {
+		while (nextKingMessage > _system->getMillis() && _charSelection == -1 && !shouldQuit()) {
 			updateSelectionAnims();
 			_charSelection = getCharSelection();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 
 		if (_charSelection == -1)
@@ -522,7 +522,7 @@ void LoLEngine::processCharacterSelection() {
 
 void LoLEngine::updateSelectionAnims() {
 	for (int i = 0; i < 4; ++i) {
-		if (g_eventRec.getMillis() < _selectionAnimTimers[i])
+		if (_system->getMillis() < _selectionAnimTimers[i])
 			continue;
 
 		const int index = _selectionAnimIndexTable[_selectionAnimFrames[i] + i * 2];
@@ -534,7 +534,7 @@ void LoLEngine::updateSelectionAnims() {
 		else
 			delayTime = _rnd.getRandomNumberRng(0, 3) + 10;
 
-		_selectionAnimTimers[i] = g_eventRec.getMillis() + delayTime * _tickLength;
+		_selectionAnimTimers[i] = _system->getMillis() + delayTime * _tickLength;
 		_selectionAnimFrames[i] = (_selectionAnimFrames[i] + 1) % 2;
 	}
 
@@ -597,7 +597,7 @@ int LoLEngine::selectionCharInfo(int character) {
 	if (_charSelectionInfoResult == -1) {
 		while (_charSelectionInfoResult == -1 && !shouldQuit()) {
 			_charSelectionInfoResult = selectionCharAccept();
-			g_eventRec.delayMillis(10);
+			_system->delayMillis(10);
 		}
 	}
 
@@ -643,10 +643,10 @@ void LoLEngine::selectionCharInfoIntro(char *file) {
 			_screen->drawShape(0, _screen->getPtrToShape(_screen->getCPagePtr(9), _charInfoFrameTable[i]), 11, 130, 0, 0);
 			_screen->updateScreen();
 
-			uint32 nextFrame = g_eventRec.getMillis() + 8 * _tickLength;
-			while (nextFrame > g_eventRec.getMillis() && _charSelectionInfoResult == -1 && !shouldQuit()) {
+			uint32 nextFrame = _system->getMillis() + 8 * _tickLength;
+			while (nextFrame > _system->getMillis() && _charSelectionInfoResult == -1 && !shouldQuit()) {
 				_charSelectionInfoResult = selectionCharAccept();
-				g_eventRec.delayMillis(10);
+				_system->delayMillis(10);
 			}
 
 			if (speechEnabled() || processAnim)
@@ -843,7 +843,7 @@ void HistoryPlayer::play() {
 					strcpy(tempWsaFilename, &data[part * 15]);
 
 					for (int i = 1; i < 4 && !_vm->shouldQuit(); ++i) {
-						uint32 nextTime = g_eventRec.getMillis() + 30 * _vm->tickLength();
+						uint32 nextTime = _system->getMillis() + 30 * _vm->tickLength();
 						tempWsaFilename[8] = 'a' + i;
 
 						loadWsa(&tempWsaFilename[2]);
@@ -867,7 +867,7 @@ void HistoryPlayer::play() {
 					_fireFrame = 0;
 
 					for (int i = 0; i < 12 && !_vm->shouldQuit(); ++i, ++_fireFrame) {
-						uint32 nextTime = g_eventRec.getMillis() + 3 * _vm->tickLength();
+						uint32 nextTime = _system->getMillis() + 3 * _vm->tickLength();
 
 						if (_fireFrame > 4)
 							_fireFrame = 0;
@@ -881,7 +881,7 @@ void HistoryPlayer::play() {
 					_screen->fadePalette(pal, 0x78, &palFade);
 
 					while (sound->voiceIsPlaying() && !_vm->shouldQuit()) {
-						uint32 nextTime = g_eventRec.getMillis() + 3 * _vm->tickLength();
+						uint32 nextTime = _system->getMillis() + 3 * _vm->tickLength();
 
 						++_fireFrame;
 						if (_fireFrame > 4)
@@ -894,7 +894,7 @@ void HistoryPlayer::play() {
 
 					_fireFrame = 0;
 					for (int i = 0; i < 10; ++i, ++_fireFrame) {
-						uint32 nextTime = g_eventRec.getMillis() + 3 * _vm->tickLength();
+						uint32 nextTime = _system->getMillis() + 3 * _vm->tickLength();
 
 						if (_fireFrame > 4)
 							_fireFrame = 0;
@@ -967,7 +967,7 @@ void HistoryPlayer::playWsa(bool direction) {
 	const int tickLength = _vm->tickLength();
 
 	for (int i = 0; i < 15 && !_vm->shouldQuit(); ++i) {
-		uint32 nextTime = g_eventRec.getMillis() + 3 * tickLength;
+		uint32 nextTime = _system->getMillis() + 3 * tickLength;
 
 		_wsa->displayFrame(_frame, 2, 0, 0, 0, 0, 0);
 		_screen->copyRegion(_x, _y, _x, _y, _width, _height, 2, 0);
@@ -988,10 +988,10 @@ void HistoryPlayer::restoreWsaBkgd() {
 }
 
 void HistoryPlayer::updateFire() {
-	if (g_eventRec.getMillis() > _nextFireTime) {
+	if (_system->getMillis() > _nextFireTime) {
 		_fireWsa->displayFrame(_fireFrame, 0, 75, 51, 0, 0, 0);
 		_fireFrame = (_fireFrame + 1) % 5;
-		_nextFireTime = g_eventRec.getMillis() + 4 * _vm->tickLength();
+		_nextFireTime = _system->getMillis() + 4 * _vm->tickLength();
 	}
 
 	_screen->updateScreen();
@@ -1085,9 +1085,9 @@ void LoLEngine::showOutro(int character, bool maxDifficulty) {
 		_tim->exec(outro, false);
 
 		if (_tim->_palDiff) {
-			if (palNextFadeStep < g_eventRec.getMillis()) {
+			if (palNextFadeStep < _system->getMillis()) {
 				_tim->_palDelayAcc += _tim->_palDelayInc;
-				palNextFadeStep = g_eventRec.getMillis() + ((_tim->_palDelayAcc >> 8) * _tickLength);
+				palNextFadeStep = _system->getMillis() + ((_tim->_palDelayAcc >> 8) * _tickLength);
 				_tim->_palDelayAcc &= 0xFF;
 
 				if (!_screen->fadePalStep(_screen->getPalette(0), _tim->_palDiff)) {
@@ -1097,7 +1097,7 @@ void LoLEngine::showOutro(int character, bool maxDifficulty) {
 			}
 		}
 
-		g_eventRec.delayMillis(10);
+		_system->delayMillis(10);
 		_screen->updateScreen();
 	}
 	removeInputTop();
@@ -1212,8 +1212,8 @@ void LoLEngine::showCredits() {
 	processCredits(credits, 21, 4, 5);
 	delete[] credits;
 
-	uint32 endTime = g_eventRec.getMillis() + 120 * _tickLength;
-	while (endTime > g_eventRec.getMillis() && !shouldQuit()) {
+	uint32 endTime = _system->getMillis() + 120 * _tickLength;
+	while (endTime > _system->getMillis() && !shouldQuit()) {
 		if (checkInput(0))
 			break;
 		delay(_tickLength);
@@ -1259,7 +1259,7 @@ void LoLEngine::processCredits(char *t, int dimState, int page, int delayTime) {
 
 	_screen->fadePalette(_screen->getPalette(0), 30);
 
-	uint32 waitTimer = g_eventRec.getMillis();
+	uint32 waitTimer = _system->getMillis();
 
 	struct CreditsString {
 		int16 x, y;
@@ -1284,9 +1284,9 @@ void LoLEngine::processCredits(char *t, int dimState, int page, int delayTime) {
 	int inputFlag = 0;
 
 	do {
-		while (g_eventRec.getMillis() < waitTimer && !shouldQuit())
+		while (_system->getMillis() < waitTimer && !shouldQuit())
 			delay(_tickLength);
-		waitTimer = g_eventRec.getMillis() + delayTime * _tickLength;
+		waitTimer = _system->getMillis() + delayTime * _tickLength;
 
 		while (countStrings < 35 && str[0]) {
 			int y = 0;

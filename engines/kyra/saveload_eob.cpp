@@ -30,8 +30,9 @@
 #include "common/substream.h"
 #include "common/config-manager.h"
 #include "common/translation.h"
-#include "common/EventRecorder.h"
+
 #include "gui/message.h"
+
 namespace Kyra {
 
 Common::Error EoBCoreEngine::loadGameState(int slot) {
@@ -89,7 +90,7 @@ Common::Error EoBCoreEngine::loadGameState(int slot) {
 		c->mageSpellsAvailableFlags = in.readUint32BE();
 		for (int ii = 0; ii < 27; ii++)
 			c->inventory[ii] = in.readSint16BE();
-		uint32 ct = g_eventRec.getMillis();
+		uint32 ct = _system->getMillis();
 		for (int ii = 0; ii < 10; ii++) {
 			c->timers[ii] = in.readUint32BE();
 			if (c->timers[ii])
@@ -376,7 +377,7 @@ Common::Error EoBCoreEngine::saveGameStateIntern(int slot, const char *saveName,
 		out->writeUint32BE(c->mageSpellsAvailableFlags);
 		for (int ii = 0; ii < 27; ii++)
 			out->writeSint16BE(c->inventory[ii]);
-		uint32 ct = g_eventRec.getMillis();
+		uint32 ct = _system->getMillis();
 		for (int ii = 0; ii < 10; ii++)
 			out->writeUint32BE((c->timers[ii] && c->timers[ii] > ct) ? c->timers[ii] - ct : 0);
 
@@ -684,7 +685,7 @@ Common::String EoBCoreEngine::readOriginalSaveFile(Common::String &file) {
 		c->mageSpellsAvailableFlags = in.readUint32();
 		for (int ii = 0; ii < 27; ii++)
 			c->inventory[ii] = in.readSint16();
-		uint32 ct = g_eventRec.getMillis();
+		uint32 ct = _system->getMillis();
 		for (int ii = 0; ii < 10; ii++) {
 			c->timers[ii] = in.readUint32() * _tickLength;
 			if (c->timers[ii])
@@ -885,7 +886,7 @@ void EoBCoreEngine::releaseMonsterTempData(LevelTempData *tmp) {
 void *EoBCoreEngine::generateWallOfForceTempData(LevelTempData *tmp) {
 	WallOfForce *w = new WallOfForce[5];
 	memcpy(w, _wallsOfForce,  sizeof(WallOfForce) * 5);
-	uint32 ct = g_eventRec.getMillis();
+	uint32 ct = _system->getMillis();
 	for (int i = 0; i < 5; i++)
 		w[i].duration = (w[i].duration > ct) ? w[i].duration - ct : _tickLength;
 	return w;
@@ -893,7 +894,7 @@ void *EoBCoreEngine::generateWallOfForceTempData(LevelTempData *tmp) {
 
 void EoBCoreEngine::restoreWallOfForceTempData(LevelTempData *tmp) {
 	memcpy(_wallsOfForce, tmp->wallsOfForce,  sizeof(WallOfForce) * 5);
-	uint32 ct = g_eventRec.getMillis();
+	uint32 ct = _system->getMillis();
 	for (int i = 0; i < 5; i++)
 		_wallsOfForce[i].duration += ct;
 }
