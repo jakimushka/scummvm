@@ -83,11 +83,11 @@ public:
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager *getMixerManager();
-	TimerManager *getTimerManager();
+	DefaultTimerManager *getTimerManager();
 	uint32 getRandomSeed(const String &name);
 	void init(Common::String gameid, const ADGameDescription *desc = NULL);
 	void registerMixerManager(SdlMixerManager *mixerManager);
-	void registerTimerManager(TimerManager *timerManager);
+	void registerTimerManager(DefaultTimerManager *timerManager);
 private:	
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
 	enum PlaybackFileState {
@@ -121,7 +121,7 @@ private:
 	MutexRef _recorderMutex;
 	SdlMixerManager *_realMixerManager;
 	NullSdlMixerManager *_fakeMixerManager;
-	TimerManager *_timerManager;
+	DefaultTimerManager *_timerManager;
 	void switchMixer();
 	void switchTimerManagers();
 	void writeVersion();
