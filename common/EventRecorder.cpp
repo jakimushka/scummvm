@@ -355,7 +355,6 @@ bool EventRecorder::pollEvent(Event &ev) {
 
 
 void EventRecorder::getNextEvent() {
-	readEvent(_nextEvent);		
 	if (_tmpPlaybackFile.pos() == _eventsSize) {
 		ChunkHeader header;
 		header.id = 0;
@@ -380,6 +379,7 @@ void EventRecorder::getNextEvent() {
 			}
 		}
 	}
+	readEvent(_nextEvent);		
 }
 
 void EventRecorder::writeNextEventsChunk() {
