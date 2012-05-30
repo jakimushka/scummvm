@@ -249,7 +249,7 @@ bool EventRecorder::delayMillis(uint msecs, bool logged) {
 	return false;
 }
 
-void EventRecorder::processMillis(uint32 &millis, bool logging = false) {
+void EventRecorder::processMillis(uint32 &millis) {
 	if (_recordMode == kPassthrough) {
 		return;
 	}
@@ -422,14 +422,6 @@ void EventRecorder::togglePause() {
 	}
 }
 
-uint32 EventRecorder::getMillis(bool logging) {
-	uint32 millis = g_system->getMillis();
-	processMillis(millis);
-	if (!logging) {
-		return millis;
-	}
-	return millis;
-}
 
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	if ((_recordMode == kRecorderRecord)&& !paused)	{	

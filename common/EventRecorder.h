@@ -77,9 +77,8 @@ public:
 	/** Register random source so it can be serialized in game test purposes */
 	void RegisterEventSource();
 	bool delayMillis(uint msecs, bool logged = false);
-	uint32 getMillis(bool logging = false);
 	/** TODO: Add documentation, this is only used by the backend */
-	void processMillis(uint32 &millis, bool logging);
+	void processMillis(uint32 &millis);
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager *getMixerManager();
