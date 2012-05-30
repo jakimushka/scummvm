@@ -30,7 +30,6 @@
  */
 
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 #include "sword25/sword25.h"	// for kDebugScript
 #include "sword25/gfx/graphicengine.h"
@@ -143,7 +142,7 @@ int Kernel::getRandomNumber(int min, int max) {
  * Returns the elapsed time since startup in milliseconds
  */
 uint Kernel::getMilliTicks() {
-	return g_eventRec.getMillis();
+	return g_system->getMillis();
 }
 
 /**
@@ -189,7 +188,7 @@ MoviePlayer *Kernel::getFMV() {
 }
 
 void Kernel::sleep(uint msecs) const {
-	g_eventRec.delayMillis(msecs);
+	g_system->delayMillis(msecs);
 }
 
 } // End of namespace Sword25

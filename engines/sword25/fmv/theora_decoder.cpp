@@ -35,7 +35,6 @@
  */
 
 #include "sword25/fmv/theora_decoder.h"
-#include "common/EventRecorder.h"
 
 #ifdef USE_THEORADEC
 #include "common/system.h"
@@ -371,7 +370,7 @@ const Graphics::Surface *TheoraDecoder::decodeNextFrame() {
 				translateYUVtoRGBA(yuv);
 
 				if (_curFrame == 0)
-					_startTime = g_eventRec.getMillis();
+					_startTime = g_system->getMillis();
 
 				double time = th_granule_time(_theoraDecode, _oggPacket.granulepos);
 
