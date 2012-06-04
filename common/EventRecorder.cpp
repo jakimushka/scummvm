@@ -183,6 +183,7 @@ EventRecorder::EventRecorder() : _tmpRecordFile(_recordBuffer, kRecordBuffSize),
 	_playbackFile = NULL;
 	_recordFile = NULL;
 	_screenshotsFile = NULL;
+	initialized = false;
 }
 
 EventRecorder::~EventRecorder() {
@@ -253,6 +254,9 @@ void EventRecorder::processMillis(uint32 &millis) {
 	if (_recordMode == kPassthrough) {
 		return;
 	}
+	if (!initialized) {
+		return;
+	}
 	updateSubsystems();
 	if (_recordMode == kRecorderRecord) {
 		StackLock lock(_recorderMutex);
@@ -305,6 +309,9 @@ bool EventRecorder::notifyEvent(const Event &ev) {
 	checkForKeyCode(ev);
 	if (_recordMode != kRecorderRecord)
 		return false;
+	if (!initialized) {
+		return false;
+	}
 	if ((ev.type == EVENT_LBUTTONDOWN) || (ev.type == EVENT_LBUTTONUP)) {
 		debugC(3, kDebugLevelEventRec, "%d, %d, %d, %d, %d", ev.type, _fakeTimer, _fakeTimer, ev.mouse.x, ev.mouse.y);
 	}
@@ -322,6 +329,9 @@ bool EventRecorder::notifyPoll() {
 bool EventRecorder::pollEvent(Event &ev) {
 	if (_recordMode != kRecorderPlayback)
 		return false;
+	if (!initialized) {
+		return false;
+	}
 	StackLock lock(_recorderMutex);
 
 	if (_nextEvent.type ==  EVENT_INVALID) {
@@ -425,6 +435,9 @@ void EventRecorder::togglePause() {
 
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	if ((_recordMode == kRecorderRecord)&& !paused)	{	
+		if (!initialized) {
+			return false;
+		}
 		StackLock lock(_recorderMutex);
 		RecorderEvent audioEvent;
 		audioEvent.type =  EVENT_AUDIO;
@@ -434,6 +447,9 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 		return true;
 	}
 	if (_recordMode == kRecorderPlayback) {
+		if (!initialized) {
+			return false;
+		}
 
 		if ((_nextEvent.type == EVENT_AUDIO) /*&& !paused */) {
 			if (_nextEvent.time <= _fakeTimer) {
@@ -520,6 +536,7 @@ void EventRecorder::init(Common::String gameId, const ADGameDescription *gameDes
 	_lastMillis = 0;
 	_headerDumped = false;
 	_engineSpeedMultiplier = 1;
+	initialized = true;
 }
 
 /**

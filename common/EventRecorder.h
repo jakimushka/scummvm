@@ -87,6 +87,11 @@ public:
 	void init(Common::String gameid, const ADGameDescription *desc = NULL);
 	void registerMixerManager(SdlMixerManager *mixerManager);
 	void registerTimerManager(DefaultTimerManager *timerManager);
+	void updateSubsystems();
+	uint32 getTimer() {return _fakeTimer;}
+	bool isRecording() {
+		return initialized;
+	}
 private:	
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
 	enum PlaybackFileState {
@@ -102,6 +107,7 @@ private:
 		kFileStateDone,
 		kFileStateError
 	};
+	bool initialized;
 	bool parsePlaybackFile();
 	ChunkHeader readChunkHeader();
 	void getConfig();

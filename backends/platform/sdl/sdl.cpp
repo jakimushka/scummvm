@@ -465,9 +465,15 @@ void OSystem_SDL::setupIcon() {
 	free(icon);
 }
 
-uint32 OSystem_SDL::getMillis() {
+
+uint32 OSystem_SDL::getMillis(bool skipRecord) {
 	uint32 millis = SDL_GetTicks();
+	if (skipRecord) {
+		millis = g_eventRec.getTimer();
+		return millis;
+	}
 	g_eventRec.processMillis(millis);
+	millis = g_eventRec.getTimer();
 	return millis;
 }
 
