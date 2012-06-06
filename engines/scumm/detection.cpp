@@ -32,7 +32,6 @@
 #include "common/md5.h"
 #include "common/savefile.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
 
 #include "audio/mididrv.h"
 
@@ -1003,7 +1002,7 @@ Common::Error ScummMetaEngine::createInstance(OSystem *syst, Engine **engine) co
 	assert(syst);
 	assert(engine);
 	const char *gameid = ConfMan.get("gameid").c_str();
-	g_eventRec.init(gameid, NULL);
+	initSubSystems(gameid);
 
 	// We start by checking whether the specified game ID is obsolete.
 	// If that is the case, we automatically upgrade the target to use
