@@ -34,6 +34,7 @@
 #include "backends/mixer/nullmixer/nullsdl-mixer.h"
 #include "backends/timer/sdl/sdl-timer.h"
 #include "backends/timer/default/default-timer.h"
+#include "engines/advancedDetector.h"
 #include "common/hashmap.h"
 #include "common/config-manager.h"
 
@@ -42,8 +43,6 @@
 //capacity of records buffer
 #define kMaxBufferedRecords 10000
 #define kRecordBuffSize sizeof(RecorderEvent) * kMaxBufferedRecords
-
-struct ADGameDescription;
 
 namespace Common {
 

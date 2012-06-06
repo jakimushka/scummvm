@@ -25,7 +25,6 @@
 #include "common/scummsys.h"
 #include "common/error.h"
 #include "common/array.h"
-#include "common/EventRecorder.h"
 
 #include "engines/game.h"
 #include "engines/savestate.h"
@@ -64,10 +63,6 @@ typedef Common::Array<ExtraGuiOption> ExtraGuiOptions;
 class MetaEngine : public PluginObject {
 public:
 	virtual ~MetaEngine() {}
-
-	void initSubSystems(const char *gameId) const {
-		g_eventRec.init(gameId);
-	}
 
 	/** Returns some copyright information about the original engine. */
 	virtual const char *getOriginalCopyright() const = 0;

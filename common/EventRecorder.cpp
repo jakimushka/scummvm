@@ -33,7 +33,6 @@
 #include "graphics/thumbnail.h"
 #include "graphics/surface.h"
 #include "graphics/scaler.h"
-#include "engines/advancedDetector.h"
 namespace Common {
 
 DECLARE_SINGLETON(EventRecorder);
