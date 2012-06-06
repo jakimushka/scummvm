@@ -31,7 +31,6 @@
 #include "common/system.h"
 #include "common/savefile.h"
 #include "common/translation.h"
-#include "common/EventRecorder.h"
 
 #include "engines/advancedDetector.h"
 
@@ -187,9 +186,6 @@ bool Kyra::KyraEngine_v1::hasFeature(EngineFeature f) const {
 
 bool KyraMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
 	const KYRAGameDescription *gd = (const KYRAGameDescription *)desc;
-
-	g_eventRec.init(desc->gameid, desc);
-
 	bool res = true;
 
 	Kyra::GameFlags flags = gd->flags;

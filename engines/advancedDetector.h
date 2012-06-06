@@ -264,6 +264,9 @@ protected:
 		return 0;
 	}
 
+private:
+	void initSubSystems(const ADGameDescription *gameDesc) const;
+
 protected:
 	/**
 	 * Detect games in specified directory.
