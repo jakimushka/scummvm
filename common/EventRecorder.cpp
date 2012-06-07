@@ -348,6 +348,8 @@ bool EventRecorder::pollEvent(Event &ev) {
 	if ((_nextEvent.type == EVENT_LBUTTONDOWN) || (_nextEvent.type == EVENT_LBUTTONUP)) {
 		debugC(3, kDebugLevelEventRec, "%d, %d, %d, %d, %d", _nextEvent.type, _nextEvent.time, _fakeTimer, _nextEvent.mouse.x, _nextEvent.mouse.y);
 	}
+
+	_nextEvent.synthetic = true;
 	
 	switch (_nextEvent.type) {
 	case EVENT_MOUSEMOVE:
@@ -1050,6 +1052,14 @@ void EventRecorder::updateSubsystems() {
 	_recordMode = kPassthrough;
 	_fakeMixerManager->update();
 	_recordMode = oldRecordMode;
+}
+
+List<Event> EventRecorder::mapEvent(const Event &ev, EventSource *source) {
+	if ((_recordMode == kRecorderPlayback) && (ev.synthetic != true)) {
+		return List<Event>();
+	} else {
+		return DefaultEventMapper::mapEvent(ev, source);
+	}
 }
 
 } // End of namespace Common
