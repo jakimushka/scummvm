@@ -189,7 +189,7 @@ GameList SkyMetaEngine::detectGames(const Common::FSList &fslist) const {
 
 Common::Error SkyMetaEngine::createInstance(OSystem *syst, Engine **engine) const {
 	assert(engine);
-	g_eventRec.init(getName(), NULL);
+	g_eventRec.init(getName());
 	*engine = new Sky::SkyEngine(syst);
 	return Common::kNoError;
 }

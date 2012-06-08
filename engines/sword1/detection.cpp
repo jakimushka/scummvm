@@ -28,6 +28,7 @@
 #include "common/gui_options.h"
 #include "common/savefile.h"
 #include "common/system.h"
+#include "common/EventRecorder.h"
 #include "graphics/thumbnail.h"
 #include "graphics/surface.h"
 
@@ -216,6 +217,7 @@ GameList SwordMetaEngine::detectGames(const Common::FSList &fslist) const {
 
 Common::Error SwordMetaEngine::createInstance(OSystem *syst, Engine **engine) const {
 	assert(engine);
+	g_eventRec.init(getName());
 	*engine = new Sword1::SwordEngine(syst);
 	return Common::kNoError;
 }

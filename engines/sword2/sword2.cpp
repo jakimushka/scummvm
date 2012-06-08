@@ -28,6 +28,7 @@
 #include "common/events.h"
 #include "common/file.h"
 #include "common/fs.h"
+#include "common/EventRecorder.h"
 #include "common/gui_options.h"
 #include "common/savefile.h"
 #include "common/system.h"
@@ -248,6 +249,7 @@ Common::Error Sword2MetaEngine::createInstance(OSystem *syst, Engine **engine) c
 
 	for (uint i = 0; i < detectedGames.size(); i++) {
 		if (detectedGames[i].gameid() == gameid) {
+			g_eventRec.init(getName());
 			*engine = new Sword2::Sword2Engine(syst);
 			return Common::kNoError;
 		}
