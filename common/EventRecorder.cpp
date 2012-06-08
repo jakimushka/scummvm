@@ -944,7 +944,7 @@ void EventRecorder::applyPlaybackSettings() {
 		String currentValue = ConfMan.get(i->_key);
 		if (currentValue != i->_value) {
 			warning("Config value <%s>: %s -> %s", i->_key.c_str(), i->_value.c_str(), currentValue.c_str());
-			ConfMan.set(i->_key, i->_value);
+			ConfMan.set(i->_key, i->_value, ConfMan.kApplicationDomain);
 		}
 	}
 	removeDifferentEntriesInDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
