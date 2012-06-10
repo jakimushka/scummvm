@@ -47,8 +47,6 @@
 
 #include "engines/util.h"
 
-#include "common/EventRecorder.h"
-
 #ifdef _WIN32_WCE
 
 extern bool toolbar_drawn;

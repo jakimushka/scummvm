@@ -371,7 +371,7 @@ bool EventRecorder::pollEvent(Event &ev) {
 
 
 void EventRecorder::getNextEvent() {
-	if (_tmpPlaybackFile.pos() == _eventsSize) {
+	if ((uint32)_tmpPlaybackFile.pos() == _eventsSize) {
 		ChunkHeader header;
 		header.id = 0;
 		while (header.id != MKTAG('E','V','N','T')) {
@@ -453,7 +453,7 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 			return false;
 		}
 
-		if ((_nextEvent.type == EVENT_AUDIO) /*&& !paused */) {
+		if (_nextEvent.type == EVENT_AUDIO) {
 			if (_nextEvent.time <= _fakeTimer) {
 				getNextEvent();
 				return true;
@@ -472,6 +472,7 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 }
 
 void EventRecorder::RegisterEventSource() {
+	g_system->getEventManager()->getEventDispatcher()->registerMapper(this);
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
 	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
 }
@@ -882,8 +883,8 @@ void EventRecorder::writeScreenSettings() {
 }
 
 void EventRecorder::processScreenSettings() {
-	uint16 width = _playbackFile->readUint16LE();
-	uint16 height = _playbackFile->readUint16LE();
+	//skip screen settings chunk
+	_playbackFile->skip(4);
 }
 
 
@@ -995,7 +996,6 @@ bool EventRecorder::grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5
 }
 
 void EventRecorder::skipScreenshot() {
-	uint32 screenShotSize;
 	uint16 screenShotWidth;
 	uint16 screenShotHeight;
 	byte screenShotBpp;

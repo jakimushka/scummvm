@@ -26,7 +26,7 @@ protected:
 private:
 	Common::WriteStream *_audioFile;
 	Common::String 	_audioFileName;
-	uint16 _outputRate;
+	uint32 _outputRate;
 	uint32 _callsCounter;
 	uint8  _callbackPeriod;
 	uint32 _samples;
