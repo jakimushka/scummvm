@@ -1110,19 +1110,26 @@ void LauncherDialog::updateButtons() {
 		_loadButton->setEnabled(en);
 		_loadButton->draw();
 	}
+	switchButtonsText(_addButton, "~A~dd Game...", "Mass Add...");
+	switchButtonsText(_loadButton, "~L~oad...", "Record...");
+}
 
-	// Update the label of the "Add" button depending on whether shift is pressed or not
+// Update the label of the button depending on whether shift is pressed or not
+void LauncherDialog::switchButtonsText(ButtonWidget *button, char *normalText, char *shiftedText) {
 	int modifiers = g_system->getEventManager()->getModifierState();
-	const bool massAdd = (modifiers & Common::KBD_SHIFT) != 0;
+	const bool shiftPressed = (modifiers & Common::KBD_SHIFT) != 0;
 	const bool lowRes = g_system->getOverlayWidth() <= 320;
 
-	const char *newAddButtonLabel = massAdd
-		? (lowRes ? _c("Mass Add...", "lowres") : _("Mass Add..."))
-		: (lowRes ? _c("~A~dd Game...", "lowres") : _("~A~dd Game..."));
+	const char *newAddButtonLabel = shiftPressed
+		? (lowRes ? _c(shiftedText, "lowres") : _(shiftedText))
+		: (lowRes ? _c(normalText, "lowres") : _(normalText));
 
-	if (_addButton->getLabel() != newAddButtonLabel)
-		_addButton->setLabel(newAddButtonLabel);
+	if (button->getLabel() != newAddButtonLabel)
+		button->setLabel(newAddButtonLabel);
 }
+
+
+
 
 void LauncherDialog::reflowLayout() {
 #ifndef DISABLE_FANCY_THEMES

@@ -56,7 +56,7 @@ protected:
 	ListWidget		*_list;
 	ButtonWidget	*_addButton;
 	Widget			*_startButton;
-	Widget			*_loadButton;
+	ButtonWidget	*_loadButton;
 	Widget			*_editButton;
 	Widget			*_removeButton;
 #ifndef DISABLE_FANCY_THEMES
@@ -80,6 +80,7 @@ protected:
 	void updateListing();
 
 	void updateButtons();
+	void switchButtonsText(ButtonWidget *button, char *normalText, char *shiftedText);
 
 	void open();
 	void close();
