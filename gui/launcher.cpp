@@ -780,10 +780,9 @@ void LauncherDialog::updateListing() {
 }
 
 void LauncherDialog::addGame() {
-	int modifiers = g_system->getEventManager()->getModifierState();
 
 #ifndef DISABLE_MASS_ADD
-	const bool massAdd = (modifiers & Common::KBD_SHIFT) != 0;
+	const bool massAdd = checkModifier(Common::KBD_SHIFT);
 
 	if (massAdd) {
 		MessageDialog alert(_("Do you really want to run the mass game detector? "
@@ -976,6 +975,20 @@ void LauncherDialog::editGame(int item) {
 	}
 }
 
+void LauncherDialog::loadGameButtonPressed(int item) {
+	const bool shiftPressed = checkModifier(Common::KBD_SHIFT);
+	if (shiftPressed) {
+		recordGame(item);
+	} else {
+		loadGame(item);
+	}
+	updateButtons();
+}
+
+void LauncherDialog::recordGame(int item) {
+
+}
+
 void LauncherDialog::loadGame(int item) {
 	String gameId = ConfMan.get("gameid", _domains[item]);
 	if (gameId.empty())
@@ -1040,7 +1053,7 @@ void LauncherDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 		editGame(item);
 		break;
 	case kLoadGameCmd:
-		loadGame(item);
+		loadGameButtonPressed(item);
 		break;
 	case kOptionsCmd: {
 		GlobalOptionsDialog options;
@@ -1116,8 +1129,7 @@ void LauncherDialog::updateButtons() {
 
 // Update the label of the button depending on whether shift is pressed or not
 void LauncherDialog::switchButtonsText(ButtonWidget *button, char *normalText, char *shiftedText) {
-	int modifiers = g_system->getEventManager()->getModifierState();
-	const bool shiftPressed = (modifiers & Common::KBD_SHIFT) != 0;
+	const bool shiftPressed = checkModifier(Common::KBD_SHIFT);
 	const bool lowRes = g_system->getOverlayWidth() <= 320;
 
 	const char *newAddButtonLabel = shiftPressed
@@ -1192,6 +1204,11 @@ void LauncherDialog::reflowLayout() {
 	_h = g_system->getOverlayHeight();
 
 	Dialog::reflowLayout();
+}
+
+bool LauncherDialog::checkModifier(int checkedModifier) {
+	int modifiers = g_system->getEventManager()->getModifierState();
+	return (modifiers & checkedModifier) != 0;
 }
 
 } // End of namespace GUI

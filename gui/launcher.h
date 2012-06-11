@@ -101,6 +101,16 @@ protected:
 	void editGame(int item);
 
 	/**
+	 * Facade for "Load..."/"Record..." buttons.
+	 */
+	void loadGameButtonPressed(int item);
+
+	/**
+	 * Handle "Record..." button.
+	 */
+	void recordGame(int item);
+
+	/**
 	 * Handle "Load..." button.
 	 */
 	void loadGame(int item);
@@ -112,6 +122,8 @@ protected:
 	 * @target	name of target to select
 	 */
 	void selectTarget(const String &target);
+private:
+	bool checkModifier(int modifier);
 };
 
 } // End of namespace GUI
