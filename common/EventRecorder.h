@@ -76,8 +76,6 @@ public:
 	void init();
 	void init(const ADGameDescription *desc);
 	void deinit();
-	/** Register random source so it can be serialized in game test purposes */
-	void RegisterEventSource();
 	bool delayMillis(uint msecs, bool logged = false);
 	/** TODO: Add documentation, this is only used by the backend */
 	void processMillis(uint32 &millis);
@@ -85,15 +83,17 @@ public:
 	void sync();
 	SdlMixerManager *getMixerManager();
 	DefaultTimerManager *getTimerManager();
+	/** Register random source so it can be serialized in game test purposes */
 	uint32 getRandomSeed(const String &name);
-	void init(Common::String gameid, const ADGameDescription *desc = NULL);
+	void init(Common::String gameid);
+	void processGameDescription(const ADGameDescription *desc);
 	void registerMixerManager(SdlMixerManager *mixerManager);
 	void registerTimerManager(DefaultTimerManager *timerManager);
-	void updateSubsystems();
 	uint32 getTimer() {return _fakeTimer;}
 	bool isRecording() {
 		return initialized;
 	}
+	void RegisterEventSource();
 private:	
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
 	enum PlaybackFileState {
@@ -112,6 +112,7 @@ private:
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
 	bool initialized;
 	bool parsePlaybackFile();
+	void setGameMd5(const ADGameDescription *gameDesc);
 	ChunkHeader readChunkHeader();
 	void getConfig();
 	void applyPlaybackSettings();
@@ -124,6 +125,7 @@ private:
 	void readHashMap(ChunkHeader chunk);
 	void processRndSeedRecord(ChunkHeader chunk);
 	bool processSettingsRecord(ChunkHeader chunk);
+	void updateSubsystems();
 	bool _headerDumped;
 	PlaybackFileState _playbackParseState;
 	MutexRef _recorderMutex;

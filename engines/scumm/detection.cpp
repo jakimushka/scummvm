@@ -1003,7 +1003,7 @@ Common::Error ScummMetaEngine::createInstance(OSystem *syst, Engine **engine) co
 	assert(syst);
 	assert(engine);
 	const char *gameid = ConfMan.get("gameid").c_str();
-	g_eventRec.init(gameid, NULL);
+	g_eventRec.init(gameid);
 
 	// We start by checking whether the specified game ID is obsolete.
 	// If that is the case, we automatically upgrade the target to use
