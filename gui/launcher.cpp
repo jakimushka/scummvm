@@ -37,6 +37,7 @@
 #include "gui/message.h"
 #include "gui/gui-manager.h"
 #include "gui/options.h"
+#include "gui/recorderdialog.h"
 #include "gui/saveload.h"
 #include "gui/widgets/edittext.h"
 #include "gui/widgets/list.h"
@@ -986,7 +987,8 @@ void LauncherDialog::loadGameButtonPressed(int item) {
 }
 
 void LauncherDialog::recordGame(int item) {
-
+	_recorderDialog = new RecorderDialog();
+	_recorderDialog->runModal(_domains[item]);
 }
 
 void LauncherDialog::loadGame(int item) {
@@ -1128,7 +1130,7 @@ void LauncherDialog::updateButtons() {
 }
 
 // Update the label of the button depending on whether shift is pressed or not
-void LauncherDialog::switchButtonsText(ButtonWidget *button, char *normalText, char *shiftedText) {
+void LauncherDialog::switchButtonsText(ButtonWidget *button, const char *normalText, const char *shiftedText) {
 	const bool shiftPressed = checkModifier(Common::KBD_SHIFT);
 	const bool lowRes = g_system->getOverlayWidth() <= 320;
 
