@@ -23,6 +23,7 @@
 
 #include "common/config-manager.h"
 #include "common/events.h"
+#include "common/EventRecorder.h"
 #include "common/fs.h"
 #include "common/gui_options.h"
 #include "common/util.h"
@@ -988,7 +989,20 @@ void LauncherDialog::loadGameButtonPressed(int item) {
 
 void LauncherDialog::recordGame(int item) {
 	_recorderDialog = new RecorderDialog();
-	_recorderDialog->runModal(_domains[item]);
+	switch(_recorderDialog->runModal(_domains[item])) {
+	case RecorderDialog::kRecordDialogClose:
+		break;
+	case RecorderDialog::kRecordDialogPlayback:
+		ConfMan.setActiveDomain(_domains[item]);
+		close();
+		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderRecord);
+		break;
+	case RecorderDialog::kRecordDialogRecord:
+		ConfMan.setActiveDomain(_domains[item]);
+		close();
+		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderPlayback);
+		break;
+	}
 }
 
 void LauncherDialog::loadGame(int item) {

@@ -205,7 +205,6 @@ void QueenMetaEngine::removeSaveState(const char *target, int slot) const {
 
 Common::Error QueenMetaEngine::createInstance(OSystem *syst, Engine **engine) const {
 	assert(engine);
-	g_eventRec.init(getName());
 	*engine = new Queen::QueenEngine(syst);
 	return Common::kNoError;
 }

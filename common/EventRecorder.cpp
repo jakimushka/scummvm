@@ -484,7 +484,7 @@ uint32 EventRecorder::getRandomSeed(const String &name) {
 	return _randomNumber;
 }
 
-void EventRecorder::init(Common::String recordFileName) {
+void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	_fakeTimer = 0;
 	_lastMillis = 0;
 	_headerDumped = false;
@@ -496,25 +496,13 @@ void EventRecorder::init(Common::String recordFileName) {
 	_playbackFile = NULL;
 	_recordFile = NULL;
 	_screenshotsFile = NULL;
+	_recordMode = mode;
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
 	g_system->getEventManager()->getEventDispatcher()->registerObserver(this, EventManager::kEventRecorderPriority, false, true);
 	_screenshotPeriod = ConfMan.getInt("screenshot_period");
 	if (_screenshotPeriod == 0) {
 		_screenshotPeriod = kDefaultScreenshotPeriod;
 	}
-	String recordModeString = ConfMan.get("record_mode");
-	if (recordModeString.compareToIgnoreCase("record") == 0) {
-		_recordMode = kRecorderRecord;
-		debugC(3, kDebugLevelEventRec, "EventRecorder: record");
-	} else {
-		if (recordModeString.compareToIgnoreCase("playback") == 0) {
-			_recordMode = kRecorderPlayback;
-			debugC(3, kDebugLevelEventRec, "EventRecorder: playback");
-		} else {
-			_recordMode = kPassthrough;
-			debugC(3, kDebugLevelEventRec, "EventRecorder: passthrough");
-		}
-	}	
 	if (!openRecordFile(recordFileName)) {
 		deinit();
 		return;
@@ -532,12 +520,6 @@ void EventRecorder::init(Common::String recordFileName) {
 	initialized = true;
 }
 
-void EventRecorder::init(const ADGameDescription *desc) {
-	if (desc == NULL) {
-		return;
-	}
-	init(desc->gameid);
-}
 
 /**
  * Opens or creates file depend of recording mode.
@@ -547,15 +529,7 @@ void EventRecorder::init(const ADGameDescription *desc) {
  *
  */
 
-bool EventRecorder::openRecordFile(const String &gameId) {
-	Common::String fileName;
-	if (gameId.empty()) {
-		warning("Game id is undefined. Using default record file name.");
-		fileName = "record.bin";
-	} else {
-		fileName = gameId + ".bin";
-	}
-
+bool EventRecorder::openRecordFile(const String &fileName) {
 	if (_recordMode == kRecorderRecord) {
 		_recordFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(fileName), 128 * 1024);
 		if (!_recordFile) {

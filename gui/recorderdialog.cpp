@@ -25,7 +25,7 @@ RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0) {
 	ButtonWidget *recordButton;
 	ButtonWidget *playbackButton;
 	_list = new GUI::ListWidget(this, "RecorderDialog.List");
-	_list->setNumberingMode(GUI::kListNumberingZero);
+	_list->setNumberingMode(GUI::kListNumberingOff);
 	new GUI::ButtonWidget(this, "RecorderDialog.Delete", _("Delete"), 0, kDeleteCmd);
 	new GUI::ButtonWidget(this, "RecorderDialog.Cancel", _("Cancel"), 0, kCloseCmd);
 	recordButton = new GUI::ButtonWidget(this, "RecorderDialog.Record", _("Record"), 0, kRecordCmd);
@@ -71,12 +71,17 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 	case kDeleteCmd:
 		break;
 	case kRecordCmd:
-		g_eventRec.init(getRecordFileName(),  Common::EventRecorder::kRecorderRecord);
+		_filename = generateRecordFileName();
+		setResult(kRecordDialogPlayback);
+		close();
 		break;
 	case kPlaybackCmd:
+		_filename = _list->getSelectedString();
+		setResult(kRecordDialogRecord);
+		close();
 		break;
 	case kCloseCmd:
-		setResult(-1);
+		setResult(kRecordDialogClose);
 	default:
 		Dialog::handleCommand(sender, cmd, data);
 	}
@@ -105,7 +110,7 @@ void RecorderDialog::updateSelection(bool redraw) {
 	_gfxWidget->setGfx(-1, -1, 0, 0, 0);
 }
 
-Common::String RecorderDialog::getRecordFileName() {
+Common::String RecorderDialog::generateRecordFileName() {
 	ConfMan.getActiveDomainName();
 	GUI::ListWidget::StringArray recordsList = _list->getList();
 	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
