@@ -1046,4 +1046,9 @@ void EventRecorder::processGameDescription(const ADGameDescription *desc) {
 		deinit();
 	}
 }
+
+void EventRecorder::deleteRecord(const String& fileName) {
+	g_system->getSavefileManager()->removeSavefile(fileName);
+}
+
 } // End of namespace Common

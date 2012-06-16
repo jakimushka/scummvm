@@ -96,6 +96,7 @@ public:
 	void registerMixerManager(SdlMixerManager *mixerManager);
 	void registerTimerManager(DefaultTimerManager *timerManager);
 	uint32 getTimer() {return _fakeTimer;}
+	void deleteRecord(const String& fileName);
 	bool isRecording() {
 		return initialized;
 	}

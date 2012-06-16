@@ -69,16 +69,27 @@ void RecorderDialog::reflowLayout() {
 void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data) {
 	switch(cmd) {
 	case kDeleteCmd:
+		if (_list->getSelected() >= 0) {
+			MessageDialog alert(_("Do you really want to delete this record?"),
+				_("Delete"), _("Cancel"));
+			if (alert.runModal() == GUI::kMessageOK) {
+				g_eventRec.deleteRecord(_list->getSelectedString());
+				_list->setSelected(-1);
+				updateList();
+			}
+		}
 		break;
 	case kRecordCmd:
 		_filename = generateRecordFileName();
-		setResult(kRecordDialogPlayback);
+		setResult(kRecordDialogRecord);
 		close();
 		break;
 	case kPlaybackCmd:
-		_filename = _list->getSelectedString();
-		setResult(kRecordDialogRecord);
-		close();
+		if (_list->getSelected() >= 0) {
+			_filename = _list->getSelectedString();
+			setResult(kRecordDialogPlayback);
+			close();
+		}
 		break;
 	case kCloseCmd:
 		setResult(kRecordDialogClose);
@@ -91,9 +102,8 @@ void RecorderDialog::updateList() {
 	Common::SaveFileManager *saveFileMan = g_system->getSavefileManager();
 	Common::String pattern(_target+".r??");
 	Common::StringArray files = saveFileMan->listSavefiles(pattern);
-	for (Common::StringArray::const_iterator file = files.begin(); file != files.end(); ++file) {
-		_list->append(*file);
-	}
+	_list->setList(files);
+	_list->draw();
 }
 
 int RecorderDialog::runModal(Common::String &target) {

@@ -995,12 +995,12 @@ void LauncherDialog::recordGame(int item) {
 	case RecorderDialog::kRecordDialogPlayback:
 		ConfMan.setActiveDomain(_domains[item]);
 		close();
-		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderRecord);
+		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderPlayback);
 		break;
 	case RecorderDialog::kRecordDialogRecord:
 		ConfMan.setActiveDomain(_domains[item]);
 		close();
-		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderPlayback);
+		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderRecord);
 		break;
 	}
 }
