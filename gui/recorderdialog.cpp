@@ -1,3 +1,4 @@
+#include "common/EventRecorder.h"
 #include "common/savefile.h"
 #include "common/system.h"
 #include "common/translation.h"
@@ -8,6 +9,8 @@
 #include "gui/ThemeEval.h"
 #include "gui/gui-manager.h"
 #include "recorderdialog.h"
+
+#define MAX_RECORDS_NAMES 0xFF
 
 namespace GUI {
 
@@ -68,6 +71,7 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 	case kDeleteCmd:
 		break;
 	case kRecordCmd:
+		g_eventRec.init(getRecordFileName(),  Common::EventRecorder::kRecorderRecord);
 		break;
 	case kPlaybackCmd:
 		break;
@@ -79,9 +83,16 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 }
 
 void RecorderDialog::updateList() {
+	Common::SaveFileManager *saveFileMan = g_system->getSavefileManager();
+	Common::String pattern(_target+".r??");
+	Common::StringArray files = saveFileMan->listSavefiles(pattern);
+	for (Common::StringArray::const_iterator file = files.begin(); file != files.end(); ++file) {
+		_list->append(*file);
+	}
 }
 
 int RecorderDialog::runModal(Common::String &target) {
+	_target = target;
 	updateList();
 	return Dialog::runModal();
 }
@@ -94,6 +105,27 @@ void RecorderDialog::updateSelection(bool redraw) {
 	_gfxWidget->setGfx(-1, -1, 0, 0, 0);
 }
 
+Common::String RecorderDialog::getRecordFileName() {
+	ConfMan.getActiveDomainName();
+	GUI::ListWidget::StringArray recordsList = _list->getList();
+	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
+		Common::String recordName = Common::String::format("%s.r%02x", _target.c_str(), i);
+		if (isStringInList(recordName)) {
+			continue;
+		}
+		return recordName;
+	}
+	return "";
+}
+
+
+bool RecorderDialog::isStringInList(const Common::String &recordName) {
+	for(GUI::ListWidget::StringArray::const_iterator iterator = _list->getList().begin(); iterator != _list->getList().end(); ++iterator) {
+		if (recordName == *iterator) {
+			return true;
+		}
+	}
+	return false;
 }
 
 } // End of namespace GUI

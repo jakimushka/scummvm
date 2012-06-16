@@ -13,11 +13,14 @@ class StaticTextWidget;
 
 class RecorderDialog : public GUI::Dialog {
 private:
+	Common::String _target;
 	GUI::ListWidget *_list;
 	GUI::ContainerWidget *_container;
 	GUI::GraphicsWidget *_gfxWidget;
 	void updateList();
 	void updateSelection(bool redraw);
+	Common::String getRecordFileName();
+	bool isStringInList(const Common::String &recordName);
 public:
 	RecorderDialog();
 	~RecorderDialog();
