@@ -95,3 +95,5 @@ void RecorderDialog::updateSelection(bool redraw) {
 }
 
 }
+
+} // End of namespace GUI

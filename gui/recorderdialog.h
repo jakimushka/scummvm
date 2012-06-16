@@ -3,29 +3,30 @@
 #include "gui/dialog.h"
 namespace GUI {
 
-	class ListWidget;
-	class GraphicsWidget;
-	class ButtonWidget;
-	class CommandSender;
-	class ContainerWidget;
-	class StaticTextWidget;
+class ListWidget;
+class GraphicsWidget;
+class ButtonWidget;
+class CommandSender;
+class ContainerWidget;
+class StaticTextWidget;
 
 
-	class RecorderDialog : public GUI::Dialog {
-	private:
-		GUI::ListWidget *_list;
-		GUI::ContainerWidget *_container;
-		GUI::GraphicsWidget *_gfxWidget;
-		void updateList();
-		void updateSelection(bool redraw);
-	public:
-		RecorderDialog();
-		~RecorderDialog();
-		virtual void handleCommand(GUI::CommandSender *sender, uint32 cmd, uint32 data);
-		int runModal(Common::String &target);
-		virtual void reflowLayout();
-	};
-}
+class RecorderDialog : public GUI::Dialog {
+private:
+	GUI::ListWidget *_list;
+	GUI::ContainerWidget *_container;
+	GUI::GraphicsWidget *_gfxWidget;
+	void updateList();
+	void updateSelection(bool redraw);
+public:
+	RecorderDialog();
+	~RecorderDialog();
+	virtual void handleCommand(GUI::CommandSender *sender, uint32 cmd, uint32 data);
+	int runModal(Common::String &target);
+	virtual void reflowLayout();
+};
+
+}  // End of namespace GUI
 
 
 #endif GUI_RECORDER_DIALOG_H
