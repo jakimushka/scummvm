@@ -134,7 +134,7 @@ static bool grabScreen565(Graphics::Surface *surf) {
 	return true;
 }
 
-static bool createThumbnail(Graphics::Surface &out, Graphics::Surface &in) {
+bool createThumbnail(Graphics::Surface &out, Graphics::Surface &in) {
 	uint16 width = in.w;
 	uint16 inHeight = in.h;
 
