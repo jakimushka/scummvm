@@ -1,3 +1,4 @@
+#include "common/algorithm.h"
 #include "common/bufferedstream.h"
 #include "common/EventRecorder.h"
 #include "common/savefile.h"
@@ -154,22 +155,12 @@ Common::String RecorderDialog::generateRecordFileName() {
 	GUI::ListWidget::StringArray recordsList = _list->getList();
 	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
 		Common::String recordName = Common::String::format("%s.r%02x", _target.c_str(), i);
-		if (isStringInList(recordName)) {
+		if (Common::find(_list->getList().begin(), _list->getList().end(), recordName) != _list->getList().end()) {
 			continue;
 		}
 		return recordName;
 	}
 	return "";
-}
-
-
-bool RecorderDialog::isStringInList(const Common::String &recordName) {
-	for(GUI::ListWidget::StringArray::const_iterator iterator = _list->getList().begin(); iterator != _list->getList().end(); ++iterator) {
-		if (recordName == *iterator) {
-			return true;
-		}
-	}
-	return false;
 }
 
 Graphics::Surface *RecorderDialog::getScreenShot(int number) {
@@ -210,7 +201,8 @@ bool RecorderDialog::skipToNextScreenshot() {
 	return false;
 }
 
-void RecorderDialog::updateScreenshot() {	Graphics::Surface *srcsf = getScreenShot(_currentScreenshot);
+void RecorderDialog::updateScreenshot() {
+	Graphics::Surface *srcsf = getScreenShot(_currentScreenshot);
 	if (srcsf != NULL) {
 		Graphics::Surface *destsf = Graphics::scale(*srcsf, _gfxWidget->getWidth(), _gfxWidget->getHeight());
 		_gfxWidget->setGfx(destsf);

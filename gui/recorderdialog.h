@@ -25,7 +25,6 @@ private:
 	void updateSelection(bool redraw);
 	void updateScreenshot();
 	Common::String generateRecordFileName();
-	bool isStringInList(const Common::String &recordName);
 public:
 	enum DialogResult {
 		kRecordDialogClose,
