@@ -1,11 +1,16 @@
+#include "common/bufferedstream.h"
 #include "common/EventRecorder.h"
 #include "common/savefile.h"
 #include "common/system.h"
-#include "common/translation.h"
+#include "graphics/colormasks.h"
+#include "graphics/palette.h"
 #include "graphics/scaler.h"
+#include "graphics/thumbnail.h"
+#include "common/translation.h"
 #include "gui/widgets/list.h"
 #include "gui/message.h"
 #include "gui/saveload.h"
+#include "common/system.h"
 #include "gui/ThemeEval.h"
 #include "gui/gui-manager.h"
 #include "recorderdialog.h"
@@ -17,10 +22,11 @@ namespace GUI {
 enum {
 	kRecordCmd = 'RCRD',
 	kPlaybackCmd = 'PBCK',
-	kDeleteCmd = 'DEL '
+	kDeleteCmd = 'DEL ',
+	kSwitchScreenshotCmd = 'SCRN'
 };
 
-RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0) {
+RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0), _currentScreenshot(0), _playbackFile(0) {
 	_backgroundType = ThemeEngine::kDialogBackgroundSpecial;
 	ButtonWidget *recordButton;
 	ButtonWidget *playbackButton;
@@ -39,8 +45,8 @@ RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0) {
 
 void RecorderDialog::reflowLayout() {
 	if (g_gui.xmlEval()->getVar("Globals.RecorderDialog.ExtInfo.Visible") == 1) {
-		int16 x = 200, y = 20;
-		uint16 w = 180, h = 200;
+		int16 x, y;
+		uint16 w, h;
 
 		if (!g_gui.xmlEval()->getWidgetData("RecorderDialog.Thumbnail", x, y, w, h)) {
 			error("Error when loading position data for Recorder Thumbnails");
@@ -68,16 +74,27 @@ void RecorderDialog::reflowLayout() {
 
 void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data) {
 	switch(cmd) {
+	case kSwitchScreenshotCmd:
+		++_currentScreenshot;
+		updateScreenshot();
+		break;
 	case kDeleteCmd:
 		if (_list->getSelected() >= 0) {
 			MessageDialog alert(_("Do you really want to delete this record?"),
 				_("Delete"), _("Cancel"));
 			if (alert.runModal() == GUI::kMessageOK) {
+				if (_playbackFile != NULL) {
+					delete _playbackFile;
+					_playbackFile = NULL;
+				}
 				g_eventRec.deleteRecord(_list->getSelectedString());
 				_list->setSelected(-1);
 				updateList();
 			}
 		}
+		break;
+	case GUI::kListSelectionChangedCmd:
+		updateSelection(true);
 		break;
 	case kRecordCmd:
 		_filename = generateRecordFileName();
@@ -113,11 +130,23 @@ int RecorderDialog::runModal(Common::String &target) {
 }
 
 RecorderDialog::~RecorderDialog() {
-
+	if (_playbackFile != NULL) {
+		delete _playbackFile;
+		_playbackFile = NULL;
+	}
 }
 
 void RecorderDialog::updateSelection(bool redraw) {
 	_gfxWidget->setGfx(-1, -1, 0, 0, 0);
+	if (_list->getSelected() >= 0) {
+		if (_playbackFile != NULL) {
+			delete _playbackFile;
+			_playbackFile = NULL;
+		}
+		_playbackFile = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(_list->getSelectedString()), 128 * 1024, DisposeAfterUse::YES);
+		_currentScreenshot = 2;
+		updateScreenshot();
+	}
 }
 
 Common::String RecorderDialog::generateRecordFileName() {
@@ -141,6 +170,56 @@ bool RecorderDialog::isStringInList(const Common::String &recordName) {
 		}
 	}
 	return false;
+}
+
+Graphics::Surface *RecorderDialog::getScreenShot(int number) {
+	uint32 id = _playbackFile->readUint32LE();
+	_playbackFile->skip(4);
+	if(id != MKTAG('P','B','C','K')) {
+		return NULL;
+	}
+	int screenCount = 0;
+	while (skipToNextScreenshot()) {
+		if (screenCount == number) {
+			screenCount++;
+			_playbackFile->seek(-4, SEEK_CUR);
+			return Graphics::loadThumbnail(*_playbackFile);
+		} else {
+			uint32 size = _playbackFile->readUint32BE();
+			_playbackFile->skip(size-8);
+			screenCount++;
+		}
+	}
+	return NULL;
+}
+
+bool RecorderDialog::skipToNextScreenshot() {
+	while (true) {
+		uint32 id = _playbackFile->readUint32LE();
+		if (_playbackFile->eos()) {
+			break;
+		}
+		if (id == MKTAG('B','M','H','T')) {
+			return true;
+		}
+		else {
+			uint32 size = _playbackFile->readUint32LE();
+			_playbackFile->skip(size);
+		}
+	}
+	return false;
+}
+
+void RecorderDialog::updateScreenshot() {	Graphics::Surface *srcsf = getScreenShot(_currentScreenshot);
+	if (srcsf != NULL) {
+		Graphics::Surface *destsf = Graphics::scale(*srcsf, _gfxWidget->getWidth(), _gfxWidget->getHeight());
+		_gfxWidget->setGfx(destsf);
+		delete destsf;
+		delete srcsf;
+	} else {
+		_gfxWidget->setGfx(-1, -1, 0, 0, 0);
+	}
+	_gfxWidget->draw();
 }
 
 } // End of namespace GUI
