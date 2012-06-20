@@ -18,12 +18,16 @@ private:
 	Common::String _target;
 	Common::String _filename;
 	int _currentScreenshot;
+	int _screenShotsCount;
 	GUI::ListWidget *_list;
 	GUI::ContainerWidget *_container;
 	GUI::GraphicsWidget *_gfxWidget;
+	GUI::StaticTextWidget *_currentScreenshotText;
 	void updateList();
+	void updateScreenShotsText();
 	void updateSelection(bool redraw);
 	void updateScreenshot();
+	int calculateScreenshotsCount();
 	Common::String generateRecordFileName();
 public:
 	enum DialogResult {
