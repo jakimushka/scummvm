@@ -1008,6 +1008,9 @@ void LauncherDialog::recordGame(int item) {
 			loadGame(item);
 		}
 		close();
+		g_eventRec.setAuthor(recorderDialog._author);
+		g_eventRec.setName(recorderDialog._name);
+		g_eventRec.setNotes(recorderDialog._notes);
 		g_eventRec.init(recorderDialog.getFileName(), Common::EventRecorder::kRecorderRecord);
 		break;
 	}

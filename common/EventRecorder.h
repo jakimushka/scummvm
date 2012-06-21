@@ -90,6 +90,9 @@ public:
 	void sync();
 	SdlMixerManager *getMixerManager();
 	DefaultTimerManager *getTimerManager();
+	void setAuthor(const Common::String &author);
+	void setNotes(const Common::String &desc);
+	void setName(const Common::String &name);
 	/** Register random source so it can be serialized in game test purposes */
 	uint32 getRandomSeed(const String &name);
 	void processGameDescription(const ADGameDescription *desc);
@@ -139,6 +142,10 @@ private:
 	SdlMixerManager *_realMixerManager;
 	NullSdlMixerManager *_fakeMixerManager;
 	DefaultTimerManager *_timerManager;
+	String _author;
+	String _notes;
+	String _name;
+	String _description;
 	void switchMixer();
 	void switchTimerManagers();
 	void writeVersion();
@@ -206,7 +213,6 @@ private:
 	uint32 _screenshotPeriod;
 	void saveScreenShot();
 	void checkRecordedMD5();
-
 	volatile RecordMode _recordMode;
 };
 
