@@ -15,6 +15,7 @@
 #include "gui/ThemeEval.h"
 #include "gui/gui-manager.h"
 #include "recorderdialog.h"
+#include "gui/editrecorddialog.h"
 
 #define MAX_RECORDS_NAMES 0xFF
 
@@ -25,7 +26,8 @@ enum {
 	kPlaybackCmd = 'PBCK',
 	kDeleteCmd = 'DEL ',
 	kNextScreenshotCmd = 'NEXT',
-	kPrevScreenshotCmd = 'PREV'
+	kPrevScreenshotCmd = 'PREV',
+	kEditRecordCmd = 'EDIT'
 };
 
 RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0), _currentScreenshot(0), _playbackFile(0) {
@@ -37,6 +39,7 @@ RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0), _currentS
 	_list->setNumberingMode(GUI::kListNumberingOff);
 	new GUI::ButtonWidget(this, "RecorderDialog.Delete", _("Delete"), 0, kDeleteCmd);
 	new GUI::ButtonWidget(this, "RecorderDialog.Cancel", _("Cancel"), 0, kCloseCmd);
+	new GUI::ButtonWidget(this, "RecorderDialog.Edit", _("Edit"), 0, kEditRecordCmd);
 	recordButton = new GUI::ButtonWidget(this, "RecorderDialog.Record", _("Record"), 0, kRecordCmd);
 	playbackButton = new GUI::ButtonWidget(this, "RecorderDialog.Playback", _("Playback"), 0, kPlaybackCmd);
 	_gfxWidget = new GUI::GraphicsWidget(this, 0, 0, 10, 10);
@@ -106,10 +109,23 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 	case GUI::kListSelectionChangedCmd:
 		updateSelection(true);
 		break;
-	case kRecordCmd:
+	case kRecordCmd: {
+		const EnginePlugin *plugin = 0;
+		TimeDate t;
+		Common::String gameId = ConfMan.get("gameid", _target);
+		GameDescriptor desc = EngineMan.findGame(gameId, &plugin);
+		g_system->getTimeAndDate(t);
+		EditRecordDialog editDlg(Common::String::format("%.2d.%.2d.%.4d ", t.tm_mday, t.tm_mon, 1900 + t.tm_year) + desc.description(), "Unknown Author", "");
+		if (editDlg.runModal() != kOKCmd) {
+			return;
+		}
+		_author = editDlg.getAuthor();
+		_name = editDlg.getName();
+		_notes = editDlg.getNotes();
 		_filename = generateRecordFileName();
 		setResult(kRecordDialogRecord);
 		close();
+		}
 		break;
 	case kPlaybackCmd:
 		if (_list->getSelected() >= 0) {
@@ -258,6 +274,68 @@ int RecorderDialog::calculateScreenshotsCount() {
 
 void RecorderDialog::updateScreenShotsText() {
 	_currentScreenshotText->setLabel(Common::String::format("%d / %d", _currentScreenshot, _screenShotsCount));
+}
+
+void RecorderDialog::readHeaderInfoFromFile(Common::String& author, Common::String& name, Common::String& notes) {
+	_playbackFile->seek(0);
+	uint32 id = _playbackFile->readUint32LE();
+	_playbackFile->skip(4);
+	if(id != MKTAG('P','B','C','K')) {
+		return;
+	}
+	int tagsCount = 0;
+	uint32 size = 0;
+	while (true) {
+		id = _playbackFile->readUint32LE();
+		switch(id) {
+		case MKTAG('B','M','H','T'):
+			size = _playbackFile->readUint32BE();
+			_playbackFile->skip(size);
+			break;
+		case MKTAG('H','E','A','D'):
+			_playbackFile->skip(4);
+			break;
+		case MKTAG('H','A','U','T'):
+			++tagsCount;
+			size = _playbackFile->readUint32LE();
+			author = readString(size);
+			break;
+		case MKTAG('H','C','M','T'):
+			++tagsCount;
+			size = _playbackFile->readUint32LE();
+			notes = readString(size);
+			break;
+		case MKTAG('H','N','A','M'):
+			++tagsCount;
+			size = _playbackFile->readUint32LE();
+			name = readString(size);
+			break;
+		default:
+			++tagsCount;
+			size = _playbackFile->readUint32LE();
+			_playbackFile->skip(size);
+			break;
+		}
+		if (_playbackFile->eos() || (tagsCount == 3)) {
+			break;
+		}
+	}
+}
+
+Common::String RecorderDialog::readString(int len) {
+	Common::String result;
+	char buf[50];
+	int readSize = 49;
+	while (len > 0)	{
+		if (len <= 49) {
+			readSize = len;
+		}
+		_playbackFile->read(buf, readSize);
+		buf[readSize] = 0;
+		result += buf;
+		len -= readSize;
+	}
+	return result;
 }
 
 } // End of namespace GUI
