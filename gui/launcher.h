@@ -69,7 +69,6 @@ protected:
 	StringArray		_domains;
 	BrowserDialog	*_browser;
 	SaveLoadChooser	*_loadDialog;
-	RecorderDialog *_recorderDialog;
 
 	String _search;
 

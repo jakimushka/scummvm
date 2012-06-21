@@ -988,10 +988,10 @@ void LauncherDialog::loadGameButtonPressed(int item) {
 }
 
 void LauncherDialog::recordGame(int item) {
-	_recorderDialog = new RecorderDialog();
+	RecorderDialog recorderDialog;
 	MessageDialog alert(_("Do you want to load savegame?"),
 		_("Yes"), _("No"));
-	switch(_recorderDialog->runModal(_domains[item])) {
+	switch(recorderDialog.runModal(_domains[item])) {
 	case RecorderDialog::kRecordDialogClose:
 		break;
 	case RecorderDialog::kRecordDialogPlayback:
@@ -1000,7 +1000,7 @@ void LauncherDialog::recordGame(int item) {
 			loadGame(item);
 		}
 		close();
-		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderPlayback);
+		g_eventRec.init(recorderDialog.getFileName(), Common::EventRecorder::kRecorderPlayback);
 		break;
 	case RecorderDialog::kRecordDialogRecord:
 		ConfMan.setActiveDomain(_domains[item]);
@@ -1008,7 +1008,7 @@ void LauncherDialog::recordGame(int item) {
 			loadGame(item);
 		}
 		close();
-		g_eventRec.init(_recorderDialog->getFileName(), Common::EventRecorder::kRecorderRecord);
+		g_eventRec.init(recorderDialog.getFileName(), Common::EventRecorder::kRecorderRecord);
 		break;
 	}
 }
