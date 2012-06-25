@@ -66,6 +66,7 @@ struct ChunkHeader {
 
 
 class PlaybackFile {
+	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> RandomSeedsDictionary;
 	struct PlaybackFileHeader {
 		Common::String author;
 		Common::String name;
@@ -74,7 +75,7 @@ class PlaybackFile {
 		Common::StringMap hashRecords;
 		uint32 settingsSectionSize;
 		Common::StringMap settingsRecords;
-		HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSourceRecords;
+		RandomSeedsDictionary randomSourceRecords;
 		PlaybackFileHeader() {
 			settingsSectionSize = 0;
 		}
@@ -124,22 +125,32 @@ public:
 	bool openWrite(Common::String fileName);
 	bool openRead(Common::String fileName);
 	void close();
-	bool parseHeader();
 	Common::RecorderEvent getNextEvent();
+	void PlaybackFile::writeEvent(const RecorderEvent &event);
+	void saveScreenShot(Graphics::Surface &screen, byte md5[16]);
 	bool isEventsBufferEmpty();
 	PlaybackFileHeader &getHeader() {return _header;}
 private:
+	int _recordCount;
+	int _headerDumped;
 	uint32 _eventsSize;
 	byte _tmpBuffer[kRecordBuffSize];
 	SeekableMemoryWriteStream _tmpRecordFile;
 	MemoryReadStream _tmpPlaybackFile;
-
+	WriteStream *_recordFile;
 	fileMode _mode;
 	SeekableReadStream *_readStream;
 	WriteStream *_writeStream;
 
 	PlaybackFileState _playbackParseState;
-
+	void writeGameSettings();
+	void writeScreenSettings();
+	void writeHeaderSection();
+	void writeGameHash();
+	void writeRandomRecords();
+	bool parseHeader();
+	void dumpRecordsToFile();
+	void dumpHeaderToFile();
 	ChunkHeader readChunkHeader();
 	Common::String readString(int len);
 	bool processChunk(ChunkHeader &nextChunk);
@@ -194,30 +205,21 @@ public:
 	}
 	void RegisterEventSource();
 private:	
-	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
 	bool initialized;
 	void setGameMd5(const ADGameDescription *gameDesc);
-	ChunkHeader readChunkHeader();
 	void getConfig();
 	void applyPlaybackSettings();
 	void removeDifferentEntriesInDomain(ConfigManager::Domain *domain);
 	void getConfigFromDomain(ConfigManager::Domain *domain);
-	bool processChunk(ChunkHeader &nextChunk);
 	void updateSubsystems();
-	bool _headerDumped;
 	MutexRef _recorderMutex;
 	SdlMixerManager *_realMixerManager;
 	NullSdlMixerManager *_fakeMixerManager;
 	DefaultTimerManager *_timerManager;
 	void switchMixer();
 	void switchTimerManagers();
-	void writeVersion();
-	void writeHeader();
-	void writeFormatId();
 	bool grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
-	void writeGameHash();
-	void writeRandomRecords();
 	bool openRecordFile(const String &fileName);
 	bool checkGameHash(const ADGameDescription *desc);
 	bool notifyEvent(const Event &ev);
@@ -225,8 +227,6 @@ private:
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
-	void writeNextEventsChunk();
-	void writeEvent(const RecorderEvent &event);
 	void checkForKeyCode(const Event &event);
 	void writeAudioEvent(uint32 samplesCount);
 	void writeGameSettings();
@@ -234,16 +234,8 @@ private:
 	void increaseEngineSpeed();
 	void decreaseEngineSpeed();
 	void togglePause();
-	void dumpRecordsToFile();
-	void dumpHeaderToFile();
-	void writeScreenSettings();
 	RecorderEvent _nextEvent;
 	uint8 _engineSpeedMultiplier;
-	volatile uint32 _recordCount;
-	volatile uint32 _recordSize;
-	byte _recordBuffer[kRecordBuffSize];
-	SeekableMemoryWriteStream _tmpRecordFile;
-	WriteStream *_recordFile;
 	WriteStream *_screenshotsFile;
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
