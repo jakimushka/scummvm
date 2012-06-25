@@ -63,6 +63,95 @@ struct ChunkHeader {
 	uint32 len;
 };
 
+
+
+class PlaybackFile {
+	struct PlaybackFileHeader {
+		Common::String author;
+		Common::String name;
+		Common::String notes;
+		Common::String description;
+		Common::StringMap hashRecords;
+		uint32 settingsSectionSize;
+		Common::StringMap settingsRecords;
+		HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSourceRecords;
+		PlaybackFileHeader() {
+			settingsSectionSize = 0;
+		}
+		void setSettings(const String& key, const String& value) {
+			settingsRecords[key] = value;
+			settingsSectionSize += key.size() + value.size() + 24;
+		}
+	} _header;
+	enum fileMode {
+		kRead = 0,
+		kWrite = 1
+	};
+	enum PlaybackFileState {
+		kFileStateCheckFormat,
+		kFileStateCheckVersion,
+		kFileStateProcessHash,
+		kFileStateProcessHeader,
+		kFileStateProcessRandom,
+		kFileStateReadRnd,
+		kFileStateSelectSection,
+		kFileStateProcessSettings,
+		kFileStateProcessSettingsRecord,
+		kFileStateDone,
+		kFileStateError
+	};
+	enum fileTags {
+		kFormatIdTag = MKTAG('P','B','C','K'),
+		kVersionTag = MKTAG('V','E','R','S'),
+		kHeaderSectionTag = MKTAG('H','E','A','D'),
+		kHashSectionTag = MKTAG('H','A','S','H'),
+		kRandomSectionTag = MKTAG('R','A','N','D'),
+		kEventTag = MKTAG('E','V','N','T'),
+		kScreenShotTag = MKTAG('B','M','H','T'),
+		kSettingsSectionTag = MKTAG('S','E','T','T'),
+		kAuthorTag = MKTAG('H','A','U','T'),
+		kCommentsTag = MKTAG('H','C','M','T'),
+		kHashRecordTag = MKTAG('H','R','C','D'),
+		kRandomRecordTag = MKTAG('R','R','C','D'),
+		kSettingsRecordTag = MKTAG('S','R','E','C'),
+		kSettingsRecordKeyTag = MKTAG('S','K','E','Y'),
+		kSettingsRecordValueTag = MKTAG('S','V','A','L'),
+		kMD5Tag = MKTAG('M','D','5',' ')
+	};
+public:
+	PlaybackFile();
+	~PlaybackFile();
+	bool openWrite(Common::String fileName);
+	bool openRead(Common::String fileName);
+	void close();
+	bool parseHeader();
+	Common::RecorderEvent getNextEvent();
+	bool isEventsBufferEmpty();
+	PlaybackFileHeader &getHeader() {return _header;}
+private:
+	uint32 _eventsSize;
+	byte _tmpBuffer[kRecordBuffSize];
+	SeekableMemoryWriteStream _tmpRecordFile;
+	MemoryReadStream _tmpPlaybackFile;
+
+	fileMode _mode;
+	SeekableReadStream *_readStream;
+	WriteStream *_writeStream;
+
+	PlaybackFileState _playbackParseState;
+
+	ChunkHeader readChunkHeader();
+	Common::String readString(int len);
+	bool processChunk(ChunkHeader &nextChunk);
+	void returnToChunkHeader();
+	bool checkPlaybackFileVersion();
+	void readHashMap(ChunkHeader chunk);
+	void processRndSeedRecord(ChunkHeader chunk);
+	bool processSettingsRecord(ChunkHeader chunk);
+	void readEvent(RecorderEvent& event);
+	void readEventsToBuffer(uint32 size);
+};
+
 /**
  * Our generic event recorder.
  *
@@ -106,22 +195,8 @@ public:
 	void RegisterEventSource();
 private:	
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> randomSeedsDictionary;
-	enum PlaybackFileState {
-		kFileStateCheckFormat,
-		kFileStateCheckVersion,
-		kFileStateProcessHash,
-		kFileStateProcessHeader,
-		kFileStateProcessRandom,
-		kFileStateReadRnd,
-		kFileStateSelectSection,
-		kFileStateProcessSettings,
-		kFileStateProcessSettingsRecord,
-		kFileStateDone,
-		kFileStateError
-	};
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
 	bool initialized;
-	bool parsePlaybackFile();
 	void setGameMd5(const ADGameDescription *gameDesc);
 	ChunkHeader readChunkHeader();
 	void getConfig();
@@ -129,46 +204,28 @@ private:
 	void removeDifferentEntriesInDomain(ConfigManager::Domain *domain);
 	void getConfigFromDomain(ConfigManager::Domain *domain);
 	bool processChunk(ChunkHeader &nextChunk);
-	bool checkPlaybackFileVersion();
-	void readAuthor(ChunkHeader chunk);
-	void readComment(ChunkHeader chunk);
-	void readHashMap(ChunkHeader chunk);
-	void processRndSeedRecord(ChunkHeader chunk);
-	bool processSettingsRecord(ChunkHeader chunk);
 	void updateSubsystems();
 	bool _headerDumped;
-	PlaybackFileState _playbackParseState;
 	MutexRef _recorderMutex;
 	SdlMixerManager *_realMixerManager;
 	NullSdlMixerManager *_fakeMixerManager;
 	DefaultTimerManager *_timerManager;
-	String _author;
-	String _notes;
-	String _name;
-	String _description;
 	void switchMixer();
 	void switchTimerManagers();
 	void writeVersion();
 	void writeHeader();
 	void writeFormatId();
-	void loadScreenShot();
 	bool grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
-	void skipScreenshot();
 	void writeGameHash();
 	void writeRandomRecords();
 	bool openRecordFile(const String &fileName);
 	bool checkGameHash(const ADGameDescription *desc);
 	bool notifyEvent(const Event &ev);
-	String getAuthor();
-	String getComment();
 	String findMD5ByFileName(const ADGameDescription *gameDesc, const String &fileName);
-	Common::String readString(int len);
 	bool notifyPoll();
 	bool pollEvent(Event &ev);
 	bool allowMapping() const { return false; }
-	void getNextEvent();
 	void writeNextEventsChunk();
-	void readEvent(RecorderEvent &event);
 	void writeEvent(const RecorderEvent &event);
 	void checkForKeyCode(const Event &event);
 	void writeAudioEvent(uint32 samplesCount);
@@ -180,37 +237,20 @@ private:
 	void dumpRecordsToFile();
 	void dumpHeaderToFile();
 	void writeScreenSettings();
-	void readEventsToBuffer(uint32 size);
-	void processScreenSettings();
-	uint32 _bitmapBuffSize;
-	byte *_bitmapBuff;
-	int _settingsSectionSize;
 	RecorderEvent _nextEvent;
-	RecorderEvent _nextAudioEvent;
-	randomSeedsDictionary _randomSourceRecords;
-	StringMap _hashRecords;
-	StringMap _settingsRecords;
-	Queue<RecorderEvent> _eventsQueue;
-	bool _recordSubtitles;	
 	uint8 _engineSpeedMultiplier;
 	volatile uint32 _recordCount;
 	volatile uint32 _recordSize;
 	byte _recordBuffer[kRecordBuffSize];
 	SeekableMemoryWriteStream _tmpRecordFile;
-	uint32 _eventsSize;
-	MemoryReadStream _tmpPlaybackFile;
 	WriteStream *_recordFile;
 	WriteStream *_screenshotsFile;
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
 	volatile uint32 _fakeTimer;
-	volatile uint32 _randomNumber;
-	volatile uint32 _playbackDiff;
-	volatile bool _hasPlaybackEvent;
-	Event _playbackEvent;
-	SeekableReadStream *_playbackFile;
 	uint32 _lastScreenshotTime;
 	uint32 _screenshotPeriod;
+	PlaybackFile _playbackFile;
 	void saveScreenShot();
 	void checkRecordedMD5();
 	volatile RecordMode _recordMode;
