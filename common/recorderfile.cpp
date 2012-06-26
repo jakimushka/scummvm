@@ -95,7 +95,6 @@ Common::String PlaybackFile::readString(int len) {
 	return result;
 }
 
-
 PlaybackFile::ChunkHeader PlaybackFile::readChunkHeader() {
 	ChunkHeader result;
 	result.id = (FileTag)_readStream->readUint32LE();
@@ -223,7 +222,6 @@ bool PlaybackFile::processSettingsRecord(ChunkHeader chunk) {
 	String value = readString(valueChunk.len);
 	_header.settingsRecords[key] = value;
 	return true;
-	return false;
 }
 
 Common::RecorderEvent PlaybackFile::getNextEvent() {
@@ -462,7 +460,11 @@ void PlaybackFile::writeEvent(const RecorderEvent &event) {
 
 void PlaybackFile::writeGameSettings() {
 	_writeStream->writeUint32LE(kSettingsSectionTag);
-	_writeStream->writeUint32LE(_header.settingsSectionSize);
+	uint32 settingsSectionSize = 0;
+	for (StringMap::iterator i = _header.settingsRecords.begin(); i != _header.settingsRecords.end(); ++i) {
+		settingsSectionSize += i->_key.size() + i->_value.size() + 24;
+	}
+	_writeStream->writeUint32LE(settingsSectionSize);
 	for (StringMap::iterator i = _header.settingsRecords.begin(); i != _header.settingsRecords.end(); ++i) {
 		_writeStream->writeUint32LE(kSettingsRecordTag);
 		_writeStream->writeUint32LE(i->_key.size() + i->_value.size() + 16);
@@ -493,7 +495,7 @@ int PlaybackFile::getScreensCount() {
 
 bool PlaybackFile::skipToNextScreenshot() {
 	while (true) {
-		uint32 id = _readStream->readUint32LE();
+		FileTag id = (FileTag)_readStream->readUint32LE();
 		if (_readStream->eos()) {
 			break;
 		}

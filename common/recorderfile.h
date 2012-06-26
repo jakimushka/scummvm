@@ -28,15 +28,10 @@ class PlaybackFile {
 		Common::String notes;
 		Common::String description;
 		Common::StringMap hashRecords;
-		uint32 settingsSectionSize;
 		Common::StringMap settingsRecords;
 		RandomSeedsDictionary randomSourceRecords;
-		PlaybackFileHeader() {
-			settingsSectionSize = 0;
-		}
-		void setSettings(const String& key, const String& value) {
+		void setSettings(const String &key, const String &value) {
 			settingsRecords[key] = value;
-			settingsSectionSize += key.size() + value.size() + 24;
 		}
 	} _header;
 	enum fileMode {
