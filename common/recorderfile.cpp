@@ -29,6 +29,7 @@ bool PlaybackFile::openWrite(Common::String fileName) {
 }
 
 bool PlaybackFile::openRead(Common::String fileName) {
+	close();
 	_eventsSize = 0;
 	_readStream = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(fileName), 128 * 1024, DisposeAfterUse::YES);
 	if (_readStream == NULL) {
@@ -339,7 +340,6 @@ void PlaybackFile::dumpHeaderToFile() {
 	writeGameHash();
 	writeRandomRecords();
 	writeGameSettings();
-	writeScreenSettings();
 }
 
 void PlaybackFile::writeHeaderSection() {
@@ -405,14 +405,6 @@ void PlaybackFile::writeRandomRecords() {
 	}
 }
 
-void PlaybackFile::writeScreenSettings() {
-	_writeStream->writeUint32LE(MKTAG('S','C','R','N'));
-	//Chunk size = 4 (width(2 bytes) + height(2 bytes))
-	_writeStream->writeUint32LE(4);
-	_writeStream->writeUint16LE(g_system->getWidth());
-	_writeStream->writeSint16LE(g_system->getHeight());
-}
-
 void PlaybackFile::writeEvent(const RecorderEvent &event) {
 	assert(_mode == kWrite);
 	_recordCount++;
@@ -473,7 +465,9 @@ void PlaybackFile::writeGameSettings() {
 }
 
 int PlaybackFile::getScreensCount() {
-	assert(_mode == kRead);
+	if (_mode != kRead) {
+		return 0;
+	}
 	_readStream->seek(0);
 	uint32 id = _readStream->readUint32LE();
 	_readStream->skip(4);
@@ -503,4 +497,25 @@ bool PlaybackFile::skipToNextScreenshot() {
 	return false;
 }
 
+Graphics::Surface *PlaybackFile::getScreenShot(int number) {
+	if (_mode != NULL) {
+		return NULL;
+	}
+	_readStream->seek(0);
+	uint32 id = _readStream->readUint32LE();
+	_readStream->skip(4);
+	int screenCount = 1;
+	while (skipToNextScreenshot()) {
+		if (screenCount == number) {
+			screenCount++;
+			_readStream->seek(-4, SEEK_CUR);
+			return Graphics::loadThumbnail(*_readStream);
+		} else {
+			uint32 size = _readStream->readUint32BE();
+			_readStream->skip(size-8);
+			screenCount++;
+		}
+	}
+	return NULL;
+}
 }

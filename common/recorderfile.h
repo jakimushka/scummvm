@@ -19,10 +19,6 @@ struct RecorderEvent : Common::Event {
 };
 
 
-struct ChunkHeader {
-	uint32 id;
-	uint32 len;
-};
 
 class PlaybackFile {
 	typedef HashMap<String, uint32, IgnoreCase_Hash, IgnoreCase_EqualTo> RandomSeedsDictionary;
@@ -78,6 +74,10 @@ class PlaybackFile {
 		kSettingsRecordValueTag = MKTAG('S','V','A','L'),
 		kMD5Tag = MKTAG('M','D','5',' ')
 	};
+	struct ChunkHeader {
+		FileTag id;
+		uint32 len;
+	};
 public:
 	PlaybackFile();
 	~PlaybackFile();
@@ -90,6 +90,7 @@ public:
 	bool isEventsBufferEmpty();
 	PlaybackFileHeader &getHeader() {return _header;}
 	int getScreensCount();
+	Graphics::Surface *getScreenShot(int number);
 private:
 	int _recordCount;
 	int _headerDumped;
@@ -104,7 +105,6 @@ private:
 
 	PlaybackFileState _playbackParseState;
 	void writeGameSettings();
-	void writeScreenSettings();
 	void writeHeaderSection();
 	void writeGameHash();
 	void writeRandomRecords();

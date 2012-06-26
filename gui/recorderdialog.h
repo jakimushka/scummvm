@@ -1,6 +1,7 @@
 #ifndef GUI_RECORDER_DIALOG_H
 #define GUI_RECORDER_DIALOG_H
 #include "common/stream.h"
+#include "common/recorderfile.h"
 #include "gui/dialog.h"
 namespace GUI {
 
@@ -14,7 +15,7 @@ class StaticTextWidget;
 
 class RecorderDialog : public GUI::Dialog {
 private:
-	Common::SeekableReadStream *_playbackFile;
+	Common::PlaybackFile _playbackFile;
 	Common::String _target;
 	Common::String _filename;
 	int _currentScreenshot;
