@@ -56,7 +56,7 @@ class PlaybackFile {
 		kFileStateDone,
 		kFileStateError
 	};
-	enum fileTags {
+	enum FileTag {
 		kFormatIdTag = MKTAG('P','B','C','K'),
 		kVersionTag = MKTAG('V','E','R','S'),
 		kHeaderSectionTag = MKTAG('H','E','A','D'),
@@ -67,6 +67,7 @@ class PlaybackFile {
 		kSettingsSectionTag = MKTAG('S','E','T','T'),
 		kAuthorTag = MKTAG('H','A','U','T'),
 		kCommentsTag = MKTAG('H','C','M','T'),
+		kNameTag = MKTAG('H','N','A','M'),
 		kHashRecordTag = MKTAG('H','R','C','D'),
 		kRandomRecordTag = MKTAG('R','R','C','D'),
 		kSettingsRecordTag = MKTAG('S','R','E','C'),
@@ -91,6 +92,7 @@ public:
 	PlaybackFileHeader &getHeader() {return _header;}
 	int getScreensCount();
 	Graphics::Surface *getScreenShot(int number);
+	void updateHeader();
 private:
 	int _recordCount;
 	int _headerDumped;
@@ -102,8 +104,9 @@ private:
 	fileMode _mode;
 	SeekableReadStream *_readStream;
 	WriteStream *_writeStream;
-
+	String _fileName;
 	PlaybackFileState _playbackParseState;
+	void skipHeader();
 	void writeGameSettings();
 	void writeHeaderSection();
 	void writeGameHash();

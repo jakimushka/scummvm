@@ -18,6 +18,7 @@ PlaybackFile::~PlaybackFile() {
 
 bool PlaybackFile::openWrite(Common::String fileName) {
 	close();
+	_fileName = fileName;
 	_writeStream = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(fileName), 128 * 1024);
 	_headerDumped = false;
 	_recordCount = 0;
@@ -30,6 +31,7 @@ bool PlaybackFile::openWrite(Common::String fileName) {
 
 bool PlaybackFile::openRead(Common::String fileName) {
 	close();
+	_fileName = fileName;
 	_eventsSize = 0;
 	_readStream = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(fileName), 128 * 1024, DisposeAfterUse::YES);
 	if (_readStream == NULL) {
@@ -94,9 +96,9 @@ Common::String PlaybackFile::readString(int len) {
 }
 
 
-Common::ChunkHeader PlaybackFile::readChunkHeader() {
+PlaybackFile::ChunkHeader PlaybackFile::readChunkHeader() {
 	ChunkHeader result;
-	result.id = _readStream->readUint32LE();
+	result.id = (FileTag)_readStream->readUint32LE();
 	result.len = _readStream->readUint32LE();
 	return result;
 }
@@ -120,40 +122,43 @@ bool PlaybackFile::processChunk(ChunkHeader &nextChunk) {
 		break;
 	case kFileStateSelectSection:
 		switch (nextChunk.id) {
-	case kHeaderSectionTag:
-		_playbackParseState = kFileStateProcessHeader;
-		break;
-	case kHashSectionTag:
-		_playbackParseState = kFileStateProcessHash;
-		break;
-	case kRandomSectionTag:
-		_playbackParseState = kFileStateProcessRandom;
-		break;
-	case kEventTag:
-	case kScreenShotTag:
-		_readStream->seek(-8, SEEK_CUR);
-		_playbackParseState = kFileStateDone;
-		return false;
-	case kSettingsSectionTag:
-		_playbackParseState = kFileStateProcessSettings;
-		warning("Loading record header");
-		break;
-	default:
-		_readStream->skip(nextChunk.len);
-		break;
+		case kHeaderSectionTag:
+			_playbackParseState = kFileStateProcessHeader;
+			break;
+		case kHashSectionTag:
+			_playbackParseState = kFileStateProcessHash;
+			break;
+		case kRandomSectionTag:
+			_playbackParseState = kFileStateProcessRandom;
+			break;
+		case kEventTag:
+		case kScreenShotTag:
+			_readStream->seek(-8, SEEK_CUR);
+			_playbackParseState = kFileStateDone;
+			return false;
+		case kSettingsSectionTag:
+			_playbackParseState = kFileStateProcessSettings;
+			warning("Loading record header");
+			break;
+		default:
+			_readStream->skip(nextChunk.len);
+			break;
 		}
 		break;
 	case kFileStateProcessHeader:
 		switch (nextChunk.id) {
-	case kAuthorTag:
-		_header.author = readString(nextChunk.len);
-		break;
-	case kCommentsTag:
-		_header.notes = readString(nextChunk.len);
-		break;
-	default:
-		_playbackParseState = kFileStateSelectSection;
-		return false;
+		case kAuthorTag:
+			_header.author = readString(nextChunk.len);
+			break;
+		case kCommentsTag:
+			_header.notes = readString(nextChunk.len);
+			break;
+		case kNameTag:
+			_header.name = readString(nextChunk.len);
+			break;
+		default:
+			_playbackParseState = kFileStateSelectSection;
+			return false;
 		}
 		break;
 	case kFileStateProcessHash:
@@ -224,8 +229,8 @@ bool PlaybackFile::processSettingsRecord(ChunkHeader chunk) {
 Common::RecorderEvent PlaybackFile::getNextEvent() {
 	assert(_mode == kRead);
 	if (isEventsBufferEmpty()) {
-		ChunkHeader header;
-		header.id = 0;
+		PlaybackFile::ChunkHeader header;
+		header.id = kFormatIdTag;
 		while (header.id != kEventTag) {
 			header = readChunkHeader();
 			if (_readStream->eos()) {
@@ -343,29 +348,35 @@ void PlaybackFile::dumpHeaderToFile() {
 }
 
 void PlaybackFile::writeHeaderSection() {
-	String author = _header.author;
-	String comment = _header.notes;
 	uint32 headerSize = 0;
-	if (!author.empty()) {
-		headerSize = author.size() + 8;
+	if (!_header.author.empty()) {
+		headerSize = _header.author.size() + 8;
 	}
-	if (!comment.empty()) {
-		headerSize += comment.size() + 8;
+	if (!_header.notes.empty()) {
+		headerSize += _header.notes.size() + 8;
+	}
+	if (!_header.name.empty()) {
+		headerSize += _header.name.size() + 8;
 	}
 	if (headerSize == 0) {
 		return;
 	}
 	_writeStream->writeUint32LE(kHeaderSectionTag);
 	_writeStream->writeUint32LE(headerSize);
-	if (!author.empty()) {
+	if (!_header.author.empty()) {
 		_writeStream->writeUint32LE(kAuthorTag);
-		_writeStream->writeUint32LE(author.size());
-		_writeStream->writeString(author);
+		_writeStream->writeUint32LE(_header.author.size());
+		_writeStream->writeString(_header.author);
 	}
-	if (!comment.empty()) {
+	if (!_header.notes.empty()) {
 		_writeStream->writeUint32LE(kCommentsTag);
-		_writeStream->writeUint32LE(comment.size());
-		_writeStream->writeString(comment);
+		_writeStream->writeUint32LE(_header.notes.size());
+		_writeStream->writeString(_header.notes);
+	}
+	if (!_header.name.empty()) {
+		_writeStream->writeUint32LE(kNameTag);
+		_writeStream->writeUint32LE(_header.name.size());
+		_writeStream->writeString(_header.name);
 	}
 }
 
@@ -518,4 +529,39 @@ Graphics::Surface *PlaybackFile::getScreenShot(int number) {
 	}
 	return NULL;
 }
+
+void PlaybackFile::updateHeader() {
+	_readStream->seek(0);
+	skipHeader();
+	Common::String tmpFilename = "_" + _fileName;
+	_writeStream = g_system->getSavefileManager()->openForSaving(tmpFilename);
+	dumpHeaderToFile();
+	uint32 readedSize = 0;
+	do {
+		readedSize = _readStream->read(_tmpBuffer, kRecordBuffSize);
+		_writeStream->write(_tmpBuffer, readedSize);
+	} while (readedSize != 0);
+	close();
+	g_system->getSavefileManager()->removeSavefile(_fileName);
+	g_system->getSavefileManager()->renameSavefile(tmpFilename, _fileName);
+	openRead(_fileName);
+}
+
+void PlaybackFile::skipHeader() {
+	while (true) {
+		uint32 id = _readStream->readUint32LE();
+		if (_readStream->eos()) {
+			break;
+		}
+		if ((id == kScreenShotTag) || (id == kEventTag) || (id == kMD5Tag)) {
+			_readStream->seek(-4, SEEK_CUR);
+			return;
+		}
+		else {
+			uint32 size = _readStream->readUint32LE();
+			_readStream->skip(size);
+		}
+	}
+}
+
 }

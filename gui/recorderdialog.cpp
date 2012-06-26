@@ -83,6 +83,17 @@ void RecorderDialog::reflowLayout() {
 
 void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data) {
 	switch(cmd) {
+	case kEditRecordCmd: {
+		EditRecordDialog editDlg(_playbackFile.getHeader().author, _playbackFile.getHeader().name, _playbackFile.getHeader().notes);
+		if (editDlg.runModal() != kOKCmd) {
+			return;
+		}
+		_playbackFile.getHeader().author = editDlg.getAuthor();
+		_playbackFile.getHeader().name = editDlg.getName();
+		_playbackFile.getHeader().notes = editDlg.getNotes();
+		_playbackFile.updateHeader();
+	}
+		break;
 	case kNextScreenshotCmd:
 		++_currentScreenshot;
 		updateScreenshot();
