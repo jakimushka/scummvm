@@ -18,7 +18,7 @@ PlaybackFile::~PlaybackFile() {
 
 bool PlaybackFile::openWrite(Common::String fileName) {
 	close();
-	_fileName = fileName;
+	_header.fileName = fileName;
 	_writeStream = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving(fileName), 128 * 1024);
 	_headerDumped = false;
 	_recordCount = 0;
@@ -31,7 +31,7 @@ bool PlaybackFile::openWrite(Common::String fileName) {
 
 bool PlaybackFile::openRead(Common::String fileName) {
 	close();
-	_fileName = fileName;
+	_header.fileName = fileName;
 	_eventsSize = 0;
 	_readStream = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(fileName), 128 * 1024, DisposeAfterUse::YES);
 	if (_readStream == NULL) {
@@ -535,7 +535,7 @@ Graphics::Surface *PlaybackFile::getScreenShot(int number) {
 void PlaybackFile::updateHeader() {
 	_readStream->seek(0);
 	skipHeader();
-	Common::String tmpFilename = "_" + _fileName;
+	Common::String tmpFilename = "_" + _header.fileName;
 	_writeStream = g_system->getSavefileManager()->openForSaving(tmpFilename);
 	dumpHeaderToFile();
 	uint32 readedSize = 0;
@@ -544,9 +544,9 @@ void PlaybackFile::updateHeader() {
 		_writeStream->write(_tmpBuffer, readedSize);
 	} while (readedSize != 0);
 	close();
-	g_system->getSavefileManager()->removeSavefile(_fileName);
-	g_system->getSavefileManager()->renameSavefile(tmpFilename, _fileName);
-	openRead(_fileName);
+	g_system->getSavefileManager()->removeSavefile(_header.fileName);
+	g_system->getSavefileManager()->renameSavefile(tmpFilename, _header.fileName);
+	openRead(_header.fileName);
 }
 
 void PlaybackFile::skipHeader() {

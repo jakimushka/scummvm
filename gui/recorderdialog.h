@@ -12,7 +12,6 @@ class CommandSender;
 class ContainerWidget;
 class StaticTextWidget;
 
-
 class RecorderDialog : public GUI::Dialog {
 private:
 	Common::PlaybackFile _playbackFile;
@@ -20,6 +19,7 @@ private:
 	Common::String _filename;
 	int _currentScreenshot;
 	int _screenShotsCount;
+	Common::Array<Common::PlaybackFile::PlaybackFileHeader> _fileHeaders;
 	GUI::ListWidget *_list;
 	GUI::ContainerWidget *_container;
 	GUI::GraphicsWidget *_gfxWidget;
@@ -29,6 +29,7 @@ private:
 	void updateSelection(bool redraw);
 	void updateScreenshot();
 	int calculateScreenshotsCount();
+	bool isFileNameExists(Common::String &filename);
 	Common::String generateRecordFileName();
 public:
 	Common::String _author;
