@@ -30,9 +30,6 @@ class PlaybackFile {
 		Common::StringMap hashRecords;
 		Common::StringMap settingsRecords;
 		RandomSeedsDictionary randomSourceRecords;
-		void setSettings(const String &key, const String &value) {
-			settingsRecords[key] = value;
-		}
 	} _header;
 	enum fileMode {
 		kRead = 0,

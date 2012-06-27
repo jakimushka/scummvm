@@ -430,7 +430,7 @@ SdlMixerManager *EventRecorder::getMixerManager() {
 
 void EventRecorder::getConfigFromDomain(ConfigManager::Domain *domain) {
 	for (ConfigManager::Domain::iterator entry = domain->begin(); entry!= domain->end(); ++entry) {
-		_playbackFile.getHeader().setSettings(entry->_key, entry->_value);
+		_playbackFile.getHeader().settingsRecords[entry->_key] = entry->_value;
 	}
 }
 
