@@ -47,6 +47,8 @@ RecorderDialog::RecorderDialog() : Dialog("RecorderDialog"), _list(0), _currentS
 	new GUI::ButtonWidget(this,"RecorderDialog.NextScreenShotButton", "<", 0, kPrevScreenshotCmd);
 	new GUI::ButtonWidget(this, "RecorderDialog.PreviousScreenShotButton", ">", 0, kNextScreenshotCmd);	
 	_currentScreenshotText = new StaticTextWidget(this, "RecorderDialog.currentScreenshot", "0/0");
+	_authorText = new StaticTextWidget(this, 0, 0, 10, 10, _("Author: "), Graphics::kTextAlignLeft);;
+	_notesText = new StaticTextWidget(this, 0, 0, 10, 10, _("Notes: "), Graphics::kTextAlignLeft);;
 	if (_gfxWidget)
 		_gfxWidget->setGfx(0);
 }
@@ -68,7 +70,8 @@ void RecorderDialog::reflowLayout() {
 
 		_container->resize(x, y, w, h);
 		_gfxWidget->resize(thumbX, thumbY, thumbW, thumbH);
-
+		_authorText->resize(thumbX, thumbY + thumbH, w, kLineHeight);
+		_notesText->resize(thumbX, thumbY + thumbH + kLineHeight, w, kLineHeight);
 		_container->setVisible(true);
 		_gfxWidget->setVisible(true);
 		updateSelection(false);
@@ -84,14 +87,20 @@ void RecorderDialog::reflowLayout() {
 void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data) {
 	switch(cmd) {
 	case kEditRecordCmd: {
-		EditRecordDialog editDlg(_playbackFile.getHeader().author, _playbackFile.getHeader().name, _playbackFile.getHeader().notes);
-		if (editDlg.runModal() != kOKCmd) {
-			return;
+		if (_list->getSelected() >= 0) {
+			EditRecordDialog editDlg(_fileHeaders[_list->getSelected()].author, _fileHeaders[_list->getSelected()].name, _fileHeaders[_list->getSelected()].notes);
+			if (editDlg.runModal() != kOKCmd) {
+				return;
+			}
+			_playbackFile.openRead(_fileHeaders[_list->getSelected()].fileName);
+			_playbackFile.getHeader().author = editDlg.getAuthor();
+			_playbackFile.getHeader().name = editDlg.getName();
+			_playbackFile.getHeader().notes = editDlg.getNotes();
+			_playbackFile.updateHeader();
+			_fileHeaders[_list->getSelected()] = _playbackFile.getHeader();
+			updateSelection(true);
+			_playbackFile.close();
 		}
-		_playbackFile.getHeader().author = editDlg.getAuthor();
-		_playbackFile.getHeader().name = editDlg.getName();
-		_playbackFile.getHeader().notes = editDlg.getNotes();
-		_playbackFile.updateHeader();
 	}
 		break;
 	case kNextScreenshotCmd:
@@ -118,9 +127,9 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 		updateSelection(true);
 		break;
 	case kRecordCmd: {
-		const EnginePlugin *plugin = 0;
 		TimeDate t;
 		Common::String gameId = ConfMan.get("gameid", _target);
+		const EnginePlugin *plugin = 0;
 		GameDescriptor desc = EngineMan.findGame(gameId, &plugin);
 		g_system->getTimeAndDate(t);
 		EditRecordDialog editDlg("Unknown Author", Common::String::format("%.2d.%.2d.%.4d ", t.tm_mday, t.tm_mon, 1900 + t.tm_year) + desc.description(), "");
@@ -184,9 +193,17 @@ void RecorderDialog::updateSelection(bool redraw) {
 	if (_list->getSelected() >= 0) {
 		_playbackFile.openRead(_fileHeaders[_list->getSelected()].fileName);
 		_screenShotsCount = _playbackFile.getScreensCount();
+		_authorText->setLabel("Author: " + _fileHeaders[_list->getSelected()].author);
+		_notesText->setLabel("Notes: " + _fileHeaders[_list->getSelected()].notes);
 		if ((_screenShotsCount) > 0) {
 			_currentScreenshot = 1;
 		}
+		updateScreenshot();
+	} else {
+		_authorText->setLabel("Author: ");
+		_notesText->setLabel("Notes: ");
+		_screenShotsCount = 0;
+		_currentScreenshot = 0;
 		updateScreenshot();
 	}
 }

@@ -10,6 +10,7 @@ namespace Common {
 PlaybackFile::PlaybackFile() : _tmpRecordFile(_tmpBuffer, kRecordBuffSize), _tmpPlaybackFile(_tmpBuffer, kRecordBuffSize) {
 	_readStream = NULL;
 	_writeStream = NULL;
+	_mode = kClosed;
 }
 
 PlaybackFile::~PlaybackFile() {
@@ -51,6 +52,7 @@ void PlaybackFile::close() {
 		_writeStream->finalize();
 	}
 	delete _writeStream;
+	_mode = kClosed;
 	_readStream = NULL;
 	_writeStream = NULL;
 }
@@ -482,8 +484,6 @@ int PlaybackFile::getScreensCount() {
 		return 0;
 	}
 	_readStream->seek(0);
-	uint32 id = _readStream->readUint32LE();
-	_readStream->skip(4);
 	int result = 0;
 	while (skipToNextScreenshot()) {
 		uint32 size = _readStream->readUint32BE();
@@ -511,12 +511,10 @@ bool PlaybackFile::skipToNextScreenshot() {
 }
 
 Graphics::Surface *PlaybackFile::getScreenShot(int number) {
-	if (_mode != NULL) {
+	if (_mode != kRead) {
 		return NULL;
 	}
 	_readStream->seek(0);
-	uint32 id = _readStream->readUint32LE();
-	_readStream->skip(4);
 	int screenCount = 1;
 	while (skipToNextScreenshot()) {
 		if (screenCount == number) {

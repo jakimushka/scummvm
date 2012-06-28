@@ -24,6 +24,8 @@ private:
 	GUI::ContainerWidget *_container;
 	GUI::GraphicsWidget *_gfxWidget;
 	GUI::StaticTextWidget *_currentScreenshotText;
+	GUI::StaticTextWidget *_authorText;
+	GUI::StaticTextWidget *_notesText;
 	void updateList();
 	void updateScreenShotsText();
 	void updateSelection(bool redraw);
