@@ -80,7 +80,7 @@ public:
 	bool openRead(Common::String fileName);
 	void close();
 	Common::RecorderEvent getNextEvent();
-	void PlaybackFile::writeEvent(const RecorderEvent &event);
+	void writeEvent(const RecorderEvent &event);
 	void saveScreenShot(Graphics::Surface &screen, byte md5[16]);
 	bool isEventsBufferEmpty();
 	PlaybackFileHeader &getHeader() {return _header;}
