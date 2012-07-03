@@ -93,6 +93,7 @@ void EventRecorder::deinit() {
 	g_system->lockMutex(_timeMutex);
 	g_system->lockMutex(_recorderMutex);
 	_recordMode = kPassthrough;
+	_playbackFile.close();
 	if (_screenshotsFile != NULL) {
 		_screenshotsFile->finalize();
 		delete _screenshotsFile;
@@ -337,7 +338,7 @@ Common::String EventRecorder::generateRecordFileName(const String &target) {
 	Common::StringArray files = g_system->getSavefileManager()->listSavefiles(pattern);
 	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
 		Common::String recordName = Common::String::format("%s.r%02d", target.c_str(), i);
-		if (Common::find(files.begin(), files.end(), recordName) == files.end()) {
+		if (Common::find(files.begin(), files.end(), recordName) != files.end()) {
 			continue;
 		}
 		return recordName;
@@ -368,9 +369,18 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 		_nextEvent = _playbackFile.getNextEvent();
 	}
 	if (_recordMode == kRecorderRecord) {
+		TimeDate t;
+		const EnginePlugin *plugin = 0;
+		GameDescriptor desc = EngineMan.findGame(ConfMan.getActiveDomainName(), &plugin);
+		g_system->getTimeAndDate(t);
+		if (_playbackFile.getHeader().author.empty()) {
+			setAuthor("Unknown Author");
+		}
+		if (_playbackFile.getHeader().name.empty()) {
+			g_eventRec.setName(Common::String::format("%.2d.%.2d.%.4d ", t.tm_mday, t.tm_mon, 1900 + t.tm_year) + desc.description());
+		}
 		getConfig();
 	}
-
 	switchMixer();
 	switchTimerManagers();
 	initialized = true;

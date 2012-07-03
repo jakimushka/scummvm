@@ -1000,7 +1000,8 @@ void LauncherDialog::recordGame(int item) {
 			loadGame(item);
 		}
 		close();
-		g_eventRec.init(recorderDialog.getFileName(), Common::EventRecorder::kRecorderPlayback);
+		ConfMan.set("record-mode", "playback");
+		ConfMan.set("record-file-name", recorderDialog.getFileName());
 		break;
 	case RecorderDialog::kRecordDialogRecord:
 		ConfMan.setActiveDomain(_domains[item]);
@@ -1011,7 +1012,7 @@ void LauncherDialog::recordGame(int item) {
 		g_eventRec.setAuthor(recorderDialog._author);
 		g_eventRec.setName(recorderDialog._name);
 		g_eventRec.setNotes(recorderDialog._notes);
-		g_eventRec.init(recorderDialog.getFileName(), Common::EventRecorder::kRecorderRecord);
+		ConfMan.set("record-mode", "record");
 		break;
 	}
 }
