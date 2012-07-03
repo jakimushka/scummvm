@@ -17,8 +17,6 @@
 #include "recorderdialog.h"
 #include "gui/editrecorddialog.h"
 
-#define MAX_RECORDS_NAMES 0xFF
-
 namespace GUI {
 
 enum {
@@ -139,7 +137,7 @@ void RecorderDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 		_author = editDlg.getAuthor();
 		_name = editDlg.getName();
 		_notes = editDlg.getNotes();
-		_filename = generateRecordFileName();
+		_filename = g_eventRec.generateRecordFileName(_target);
 		setResult(kRecordDialogRecord);
 		close();
 		}
@@ -191,45 +189,22 @@ void RecorderDialog::updateSelection(bool redraw) {
 	_currentScreenshot = 0;
 	updateScreenShotsText();
 	if (_list->getSelected() >= 0) {
-		_playbackFile.openRead(_fileHeaders[_list->getSelected()].fileName);
-		_screenShotsCount = _playbackFile.getScreensCount();
 		_authorText->setLabel("Author: " + _fileHeaders[_list->getSelected()].author);
 		_notesText->setLabel("Notes: " + _fileHeaders[_list->getSelected()].notes);
 		if ((_screenShotsCount) > 0) {
 			_currentScreenshot = 1;
 		}
 		updateScreenshot();
+		_firstScreenshotUpdate = true;
 	} else {
 		_authorText->setLabel("Author: ");
 		_notesText->setLabel("Notes: ");
 		_screenShotsCount = 0;
 		_currentScreenshot = 0;
-		updateScreenshot();
+		_gfxWidget->setGfx(-1, -1, 0, 0, 0);
+		_gfxWidget->draw();
+		updateScreenShotsText();
 	}
-}
-
-
-bool RecorderDialog::isFileNameExists(Common::String &filename) {
-	for (Common::Array<Common::PlaybackFile::PlaybackFileHeader>::iterator ii = _fileHeaders.begin(); ii != _fileHeaders.end(); ++ii) {
-		if (ii->fileName == filename) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-Common::String RecorderDialog::generateRecordFileName() {
-	ConfMan.getActiveDomainName();
-	GUI::ListWidget::StringArray recordsList = _list->getList();
-	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
-		Common::String recordName = Common::String::format("%s.r%02x", _target.c_str(), i);
-		if (isFileNameExists(recordName)) {
-			continue;
-		}
-		return recordName;
-	}
-	return "";
 }
 
 void RecorderDialog::updateScreenshot() {
@@ -238,6 +213,11 @@ void RecorderDialog::updateScreenshot() {
 	}
 	if (_currentScreenshot > _screenShotsCount) {
 		_currentScreenshot = 1;
+	}
+	if (_firstScreenshotUpdate) {
+		_playbackFile.openRead(_fileHeaders[_list->getSelected()].fileName);
+		_screenShotsCount = _playbackFile.getScreensCount();
+		_firstScreenshotUpdate = false;
 	}
 	Graphics::Surface *srcsf = _playbackFile.getScreenShot(_currentScreenshot);
 	if (srcsf != NULL) {

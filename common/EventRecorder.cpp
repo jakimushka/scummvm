@@ -37,6 +37,7 @@ namespace Common {
 
 DECLARE_SINGLETON(EventRecorder);
 
+#define MAX_RECORDS_NAMES 0x64
 #define kDefaultScreenshotPeriod 60000
 #define kDefaultBPP 2
 
@@ -329,6 +330,21 @@ uint32 EventRecorder::getRandomSeed(const String &name) {
 	}
 	return result;
 }
+
+Common::String EventRecorder::generateRecordFileName(const String &target) {
+	ConfMan.getActiveDomainName();
+	Common::String pattern(target+".r??");
+	Common::StringArray files = g_system->getSavefileManager()->listSavefiles(pattern);
+	for (int i = 0; i < MAX_RECORDS_NAMES; ++i) {
+		Common::String recordName = Common::String::format("%s.r%02d", target.c_str(), i);
+		if (Common::find(files.begin(), files.end(), recordName) == files.end()) {
+			continue;
+		}
+		return recordName;
+	}
+	return "";
+}
+
 
 void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	_fakeTimer = 0;
