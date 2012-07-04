@@ -33,10 +33,8 @@ class PlaybackFile {
 		kFileStateProcessHash,
 		kFileStateProcessHeader,
 		kFileStateProcessRandom,
-		kFileStateReadRnd,
 		kFileStateSelectSection,
 		kFileStateProcessSettings,
-		kFileStateProcessSettingsRecord,
 		kFileStateDone,
 		kFileStateError
 	};
