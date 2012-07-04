@@ -93,6 +93,14 @@ public:
 	bool isRecording() {
 		return initialized;
 	}
+	bool _savedState;
+	void suspendRecording() {
+		_savedState = initialized;
+		initialized = false;
+	}
+	void resumeRecording() {
+		initialized = _savedState;
+	}
 	void RegisterEventSource();
 	Common::String generateRecordFileName(const String &target);
 private:	
