@@ -91,21 +91,21 @@ public:
 	uint32 getTimer() {return _fakeTimer;}
 	void deleteRecord(const String& fileName);
 	bool isRecording() {
-		return initialized;
+		return _initialized;
 	}
 	bool _savedState;
 	void suspendRecording() {
-		_savedState = initialized;
-		initialized = false;
+		_savedState = _initialized;
+		_initialized = false;
 	}
 	void resumeRecording() {
-		initialized = _savedState;
+		_initialized = _savedState;
 	}
 	void RegisterEventSource();
 	Common::String generateRecordFileName(const String &target);
 private:	
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
-	bool initialized;
+	bool _initialized;
 	void setGameMd5(const ADGameDescription *gameDesc);
 	void getConfig();
 	void applyPlaybackSettings();

@@ -66,7 +66,7 @@ EventRecorder::EventRecorder() {
 	_recordMode = kPassthrough;
 	_timerManager = NULL;
 	_screenshotsFile = NULL;
-	initialized = false;
+	_initialized = false;
 }
 
 EventRecorder::~EventRecorder() {
@@ -85,7 +85,7 @@ void EventRecorder::init() {
 }
 
 void EventRecorder::deinit() {
-	initialized = false;
+	_initialized = false;
 	_recordMode = kPassthrough;
 	debugC(3, kDebugLevelEventRec, "EventRecorder: deinit");
 	g_system->getEventManager()->getEventDispatcher()->unregisterSource(this);
@@ -132,7 +132,7 @@ void EventRecorder::processMillis(uint32 &millis) {
 	if (_recordMode == kPassthrough) {
 		return;
 	}
-	if (!initialized) {
+	if (!_initialized) {
 		return;
 	}
 	updateSubsystems();
@@ -194,7 +194,7 @@ bool EventRecorder::notifyEvent(const Event &ev) {
 	checkForKeyCode(ev);
 	if (_recordMode != kRecorderRecord)
 		return false;
-	if (!initialized) {
+	if (!_initialized) {
 		return false;
 	}
 	if ((ev.type == EVENT_LBUTTONDOWN) || (ev.type == EVENT_LBUTTONUP)) {
@@ -214,7 +214,7 @@ bool EventRecorder::notifyPoll() {
 bool EventRecorder::pollEvent(Event &ev) {
 	if (_recordMode != kRecorderPlayback)
 		return false;
-	if (!initialized) {
+	if (!_initialized) {
 		return false;
 	}
 	StackLock lock(_recorderMutex);
@@ -284,7 +284,7 @@ void EventRecorder::togglePause() {
 
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 	if ((_recordMode == kRecorderRecord)&& !paused)	{	
-		if (!initialized) {
+		if (!_initialized) {
 			return false;
 		}
 		StackLock lock(_recorderMutex);
@@ -296,7 +296,7 @@ bool EventRecorder::processAudio(uint32 &samples,bool paused) {
 		return true;
 	}
 	if (_recordMode == kRecorderPlayback) {
-		if (!initialized) {
+		if (!_initialized) {
 			return false;
 		}
 
@@ -383,7 +383,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	}
 	switchMixer();
 	switchTimerManagers();
-	initialized = true;
+	_initialized = true;
 }
 
 
