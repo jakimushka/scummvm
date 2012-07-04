@@ -208,6 +208,9 @@ void RecorderDialog::updateSelection(bool redraw) {
 }
 
 void RecorderDialog::updateScreenshot() {
+	if (_list->getSelected() == -1) {
+		return;
+	}
 	if (_currentScreenshot < 1) {
 		_currentScreenshot = _screenShotsCount;
 	}
