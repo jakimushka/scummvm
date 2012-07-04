@@ -76,6 +76,9 @@ public:
 	bool delayMillis(uint msecs, bool logged = false);
 	/** TODO: Add documentation, this is only used by the backend */
 	void processMillis(uint32 &millis);
+
+	void takeScreenshot();
+
 	bool processAudio(uint32 &samples, bool paused);
 	void sync();
 	SdlMixerManager *getMixerManager();
