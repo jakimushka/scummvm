@@ -442,10 +442,22 @@ extern "C" int scummvm_main(int argc, const char * const argv[]) {
 			// to save memory
 			PluginManager::instance().unloadPluginsExcept(PLUGIN_TYPE_ENGINE, plugin);
 
-			if (settings["record-mode"] == "record") {
+			Common::String recordMode;
+			if (ConfMan.hasKey("record-mode")) {
+				recordMode = ConfMan.get("record-mode");
+			} else if (settings.contains("record-mode")) {
+				recordMode = settings["record-mode"];
+			}
+			if (recordMode == "record") {
 				g_eventRec.init(g_eventRec.generateRecordFileName(ConfMan.getActiveDomainName()), Common::EventRecorder::kRecorderRecord);
-			} else if (settings["record-mode"] == "playback") {
-				g_eventRec.init(settings["record-file-name"], Common::EventRecorder::kRecorderPlayback);
+			} else if (recordMode == "playback") {
+				Common::String recordFile;
+				if (ConfMan.hasKey("record-file-name")) {
+					recordFile = ConfMan.get("record-file-name");
+				} else if (settings.contains("record-file-name")) {
+					recordFile = settings["record-file-name"];
+				}
+				g_eventRec.init(recordFile, Common::EventRecorder::kRecorderPlayback);
 			}
 			// Try to run the game
 			Common::Error result = runGame(plugin, system, specialDebug);
