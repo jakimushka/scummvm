@@ -588,4 +588,8 @@ void EventRecorder::takeScreenshot() {
 	}
 }
 
+Common::SeekableReadStream * EventRecorder::getSaveStream() {
+	return new MemoryReadStream(saveBuffer, 0);
+}
+
 } // End of namespace Common

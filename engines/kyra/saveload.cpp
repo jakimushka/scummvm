@@ -230,7 +230,11 @@ Common::WriteStream *KyraEngine_v1::openSaveForWriting(const char *filename, con
 }
 
 const char *KyraEngine_v1::getSavegameFilename(int num) {
-	_savegameFilename = getSavegameFilename(_targetName, num);
+	if (num == 6666) {
+		_savegameFilename = "recordersave";
+	} else {
+		_savegameFilename = getSavegameFilename(_targetName, num);
+	}
 	return _savegameFilename.c_str();
 }
 
