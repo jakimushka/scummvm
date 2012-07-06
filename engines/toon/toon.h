@@ -179,7 +179,7 @@ public:
 	int32 getConversationFlag(int32 locationId, int32 param);
 	int32 getSpecialInventoryItem(int32 item);
 	Character *getCharacterById(int32 charId);
-	Common::String getSavegameName(int nr);
+	virtual Common::String getSavegameFilenameTemp(int nr);
 	bool loadGame(int32 slot);
 	bool saveGame(int32 slot, const Common::String &saveGameDesc);
 	void fadeIn(int32 numFrames);

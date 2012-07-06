@@ -176,8 +176,8 @@ void MadeEngine::resetAllTimers() {
 		_timers[i] = -1;
 }
 
-Common::String MadeEngine::getSavegameFilename(int16 saveNum) {
-	return Common::String::format("%s.%03d", getTargetName().c_str(), saveNum);
+Common::String MadeEngine::getSavegameFilenameTemp(int slot) {
+	return Common::String::format("%s.%03d", getTargetName().c_str(), slot);
 }
 
 void MadeEngine::handleEvents() {

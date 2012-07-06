@@ -322,7 +322,7 @@ public:
 	DrasculaEngine(OSystem *syst, const DrasculaGameDescription *gameDesc);
 	virtual ~DrasculaEngine();
 	virtual bool hasFeature(EngineFeature f) const;
-
+	virtual Common::String getSavegameFilenameTemp(int num);
 	Common::RandomSource *_rnd;
 	const DrasculaGameDescription *_gameDescription;
 	uint32 getFeatures() const;

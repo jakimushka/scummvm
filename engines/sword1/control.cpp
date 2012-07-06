@@ -1089,15 +1089,14 @@ void Control::renderVolumeBar(uint8 id, uint8 volL, uint8 volR) {
 }
 
 void Control::saveGameToFile(uint8 slot) {
-	char fName[15];
 	uint16 cnt;
-	sprintf(fName, "sword1.%03d", slot);
+	Common::String fName = SwordEngine::calculateFileName(slot);
 	uint16 liveBuf[TOTAL_SECTIONS];
 	Common::OutSaveFile *outf;
-	outf = _saveFileMan->openForSaving(fName);
+	outf = _saveFileMan->openForSaving(fName.c_str());
 	if (!outf) {
 		// Display an error message and do nothing
-		displayMessage(0, "Unable to create file '%s'. (%s)", fName, _saveFileMan->popErrorDesc().c_str());
+		displayMessage(0, "Unable to create file '%s'. (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 		return;
 	}
 
@@ -1140,26 +1139,25 @@ void Control::saveGameToFile(uint8 slot) {
 		outf->writeUint32LE(playerRaw[cnt2]);
 	outf->finalize();
 	if (outf->err())
-		displayMessage(0, "Couldn't write to file '%s'. Device full? (%s)", fName, _saveFileMan->popErrorDesc().c_str());
+		displayMessage(0, "Couldn't write to file '%s'. Device full? (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 	delete outf;
 }
 
 bool Control::restoreGameFromFile(uint8 slot) {
-	char fName[15];
 	uint16 cnt;
-	sprintf(fName, "sword1.%03d", slot);
 	Common::InSaveFile *inf;
-	inf = _saveFileMan->openForLoading(fName);
+	Common::String fName = SwordEngine::calculateFileName(slot);
+	inf = _saveFileMan->openForLoading(fName.c_str());
 	if (!inf) {
 		// Display an error message, and do nothing
-		displayMessage(0, "Can't open file '%s'. (%s)", fName, _saveFileMan->popErrorDesc().c_str());
+		displayMessage(0, "Can't open file '%s'. (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 		return false;
 	}
 
 	uint saveHeader = inf->readUint32LE();
 	if (saveHeader != SAVEGAME_HEADER) {
 		// Display an error message, and do nothing
-		displayMessage(0, "Save game '%s' is corrupt", fName);
+		displayMessage(0, "Save game '%s' is corrupt", fName.c_str());
 		return false;
 	}
 
@@ -1205,7 +1203,7 @@ bool Control::restoreGameFromFile(uint8 slot) {
 		playerBuf[cnt2] = inf->readUint32LE();
 
 	if (inf->err() || inf->eos()) {
-		displayMessage(0, "Can't read from file '%s'. (%s)", fName, _saveFileMan->popErrorDesc().c_str());
+		displayMessage(0, "Can't read from file '%s'. (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 		delete inf;
 		free(_restoreBuf);
 		_restoreBuf = NULL;
@@ -1217,21 +1215,21 @@ bool Control::restoreGameFromFile(uint8 slot) {
 
 bool Control::convertSaveGame(uint8 slot, char *desc) {
 	char oldFileName[15];
-	char newFileName[40];
+	Common::String newFileName;
 	sprintf(oldFileName, "SAVEGAME.%03d", slot);
-	sprintf(newFileName, "sword1.%03d", slot);
+	newFileName = SwordEngine::calculateFileName(slot);
 	uint8 *saveData;
 	int dataSize;
 
 	// Check if the new file already exists
-	Common::InSaveFile *testSave = _saveFileMan->openForLoading(newFileName);
+	Common::InSaveFile *testSave = _saveFileMan->openForLoading(newFileName.c_str());
 
 	if (testSave) {
 		delete testSave;
 
 		Common::String msg = Common::String::format(_("Target new save game already exists!\n"
 		                     "Would you like to keep the old save game (%s) or the new one (%s)?\n"),
-		                     oldFileName, newFileName);
+		                     oldFileName, newFileName.c_str());
 		GUI::MessageDialog dialog0(msg, _("Keep the old one"), _("Keep the new one"));
 
 		int choice = dialog0.runModal();
@@ -1257,10 +1255,10 @@ bool Control::convertSaveGame(uint8 slot, char *desc) {
 
 	// Now write the save data to a new type of save game
 	Common::OutSaveFile *newSave;
-	newSave = _saveFileMan->openForSaving(newFileName);
+	newSave = _saveFileMan->openForSaving(newFileName.c_str());
 	if (!newSave) {
 		// Display a warning message and do nothing
-		warning("Unable to create file '%s'. (%s)", newFileName, _saveFileMan->popErrorDesc().c_str());
+		warning("Unable to create file '%s'. (%s)", newFileName.c_str(), _saveFileMan->popErrorDesc().c_str());
 		delete[] saveData;
 		saveData = NULL;
 		return false;
@@ -1285,7 +1283,7 @@ bool Control::convertSaveGame(uint8 slot, char *desc) {
 
 	newSave->finalize();
 	if (newSave->err())
-		warning("Couldn't write to file '%s'. Device full?", newFileName);
+		warning("Couldn't write to file '%s'. Device full?", newFileName.c_str());
 	delete newSave;
 
 	// Delete old save

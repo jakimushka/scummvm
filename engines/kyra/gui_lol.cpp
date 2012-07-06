@@ -2837,15 +2837,15 @@ int GUI_LoL::clickedChoiceMenu(Button *button) {
 		if (_lastMenu == &_mainMenu) {
 			_vm->quitGame();
 		} else if (_lastMenu == &_deleteMenu) {
-			_vm->_saveFileMan->removeSavefile(_vm->getSavegameFilename(_menuResult - 1));
+			_vm->_saveFileMan->removeSavefile(_vm->getSavegameFilename_test(_menuResult - 1).c_str());
 			Common::Array<int>::iterator i = Common::find(_saveSlots.begin(), _saveSlots.end(), _menuResult - 1);
 			while (i != _saveSlots.begin()) {
 				--i;
 				// not rename quicksave slot filenames
 				if (*i >= 990)
 					break;
-				Common::String oldName = _vm->getSavegameFilename(*i);
-				Common::String newName = _vm->getSavegameFilename(*i - 1);
+				Common::String oldName = _vm->getSavegameFilename_test(*i).c_str();
+				Common::String newName = _vm->getSavegameFilename_test(*i - 1).c_str();
 				_vm->_saveFileMan->renameSavefile(oldName, newName);
 			}
 			_newMenu = &_mainMenu;

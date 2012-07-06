@@ -765,4 +765,12 @@ void SwordEngine::reinitRes() {
 	_screen->draw();
 }
 
+Common::String SwordEngine::calculateFileName(int slot) {
+	return Common::String::format("sword1.%03d", slot);
+}
+
+Common::String SwordEngine::getSavegameFilenameTemp(int slot) {
+	return calculateFileName(slot);
+}
+
 } // End of namespace Sword1

@@ -480,5 +480,20 @@ void SkyEngine::showGrid()
 	}
 }
 
+Common::String SkyEngine::getSavegameFilenameTemp(int slot) {
+	return CalculateSaveName(slot);
+}
+
+Common::String SkyEngine::CalculateSaveName(int slot) {
+	if (slot == 0) {
+		if (SkyEngine::isCDVersion())
+			return "SKY-VM-CD.ASD";
+		else
+			return Common::String::format("SKY-VM%03d.ASD", SkyEngine::_systemVars.gameVersion);
+	} else {
+		return Common::String::format("SKY-VM.%03d", slot);
+	}
+}
+
 
 } // End of namespace Sky

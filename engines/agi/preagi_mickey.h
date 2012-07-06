@@ -690,7 +690,7 @@ public:
 	void drawObj(ENUM_MSA_OBJECT, int, int);
 
 	GUI::Debugger *getDebugger() { return _console; }
-
+	virtual Common::String getSavegameFilenameTemp(int num);
 protected:
 	MickeyConsole *_console;
 

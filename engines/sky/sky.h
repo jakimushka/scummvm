@@ -96,6 +96,11 @@ public:
 
 	static SystemVars _systemVars;
 
+	static Common::String SkyEngine::CalculateSaveName(int slot);
+
+	Common::String getSavegameFilenameTemp(int slot);
+
+
 protected:
 	// Engine APIs
 	Common::Error init();

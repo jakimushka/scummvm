@@ -90,7 +90,7 @@ public:
 	virtual Common::Error loadGameState(int slot);
 	virtual Common::Error saveGameState(int slot, const Common::String &desc);
 	virtual void syncSoundSettings();
-	Common::String generateSaveName(int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	void initialize();
 	void deinitialize();

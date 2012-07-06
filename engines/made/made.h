@@ -128,7 +128,7 @@ public:
 	void resetAllTimers();
 
 	const Common::String getTargetName() { return _targetName; }
-	Common::String getSavegameFilename(int16 saveNum);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	void handleEvents();
 

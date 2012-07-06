@@ -37,7 +37,9 @@ class Error;
 class EventManager;
 class SaveFileManager;
 class TimerManager;
+class SeekableReadStream;
 }
+
 namespace GUI {
 class Debugger;
 class Dialog;
@@ -315,11 +317,14 @@ public:
 
 protected:
 
+	virtual Common::String getSavegameFilenameTemp(int num) {
+		return Common::String();
+	}
+
 	/**
 	 * Indicate whether an autosave should be performed.
 	 */
 	bool shouldPerformAutoSave(int lastSaveTime);
-
 };
 
 // FIXME: HACK for MidiEmu & error()

@@ -979,7 +979,7 @@ void MickeyEngine::printRoomDesc() {
 
 bool MickeyEngine::loadGame() {
 	Common::InSaveFile *infile;
-	char szFile[256] = {0};
+	Common::String filename;
 	bool diskerror = true;
 	int sel;
 	int saveVersion = 0;
@@ -989,10 +989,8 @@ bool MickeyEngine::loadGame() {
 		sel = choose1to9(IDO_MSA_LOAD_GAME[1]);
 		if (!sel)
 			return false;
-
-		// load game
-		sprintf(szFile, "%s.s%02d", getTargetName().c_str(), sel);
-		if (!(infile = getSaveFileMan()->openForLoading(szFile))) {
+		filename = getSavegameFilenameTemp(sel);
+		if (!(infile = getSaveFileMan()->openForLoading(filename.c_str()))) {
 			printLine("PLEASE CHECK THE DISK DRIVE");
 
 			if (getSelection(kSelAnyKey) == 0)
@@ -1075,6 +1073,10 @@ bool MickeyEngine::loadGame() {
 
 	printExeMsg(IDO_MSA_LOAD_GAME[2]);
 	return true;
+}
+
+Common::String MickeyEngine::getSavegameFilenameTemp(int num) {
+	return Common::String::format("%s.s%02d", getTargetName().c_str(), num);
 }
 
 void MickeyEngine::saveGame() {

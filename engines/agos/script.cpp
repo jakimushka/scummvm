@@ -825,7 +825,7 @@ void AGOSEngine::o_loadUserGame() {
 	// 133: load user game
 	if (getGameId() == GID_SIMON1CD32) {
 		// The Amiga CD32 version of Simon the Sorcerer 1 uses a single slot
-		if (!loadGame(genSaveName(0))) {
+		if (!loadGame(getSavegameFilenameTemp(0).c_str())) {
 			vc33_setMouseOn();
 			fileError(_windowArray[5], false);
 		}

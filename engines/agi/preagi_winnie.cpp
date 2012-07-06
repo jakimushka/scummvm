@@ -1203,7 +1203,7 @@ void WinnieEngine::gameOver() {
 void WinnieEngine::saveGame() {
 	int i = 0;
 
-	Common::OutSaveFile *outfile = getSaveFileMan()->openForSaving(IDS_WTP_FILE_SAVEGAME);
+	Common::OutSaveFile *outfile = getSaveFileMan()->openForSaving(getSavegameFilenameTemp(0).c_str());
 
 	if (!outfile)
 		return;
@@ -1229,16 +1229,20 @@ void WinnieEngine::saveGame() {
 	outfile->finalize();
 
 	if (outfile->err())
-		warning("Can't write file '%s'. (Disk full?)", IDS_WTP_FILE_SAVEGAME);
+		warning("Can't write file '%s'. (Disk full?)", getSavegameFilenameTemp(0).c_str());
 
 	delete outfile;
+}
+
+Common::String WinnieEngine::getSavegameFilenameTemp(int num) {
+	return IDS_WTP_FILE_SAVEGAME;
 }
 
 void WinnieEngine::loadGame() {
 	int saveVersion = 0;
 	int i = 0;
 
-	Common::InSaveFile *infile = getSaveFileMan()->openForLoading(IDS_WTP_FILE_SAVEGAME);
+	Common::InSaveFile *infile = getSaveFileMan()->openForLoading(getSavegameFilenameTemp(0).c_str());
 
 	if (!infile)
 		return;

@@ -87,6 +87,10 @@ void DrasculaEngine::saveSaveNames() {
 	delete tsav;
 }
 
+Common::String DrasculaEngine::getSavegameFilenameTemp(int num) {
+	return Common::String::format("%s%02d", _targetName.c_str(), num);
+}
+
 bool DrasculaEngine::saveLoadScreen() {
 	Common::String file;
 	int n, n2, num_sav = 0, y = 27;
@@ -129,7 +133,7 @@ bool DrasculaEngine::saveLoadScreen() {
 						enterName();
 						strcpy(_saveNames[n], select);
 						if (selectionMade == 1) {
-							file = Common::String::format("%s%02d", _targetName.c_str(), n + 1);
+							file = getSavegameFilenameTemp(n + 1);
 							saveGame(file.c_str());
 							saveSaveNames();
 						}
@@ -142,7 +146,7 @@ bool DrasculaEngine::saveLoadScreen() {
 						y = y + 9;
 					}
 					if (selectionMade == 1) {
-						file = Common::String::format("%s%02d", _targetName.c_str(), n + 1);
+						file = getSavegameFilenameTemp(n + 1);
 					}
 					num_sav = n;
 				}
@@ -159,7 +163,7 @@ bool DrasculaEngine::saveLoadScreen() {
 				}
 
 				if (selectionMade == 1) {
-					file = Common::String::format("%s%02d", _targetName.c_str(), n + 1);
+					file = getSavegameFilenameTemp(n + 1);
 					saveGame(file.c_str());
 					saveSaveNames();
 				}

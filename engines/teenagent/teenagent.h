@@ -60,6 +60,7 @@ public:
 	virtual bool canLoadGameStateCurrently() { return true; }
 	virtual bool canSaveGameStateCurrently() { return !scene_busy; }
 	virtual bool hasFeature(EngineFeature f) const;
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	void init();
 	void deinit();

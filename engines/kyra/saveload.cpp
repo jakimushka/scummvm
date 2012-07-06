@@ -229,11 +229,11 @@ Common::WriteStream *KyraEngine_v1::openSaveForWriting(const char *filename, con
 	return out;
 }
 
-const char *KyraEngine_v1::getSavegameFilename(int num) {
-	if (num == 6666) {
+Common::String KyraEngine_v1::getSavegameFilenameTemp(int slot) {
+	if (slot == 6666) {
 		_savegameFilename = "recordersave";
 	} else {
-		_savegameFilename = getSavegameFilename(_targetName, num);
+		_savegameFilename = getSavegameFilename(_targetName, slot);
 	}
 	return _savegameFilename.c_str();
 }
@@ -248,7 +248,7 @@ bool KyraEngine_v1::saveFileLoadable(int slot) {
 		return false;
 
 	SaveHeader header;
-	Common::SeekableReadStream *in = openSaveForReading(getSavegameFilename(slot), header);
+	Common::SeekableReadStream *in = openSaveForReading(getSavegameFilenameTemp(slot).c_str(), header);
 
 	if (in) {
 		delete in;
@@ -269,7 +269,7 @@ void KyraEngine_v1::loadGameStateCheck(int slot) {
 	// FIXME: Instead of throwing away the error returned by
 	// loadGameState, we should use it / augment it.
 	if (loadGameState(slot).getCode() != Common::kNoError) {
-		const char *filename = getSavegameFilename(slot);
+		const char *filename = getSavegameFilenameTemp(slot).c_str();
 		Common::String errorMessage = "Could not load savegame: '";
 		errorMessage += filename;
 		errorMessage += "'";

@@ -958,7 +958,7 @@ int16 ScriptFunctions::sfSaveGame(int16 argc, int16 *argv) {
 		return 6;
 
 	const char *description = _vm->_dat->getObjectString(descObjectIndex);
-	Common::String filename = _vm->getSavegameFilename(saveNum);
+	Common::String filename = _vm->getSavegameFilenameTemp(saveNum);
 	return _vm->_dat->savegame(filename.c_str(), description, version);
 
 }
@@ -971,7 +971,7 @@ int16 ScriptFunctions::sfLoadGame(int16 argc, int16 *argv) {
 	if (saveNum > 999)
 		return 1;
 
-	Common::String filename = _vm->getSavegameFilename(saveNum);
+	Common::String filename = _vm->getSavegameFilenameTemp(saveNum);
 	return _vm->_dat->loadgame(filename.c_str(), version);
 
 }
@@ -986,7 +986,7 @@ int16 ScriptFunctions::sfGetGameDescription(int16 argc, int16 *argv) {
 	if (saveNum > 999)
 		return 1;
 
-	Common::String filename = _vm->getSavegameFilename(saveNum);
+	Common::String filename = _vm->getSavegameFilenameTemp(saveNum);
 
 	if (_vm->_dat->getSavegameDescription(filename.c_str(), description, version)) {
 		_vm->_dat->setObjectString(descObjectIndex, description.c_str());

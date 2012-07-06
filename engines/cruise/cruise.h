@@ -96,7 +96,8 @@ public:
 	virtual void pauseEngine(bool pause);
 	const char *langString(LangStringId langId) { return _langStrings[(int)langId].c_str(); }
 
-	static const char *getSavegameFile(int saveGameIdx);
+	virtual Common::String getSavegameFilenameTemp(int slot);
+	static Common::String getSavegameFile(int slot);
 	virtual Common::Error loadGameState(int slot);
 	virtual bool canLoadGameStateCurrently();
 	virtual Common::Error saveGameState(int slot, const Common::String &desc);

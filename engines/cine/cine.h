@@ -142,7 +142,7 @@ public:
 	GUI::Debugger *getDebugger() { return _console; }
 
 	bool _restartRequested;
-
+	virtual Common::String getSavegameFilenameTemp(int slot);
 private:
 	void initialize();
 	void resetEngine();

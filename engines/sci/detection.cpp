@@ -793,8 +793,12 @@ void SciMetaEngine::removeSaveState(const char *target, int slot) const {
 	g_system->getSavefileManager()->removeSavefile(fileName);
 }
 
+Common::String SciEngine::getSavegameFilenameTemp(int slot) {
+	return Common::String::format("%s.%03d", _targetName.c_str(), slot);
+}
+
 Common::Error SciEngine::loadGameState(int slot) {
-	Common::String fileName = Common::String::format("%s.%03d", _targetName.c_str(), slot);
+	Common::String fileName = getSavegameFilenameTemp(slot);
 	Common::SaveFileManager *saveFileMan = g_engine->getSaveFileManager();
 	Common::SeekableReadStream *in = saveFileMan->openForLoading(fileName);
 
@@ -813,7 +817,7 @@ Common::Error SciEngine::loadGameState(int slot) {
 }
 
 Common::Error SciEngine::saveGameState(int slot, const Common::String &desc) {
-	Common::String fileName = Common::String::format("%s.%03d", _targetName.c_str(), slot);
+	Common::String fileName = getSavegameFilenameTemp(slot);
 	Common::SaveFileManager *saveFileMan = g_engine->getSaveFileManager();
 	Common::OutSaveFile *out = saveFileMan->openForSaving(fileName);
 	const char *version = "";

@@ -217,16 +217,20 @@ bool CruiseEngine::canSaveGameStateCurrently() {
 	return (playerMenuEnabled != 0) && (userEnabled != 0);
 }
 
-const char *CruiseEngine::getSavegameFile(int saveGameIdx) {
-	static char buffer[20];
-	sprintf(buffer, "cruise.s%02d", saveGameIdx);
-	return buffer;
+Common::String CruiseEngine::getSavegameFilenameTemp(int slot) {
+	return getSavegameFile(slot);
 }
 
 void CruiseEngine::syncSoundSettings() {
 	Engine::syncSoundSettings();
 
 	_sound->syncSounds();
+}
+
+Common::String CruiseEngine::getSavegameFile(int slot) {
+	static char buffer[20];
+	sprintf(buffer, "cruise.s%02d", slot);
+	return buffer;
 }
 
 } // End of namespace Cruise

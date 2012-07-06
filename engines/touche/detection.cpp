@@ -189,7 +189,7 @@ bool ToucheMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGa
 }
 
 SaveStateList ToucheMetaEngine::listSaves(const char *target) const {
-	Common::String pattern = Touche::generateGameStateFileName(target, 0, true);
+	Common::String pattern = Touche::generateSavePrefix(target);
 	Common::StringArray filenames = g_system->getSavefileManager()->listSavefiles(pattern);
 	bool slotsTable[Touche::kMaxSaveStates];
 	memset(slotsTable, 0, sizeof(slotsTable));

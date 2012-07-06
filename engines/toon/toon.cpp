@@ -2950,7 +2950,7 @@ bool ToonEngine::canLoadGameStateCurrently() {
 	return !_gameState->_inMenu && !_gameState->_inInventory && !_gameState->_inConversation && !_gameState->_inCutaway && !_gameState->_mouseHidden && !_moviePlayer->isPlaying();
 }
 
-Common::String ToonEngine::getSavegameName(int nr) {
+Common::String ToonEngine::getSavegameFilenameTemp(int nr) {
 	return _targetName + Common::String::format(".%03d", nr);
 }
 
@@ -2978,7 +2978,7 @@ bool ToonEngine::saveGame(int32 slot, const Common::String &saveGameDesc) {
 	if (savegameId < 0)
 		return false; // dialog aborted
 
-	Common::String savegameFile = getSavegameName(savegameId);
+	Common::String savegameFile = getSavegameFilenameTemp(savegameId);
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::OutSaveFile *saveFile = saveMan->openForSaving(savegameFile);
 	if (!saveFile)
@@ -3067,7 +3067,7 @@ bool ToonEngine::loadGame(int32 slot) {
 	if (savegameId < 0)
 		return false; // dialog aborted
 
-	Common::String savegameFile = getSavegameName(savegameId);
+	Common::String savegameFile = getSavegameFilenameTemp(savegameId);
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::InSaveFile *loadFile = saveMan->openForLoading(savegameFile);
 	if (!loadFile)

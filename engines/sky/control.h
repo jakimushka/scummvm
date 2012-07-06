@@ -186,7 +186,7 @@ public:
 	void restartGame();
 	void showGameQuitMsg();
 	void doAutoSave();
-	uint16 quickXRestore(uint16 slot);
+	uint16 quickXRestore(int slot);
 	bool loadSaveAllowed();
 
 	uint16 _selectedGame;
@@ -227,7 +227,7 @@ private:
 	uint32 prepareSaveData(uint8 *destBuf);
 
 	bool autoSaveExists();
-	uint16 restoreGameFromFile(bool autoSave);
+	uint16 restoreGameFromFile(int slot);
 	void importOldMegaSet(uint8 **srcPos, MegaSet *mega);
 	void importOldCompact(Compact* destCpt, uint8 **srcPos, uint16 numElems, uint16 type, char *name);
 	uint16 parseSaveData(uint8 *srcBuf);

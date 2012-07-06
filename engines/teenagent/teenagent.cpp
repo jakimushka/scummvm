@@ -204,7 +204,7 @@ void TeenAgentEngine::deinit() {
 
 Common::Error TeenAgentEngine::loadGameState(int slot) {
 	debug(0, "loading from slot %d", slot);
-	Common::ScopedPtr<Common::InSaveFile> in(_saveFileMan->openForLoading(Common::String::format("teenagent.%02d", slot)));
+	Common::ScopedPtr<Common::InSaveFile> in(_saveFileMan->openForLoading(getSavegameFilenameTemp(slot)));
 	if (!in)
 		in.reset(_saveFileMan->openForLoading(Common::String::format("teenagent.%d", slot)));
 
@@ -1062,6 +1062,10 @@ bool TeenAgentEngine::hasFeature(EngineFeature f) const {
 	default:
 		return false;
 	}
+}
+
+Common::String TeenAgentEngine::getSavegameFilenameTemp(int slot) {
+	return Common::String::format("teenagent.%02d", slot);
 }
 
 } // End of namespace TeenAgent

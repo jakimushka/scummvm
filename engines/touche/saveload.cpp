@@ -375,15 +375,17 @@ void readGameStateDescription(Common::ReadStream *f, char *description, int len)
 	}
 }
 
-Common::String generateGameStateFileName(const char *target, int slot, bool prefixOnly) {
+Common::String generateGameStateFileName(const char *target, int slot) {
 	Common::String name(target);
-	if (prefixOnly) {
-		name += ".*";
-	} else {
-		name += Common::String::format(".%d", slot);
-	}
+	name += Common::String::format(".%d", slot);
 	return name;
 }
+
+Common::String generateSavePrefix(const char *target) {
+	Common::String name(target);
+	return name += ".*";
+}
+
 
 int getGameStateFileSlot(const char *filename) {
 	int i = -1;

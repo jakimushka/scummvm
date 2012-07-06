@@ -881,7 +881,7 @@ public:
 
 	StringData _stringdata;
 
-	Common::String getSavegameFilename(int num) const;
+	virtual Common::String getSavegameFilenameTemp(int num);
 	void getSavegameDescription(int num, char *buf, bool showEmpty = true);
 	int selectSlot();
 	int saveGame(const Common::String &fileName, const Common::String &saveName);

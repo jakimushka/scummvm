@@ -166,7 +166,7 @@ Common::Error TSageEngine::saveGameState(int slot, const Common::String &desc) {
  * Support method that generates a savegame name
  * @param slot		Slot number
  */
-Common::String TSageEngine::generateSaveName(int slot) {
+Common::String TSageEngine::getSavegameFilenameTemp(int slot) {
 	return Common::String::format("%s.%03d", _targetName.c_str(), slot);
 }
 

@@ -346,7 +346,8 @@ enum StringType {
 };
 
 void readGameStateDescription(Common::ReadStream *f, char *description, int len);
-Common::String generateGameStateFileName(const char *target, int slot, bool prefixOnly = false);
+Common::String generateGameStateFileName(const char *target, int slot);
+Common::String generateSavePrefix(const char *target);
 int getGameStateFileSlot(const char *filename);
 
 enum GameState {

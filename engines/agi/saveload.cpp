@@ -546,7 +546,7 @@ int AgiEngine::loadGame(const Common::String &fileName, bool checkId) {
 #define NUM_SLOTS 100
 #define NUM_VISIBLE_SLOTS 12
 
-Common::String AgiEngine::getSavegameFilename(int num) const {
+Common::String AgiEngine::getSavegameFilenameTemp(int num) {
 	Common::String saveLoadSlot = _targetName;
 	saveLoadSlot += Common::String::format(".%.3d", num);
 	return saveLoadSlot;
@@ -554,7 +554,7 @@ Common::String AgiEngine::getSavegameFilename(int num) const {
 
 void AgiEngine::getSavegameDescription(int num, char *buf, bool showEmpty) {
 	Common::InSaveFile *in;
-	Common::String fileName = getSavegameFilename(num);
+	Common::String fileName = getSavegameFilenameTemp(num);
 
 	debugC(4, kDebugLevelMain | kDebugLevelSavegame, "Current game id is %s", _targetName.c_str());
 
@@ -854,7 +854,7 @@ int AgiEngine::saveGameDialog() {
 		return errOK;
 	}
 
-	Common::String fileName = getSavegameFilename(_firstSlot + slot);
+	Common::String fileName = getSavegameFilenameTemp(_firstSlot + slot);
 	debugC(8, kDebugLevelMain | kDebugLevelResources, "file is [%s]", fileName.c_str());
 
 	// Make sure all graphics was blitted to screen. This fixes bug
@@ -872,7 +872,7 @@ int AgiEngine::saveGameDialog() {
 }
 
 int AgiEngine::saveGameSimple() {
-	Common::String fileName = getSavegameFilename(0);
+	Common::String fileName = getSavegameFilenameTemp(0);
 
 	int result = saveGame(fileName, "Default savegame");
 	if (result != errOK)
@@ -907,7 +907,7 @@ int AgiEngine::loadGameDialog() {
 		return errOK;
 	}
 
-	Common::String fileName = getSavegameFilename(_firstSlot + slot);
+	Common::String fileName = getSavegameFilenameTemp(_firstSlot + slot);
 
 	if ((rc = loadGame(fileName)) == errOK) {
 		messageBox("Game restored.");
@@ -923,7 +923,7 @@ int AgiEngine::loadGameDialog() {
 int AgiEngine::loadGameSimple() {
 	int rc = 0;
 
-	Common::String fileName = getSavegameFilename(0);
+	Common::String fileName = getSavegameFilenameTemp(0);
 
 	_sprites->eraseBoth();
 	_sound->stopSound();
@@ -982,7 +982,7 @@ void AgiEngine::releaseImageStack() {
 
 void AgiEngine::checkQuickLoad() {
 	if (ConfMan.hasKey("save_slot")) {
-		Common::String saveNameBuffer = getSavegameFilename(ConfMan.getInt("save_slot"));
+		Common::String saveNameBuffer = getSavegameFilenameTemp(ConfMan.getInt("save_slot"));
 
 		_sprites->eraseBoth();
 		_sound->stopSound();
@@ -995,7 +995,7 @@ void AgiEngine::checkQuickLoad() {
 }
 
 Common::Error AgiEngine::loadGameState(int slot) {
-	Common::String saveLoadSlot = getSavegameFilename(slot);
+	Common::String saveLoadSlot = getSavegameFilenameTemp(slot);
 
 	_sprites->eraseBoth();
 	_sound->stopSound();
@@ -1010,7 +1010,7 @@ Common::Error AgiEngine::loadGameState(int slot) {
 }
 
 Common::Error AgiEngine::saveGameState(int slot, const Common::String &desc) {
-	Common::String saveLoadSlot = getSavegameFilename(slot);
+	Common::String saveLoadSlot = getSavegameFilenameTemp(slot);
 	if (saveGame(saveLoadSlot, desc) == errOK)
 		return Common::kNoError;
 	else

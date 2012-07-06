@@ -79,7 +79,7 @@ private:
 	FightsManager *_fights;
 	Common::RandomSource _rnd;
 
-	const char *generateSaveName(int slotNumber);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	const LureGameDescription *_gameDescription;
 

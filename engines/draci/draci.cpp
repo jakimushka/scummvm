@@ -440,8 +440,12 @@ void DraciEngine::syncSoundSettings() {
 	_music->syncVolume();
 }
 
-Common::String DraciEngine::getSavegameFile(int saveGameIdx) {
-	return Common::String::format("draci.s%02d", saveGameIdx);
+Common::String DraciEngine::getSavegameFile(int slot) {
+	return Common::String::format("draci.s%02d", slot);
+}
+
+Common::String DraciEngine::getSavegameFilenameTemp(int slot) {
+	return getSavegameFile(slot);
 }
 
 Common::Error DraciEngine::loadGameState(int slot) {

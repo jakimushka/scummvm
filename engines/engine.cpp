@@ -40,6 +40,8 @@
 #include "common/error.h"
 #include "common/list.h"
 #include "common/list_intern.h"
+#include "common/savefile.h"
+#include "common/stream.h"
 #include "common/scummsys.h"
 #include "common/taskbar.h"
 #include "common/textconsole.h"

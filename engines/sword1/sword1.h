@@ -91,6 +91,8 @@ public:
 	static bool isMac() { return _systemVars.platform == Common::kPlatformMacintosh; }
 	static bool isPsx() { return _systemVars.platform == Common::kPlatformPSX; }
 	static bool isWindows() { return _systemVars.platform == Common::kPlatformWindows ; }
+	static Common::String calculateFileName(int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 protected:
 	// Engine APIs

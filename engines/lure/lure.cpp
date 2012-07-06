@@ -177,16 +177,13 @@ void LureEngine::pauseEngineIntern(bool pause) {
 	}
 }
 
-const char *LureEngine::generateSaveName(int slotNumber) {
-	static char buffer[15];
-
-	sprintf(buffer, "lure.%.3d", slotNumber);
-	return buffer;
+Common::String LureEngine::getSavegameFilenameTemp(int slot) {
+	return Common::String::format("lure.%.3d", slot);
 }
 
 bool LureEngine::saveGame(uint8 slotNumber, Common::String &caption) {
 	Common::WriteStream *f = this->_saveFileMan->openForSaving(
-		generateSaveName(slotNumber));
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL)
 		return false;
 
@@ -210,7 +207,7 @@ bool LureEngine::saveGame(uint8 slotNumber, Common::String &caption) {
 
 bool LureEngine::loadGame(uint8 slotNumber) {
 	Common::ReadStream *f = this->_saveFileMan->openForLoading(
-		generateSaveName(slotNumber));
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL)
 		return false;
 
@@ -271,7 +268,7 @@ void LureEngine::syncSoundSettings() {
 
 Common::String *LureEngine::detectSave(int slotNumber) {
 	Common::ReadStream *f = this->_saveFileMan->openForLoading(
-		generateSaveName(slotNumber));
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL) return NULL;
 	Common::String *result = NULL;
 

@@ -644,7 +644,6 @@ bool DrasculaEngine::runCurrentChapter() {
 	return false;
 }
 
-
 bool DrasculaEngine::verify1() {
 	int l;
 

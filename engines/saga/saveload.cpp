@@ -42,10 +42,8 @@ static SaveFileData emptySlot = {
 	 "", 0
 };
 
-char* SagaEngine::calcSaveFileName(uint slotNumber) {
-	static char name[MAX_FILE_NAME];
-	sprintf(name, "%s.s%02u", _targetName.c_str(), slotNumber);
-	return name;
+Common::String SagaEngine::getSavegameFilenameTemp(int slot) {
+	return Common::String::format("%s.s%02u", _targetName.c_str(), slot);
 }
 
 SaveFileData *SagaEngine::getSaveFile(uint idx) {
@@ -116,11 +114,12 @@ void SagaEngine::fillSaveList() {
 	Common::StringArray filenames;
 	char slot[3];
 	int slotNumber;
-	char *name;
+	Common::String name;
 
-	name = calcSaveFileName(MAX_SAVES);
-	name[strlen(name) - 2] = '*';
-	name[strlen(name) - 1] = 0;
+	name = getSavegameFilenameTemp(MAX_SAVES);
+	
+	name.setChar('*',name.size()-2);
+	name.setChar(0,name.size()-1);
 
 	filenames = _saveFileMan->listSavefiles(name);
 
@@ -139,15 +138,15 @@ void SagaEngine::fillSaveList() {
 
 		slotNumber = atoi(slot);
 		if (slotNumber >= 0 && slotNumber < MAX_SAVES) {
-			name = calcSaveFileName(slotNumber);
-			if ((in = _saveFileMan->openForLoading(name)) != NULL) {
+			name = getSavegameFilenameTemp(slotNumber).c_str();
+			if ((in = _saveFileMan->openForLoading(name.c_str())) != NULL) {
 				_saveHeader.type = in->readUint32BE();
 				_saveHeader.size = in->readUint32LE();
 				_saveHeader.version = in->readUint32LE();
 				in->read(_saveHeader.name, sizeof(_saveHeader.name));
 
 				if (_saveHeader.type != MKTAG('S','A','G','A')) {
-					warning("SagaEngine::load wrong save %s format", name);
+					warning("SagaEngine::load wrong save %s format", name.c_str());
 					i++;
 					continue;
 				}

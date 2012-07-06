@@ -131,7 +131,7 @@ private:
 	void writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader &header);
 	void syncGame(Common::SeekableReadStream *readStream, Common::WriteStream *writeStream, bool tiny);
 	bool savegameExists(int slotNumber);
-	Common::String generateSaveName(int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 public:
 	CGEEngine(OSystem *syst, const ADGameDescription *gameDescription);
 	~CGEEngine();

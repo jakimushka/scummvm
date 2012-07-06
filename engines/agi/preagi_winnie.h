@@ -292,7 +292,7 @@ public:
 	void debugCurRoom();
 
 	GUI::Debugger *getDebugger() { return _console; }
-
+	virtual Common::String getSavegameFilenameTemp(int num);
 private:
 	WinnieConsole *_console;
 

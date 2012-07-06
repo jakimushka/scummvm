@@ -538,10 +538,10 @@ uint16 Control::handleClick(ConResource *pButton) {
 		return saveGameToFile(true);
 	case RESTORE_A_GAME:
 		animClick(pButton);
-		return restoreGameFromFile(false);
+		return restoreGameFromFile(_selectedGame);
 	case RESTORE_AUTO:
 		animClick(pButton);
-		return restoreGameFromFile(true);
+		return restoreGameFromFile(0);
 	case SP_CANCEL:
 		animClick(pButton);
 		return CANCEL_PRESSED;
@@ -798,13 +798,7 @@ uint16 Control::shiftUp(uint8 speed) {
 bool Control::autoSaveExists() {
 	bool test = false;
 	Common::InSaveFile *f;
-	char fName[20];
-	if (SkyEngine::isCDVersion())
-		strcpy(fName, "SKY-VM-CD.ASD");
-	else
-		sprintf(fName, "SKY-VM%03d.ASD", SkyEngine::_systemVars.gameVersion);
-
-	f = _saveFileMan->openForLoading(fName);
+	f = _saveFileMan->openForLoading(SkyEngine::CalculateSaveName(0).c_str());
 	if (f != NULL) {
 		test = true;
 		delete f;
@@ -1089,24 +1083,20 @@ void Control::saveDescriptions(const Common::StringArray &list) {
 }
 
 void Control::doAutoSave() {
-	char fName[20];
-	if (SkyEngine::isCDVersion())
-		strcpy(fName, "SKY-VM-CD.ASD");
-	else
-		sprintf(fName, "SKY-VM%03d.ASD", SkyEngine::_systemVars.gameVersion);
 
-	uint16 res = saveGameToFile(false, fName);
+	Common::String fName = SkyEngine::CalculateSaveName(0).c_str();
+	uint16 res = saveGameToFile(false, fName.c_str());
 
 	if (res != GAME_SAVED)
-		displayMessage(0, "Unable to perform autosave to '%s'. (%s)", fName, _saveFileMan->popErrorDesc().c_str());
+		displayMessage(0, "Unable to perform autosave to '%s'. (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 
 }
 
 uint16 Control::saveGameToFile(bool fromControlPanel, const char *filename) {
-	char fName[20];
 	if (!filename) {
-		sprintf(fName,"SKY-VM.%03d", _selectedGame);
-		filename = fName;
+		Common::String fName;
+		fName = SkyEngine::CalculateSaveName(_selectedGame);
+		filename = fName.c_str();
 	}
 
 	Common::OutSaveFile *outf;
@@ -1383,18 +1373,11 @@ uint16 Control::parseSaveData(uint8 *srcBuf) {
 }
 
 
-uint16 Control::restoreGameFromFile(bool autoSave) {
-	char fName[20];
-	if (autoSave) {
-		if (SkyEngine::isCDVersion())
-			strcpy(fName, "SKY-VM-CD.ASD");
-		else
-			sprintf(fName, "SKY-VM%03d.ASD", SkyEngine::_systemVars.gameVersion);
-	} else
-		sprintf(fName,"SKY-VM.%03d", _selectedGame);
 
+uint16 Control::restoreGameFromFile(int slot) {
 	Common::InSaveFile *inf;
-	inf = _saveFileMan->openForLoading(fName);
+	Common::String fName = SkyEngine::CalculateSaveName(slot);
+	inf = _saveFileMan->openForLoading(fName.c_str());
 	if (inf == NULL) {
 		return RESTORE_FAILED;
 	}
@@ -1405,7 +1388,7 @@ uint16 Control::restoreGameFromFile(bool autoSave) {
 	*(uint32 *)saveData = TO_LE_32(infSize);
 
 	if (inf->read(saveData+4, infSize-4) != infSize-4) {
-		displayMessage(NULL, "Can't read from file '%s'", fName);
+		displayMessage(NULL, "Can't read from file '%s'", fName.c_str());
 		free(saveData);
 		delete inf;
 		return RESTORE_FAILED;
@@ -1418,7 +1401,7 @@ uint16 Control::restoreGameFromFile(bool autoSave) {
 	return res;
 }
 
-uint16 Control::quickXRestore(uint16 slot) {
+uint16 Control::quickXRestore(int slot) {
 	uint16 result;
 	initPanel();
 	_mouseClicked = false;
@@ -1437,12 +1420,7 @@ uint16 Control::quickXRestore(uint16 slot) {
 	_savedMouse = _skyMouse->giveCurrentMouseType();
 	_skyMouse->spriteMouse(MOUSE_NORMAL, 0, 0);
 
-	if (slot == 0)
-		result = restoreGameFromFile(true);
-	else {
-		_selectedGame = slot - 1;
-		result = restoreGameFromFile(false);
-	}
+	result = restoreGameFromFile(slot);
 	if (result == GAME_RESTORED) {
 		memset(_skyScreen->giveCurrent(), 0, GAME_SCREEN_WIDTH * GAME_SCREEN_HEIGHT);
 		_skyScreen->showScreen(_skyScreen->giveCurrent());

@@ -37,7 +37,7 @@ namespace Kyra {
 
 Common::Error EoBCoreEngine::loadGameState(int slot) {
 	// Special slot id -1 for EOB1 party transfer
-	const char *fileName = (slot == -1) ? _savegameFilename.c_str() : getSavegameFilename(slot);
+	const char *fileName = (slot == -1) ? _savegameFilename.c_str() : getSavegameFilename_test(slot).c_str();
 
 	SaveHeader header;
 	Common::InSaveFile *saveFile = openSaveForReading(fileName, header, (slot != -1));
@@ -325,7 +325,7 @@ Common::Error EoBCoreEngine::saveGameStateIntern(int slot, const char *saveName,
 		saveNameTmp.toUppercase();
 		saveName = saveNameTmp.c_str();
 	} else {
-		fileName = getSavegameFilename(slot);
+		fileName = getSavegameFilename_test(slot).c_str();
 	}
 
 	Common::OutSaveFile *out = openSaveForWriting(fileName, saveName, thumbnail);

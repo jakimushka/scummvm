@@ -116,7 +116,7 @@ public:
 	bool canSaveGameStateCurrently();
 	Common::Error saveGameState(int slot, const Common::String &desc);
 	Common::Error loadGameState(int slot);
-	void makeGameStateName(int slot, char *buf) const;
+	Common::String getSavegameFilenameTemp(int slot);
 	int getGameStateSlot(const char *filename) const;
 	void findGameStateDescriptions(char descriptions[100][32]);
 	Common::SeekableReadStream *readGameStateHeader(int slot, GameStateHeader *gsh);
