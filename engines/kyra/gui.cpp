@@ -84,7 +84,7 @@ int GUI::getNextSavegameSlot() {
 	int start = _vm->game() == GI_LOL ? 0 : 1;
 
 	for (int i = start; i < 990; i++) {
-		if ((in = _vm->_saveFileMan->openForLoading(_vm->getSavegameFilename_test(i).c_str())))
+		if ((in = _vm->_saveFileMan->openForLoading(_vm->getSavegameFilenameTemp(i).c_str())))
 			delete in;
 		else
 			return i;

@@ -235,7 +235,7 @@ Common::String KyraEngine_v1::getSavegameFilenameTemp(int slot) {
 	} else {
 		_savegameFilename = getSavegameFilename(_targetName, slot);
 	}
-	return _savegameFilename.c_str();
+	return _savegameFilename;
 }
 
 Common::String KyraEngine_v1::getSavegameFilename(const Common::String &target, int num) {
@@ -244,7 +244,7 @@ Common::String KyraEngine_v1::getSavegameFilename(const Common::String &target, 
 }
 
 bool KyraEngine_v1::saveFileLoadable(int slot) {
-	if (slot < 0 || slot > 999)
+	if ((slot < 0 || slot > 999) && (slot != kRecorderSlot))
 		return false;
 
 	SaveHeader header;
