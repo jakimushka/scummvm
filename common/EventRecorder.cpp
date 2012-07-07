@@ -354,7 +354,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 		return;
 	}
 	if (_recordMode == kRecorderPlayback) {
-//		applyPlaybackSettings();
+		applyPlaybackSettings();
 		_nextEvent = _playbackFile.getNextEvent();
 	}
 	if (_recordMode == kRecorderRecord) {
@@ -459,9 +459,13 @@ void EventRecorder::getConfig() {
 void EventRecorder::applyPlaybackSettings() {
 	for (StringMap::iterator i = _playbackFile.getHeader().settingsRecords.begin(); i != _playbackFile.getHeader().settingsRecords.end(); ++i) {
 		String currentValue = ConfMan.get(i->_key);
+		//skip keys filled by recorder
+		if ((i->_key == "record_mode") || (i->_key == "save_slot") || (i->_key == "record-file-name") || (i->_key == "record-mode")) {
+			continue;
+		}
 		if (currentValue != i->_value) {
 			warning("Config value <%s>: %s -> %s", i->_key.c_str(), i->_value.c_str(), currentValue.c_str());
-			ConfMan.set(i->_key, i->_value, ConfMan.kApplicationDomain);
+			ConfMan.set(i->_key, i->_value, ConfMan.kTransientDomain);
 		}
 	}
 	removeDifferentEntriesInDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
