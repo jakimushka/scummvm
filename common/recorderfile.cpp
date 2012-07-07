@@ -1,7 +1,9 @@
 #include "common/recorderfile.h"
 #include "common/savefile.h"
+#include "graphics/thumbnail.h"
 #include "common/bufferedstream.h"
 #include "graphics/thumbnail.h"
+#include "engines/engine.h"
 
 #define RECORD_VERSION 1
 
@@ -140,6 +142,15 @@ bool PlaybackFile::processChunk(ChunkHeader &nextChunk) {
 		case kSettingsSectionTag:
 			_playbackParseState = kFileStateProcessSettings;
 			warning("Loading record header");
+			break;
+		case kSaveTag:
+			_saveFileSize = nextChunk.len;
+			_saveFile = (byte *)malloc(_saveFileSize);
+			ConfMan.setInt("save_slot", kRecorderSlot);
+			if (_saveFile != NULL) {
+				_readStream->read(_saveFile, _saveFileSize);
+			}
+			debug("readed saveFile");
 			break;
 		default:
 			_readStream->skip(nextChunk.len);
@@ -347,6 +358,7 @@ void PlaybackFile::dumpHeaderToFile() {
 	writeGameHash();
 	writeRandomRecords();
 	writeGameSettings();
+	writeSaveGame();
 }
 
 void PlaybackFile::writeHeaderSection() {
@@ -563,6 +575,34 @@ void PlaybackFile::skipHeader() {
 			uint32 size = _readStream->readUint32LE();
 			_readStream->skip(size);
 		}
+	}
+}
+
+Common::SeekableReadStream *PlaybackFile::getSaveStream() {
+	return new MemoryReadStream(_saveFile, _saveFileSize);
+}
+
+void PlaybackFile::writeSaveGame() {
+	if (ConfMan.hasKey("save_slot")) {
+		debug ("save slot %d", ConfMan.getInt("save_slot"));
+		debug ("save slot %d  %s", ConfMan.getInt("save_slot"), g_engine->getSavegameFilenameTemp(ConfMan.getInt("save_slot")).c_str());
+		Common::String fileName = g_engine->getSavegameFilenameTemp(ConfMan.getInt("save_slot"));
+		SeekableReadStream* saveFile = g_system->getSavefileManager()->openForLoading(fileName);
+		_writeStream->writeSint32LE(kSaveTag);
+		_writeStream->writeSint32LE(saveFile->size());
+		uint32 count = 0;
+		uint32 readedSize = 0;
+		const uint32 buffSize = 4096;
+		byte buff[buffSize];
+		do {
+			readedSize = saveFile->read(buff, buffSize);
+			_writeStream->write(buff, readedSize);
+			count += readedSize;
+		} while (readedSize != 0);
+		debug("%d %d", count, saveFile->size());
+		delete saveFile;
+	} else {
+		debug("Not found");
 	}
 }
 

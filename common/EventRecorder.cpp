@@ -354,7 +354,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 		return;
 	}
 	if (_recordMode == kRecorderPlayback) {
-		applyPlaybackSettings();
+//		applyPlaybackSettings();
 		_nextEvent = _playbackFile.getNextEvent();
 	}
 	if (_recordMode == kRecorderRecord) {
@@ -589,7 +589,7 @@ void EventRecorder::takeScreenshot() {
 }
 
 Common::SeekableReadStream * EventRecorder::getSaveStream() {
-	return new MemoryReadStream(saveBuffer, 0);
+	return _playbackFile.getSaveStream();
 }
 
 } // End of namespace Common

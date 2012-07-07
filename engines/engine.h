@@ -29,6 +29,8 @@
 
 class OSystem;
 
+#define kRecorderSlot 6666
+
 namespace Audio {
 class Mixer;
 }
@@ -315,11 +317,12 @@ public:
 	/** On some systems, check if the game appears to be run from CD. */
 	void checkCD();
 
-protected:
-
 	virtual Common::String getSavegameFilenameTemp(int num) {
 		return Common::String();
 	}
+
+protected:
+
 
 	/**
 	 * Indicate whether an autosave should be performed.

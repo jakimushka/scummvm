@@ -55,7 +55,8 @@ class PlaybackFile {
 		kSettingsRecordTag = MKTAG('S','R','E','C'),
 		kSettingsRecordKeyTag = MKTAG('S','K','E','Y'),
 		kSettingsRecordValueTag = MKTAG('S','V','A','L'),
-		kMD5Tag = MKTAG('M','D','5',' ')
+		kMD5Tag = MKTAG('M','D','5',' '),
+		kSaveTag = MKTAG('S','A','V','E')
 	};
 	struct ChunkHeader {
 		FileTag id;
@@ -85,7 +86,10 @@ public:
 	int getScreensCount();
 	Graphics::Surface *getScreenShot(int number);
 	void updateHeader();
+	Common::SeekableReadStream *getSaveStream();
 private:
+	byte* _saveFile;
+	uint32 _saveFileSize;
 	PlaybackFileHeader _header;
 	int _recordCount;
 	int _headerDumped;
@@ -101,6 +105,7 @@ private:
 	void skipHeader();
 	void writeGameSettings();
 	void writeHeaderSection();
+	void writeSaveGame();
 	void writeGameHash();
 	void writeRandomRecords();
 	bool parseHeader();

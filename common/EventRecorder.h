@@ -108,7 +108,6 @@ public:
 	void RegisterEventSource();
 	Common::String generateRecordFileName(const String &target);
 private:	
-	byte *saveBuffer;
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
 	bool _initialized;
 	void setGameMd5(const ADGameDescription *gameDesc);
