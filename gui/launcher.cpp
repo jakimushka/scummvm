@@ -995,10 +995,6 @@ void LauncherDialog::recordGame(int item) {
 	case RecorderDialog::kRecordDialogClose:
 		break;
 	case RecorderDialog::kRecordDialogPlayback:
-		ConfMan.setActiveDomain(_domains[item]);
-		if (alert.runModal() == GUI::kMessageOK) {
-			loadGame(item);
-		}
 		close();
 		ConfMan.set("record-mode", "playback");
 		ConfMan.set("record-file-name", recorderDialog.getFileName());
