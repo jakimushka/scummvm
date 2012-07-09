@@ -960,7 +960,7 @@ void CineEngine::makeSaveOS(Common::OutSaveFile &out) {
 	saveBgIncrustList(out);
 }
 
-void CineEngine::makeSave(char *saveFileName) {
+void CineEngine::makeSave(const char *saveFileName) {
 	Common::SharedPtr<Common::OutSaveFile> fHandle(_saveFileMan->openForSaving(saveFileName));
 
 	setMouseCursor(MOUSE_CURSOR_DISK);

@@ -142,7 +142,8 @@ public:
 	GUI::Debugger *getDebugger() { return _console; }
 
 	bool _restartRequested;
-	virtual Common::String getSavegameFilenameTemp(int slot);
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
 private:
 	void initialize();
 	void resetEngine();
@@ -151,7 +152,7 @@ private:
 	bool makeLoad(const Common::String &saveName);
 	void makeSaveFW(Common::OutSaveFile &out);
 	void makeSaveOS(Common::OutSaveFile &out);
-	void makeSave(char *saveFileName);
+	void makeSave(const char *saveFileName);
 	void mainLoop(int bootScriptIdx);
 	void readVolCnf();
 

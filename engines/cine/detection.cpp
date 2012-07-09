@@ -198,10 +198,7 @@ void CineMetaEngine::removeSaveState(const char *target, int slot) const {
 	delete out;
 
 	// Delete save file
-	char saveFileName[256];
-	sprintf(saveFileName, "%s.%1d", target, slot);
-
-	g_system->getSavefileManager()->removeSavefile(saveFileName);
+	g_system->getSavefileManager()->removeSavefile(Cine::CineEngine::internalGetSaveName(target, slot));
 }
 
 #if PLUGIN_ENABLED_DYNAMIC(CINE)
@@ -212,12 +209,16 @@ void CineMetaEngine::removeSaveState(const char *target, int slot) const {
 
 namespace Cine {
 
-Common::String CineEngine::getSavegameFilenameTemp(int slot) {
-	return Common::String::format("%s.%1d", _targetName.c_str(), slot);
+Common::String CineEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
+}
+
+Common::String CineEngine::internalGetSaveName(Common::String target, int slot) {
+	return Common::String::format("%s.%1d", target.c_str(), slot);
 }
 
 Common::Error CineEngine::loadGameState(int slot) {
-	bool gameLoaded = makeLoad(getSavegameFilenameTemp(slot).c_str());
+	bool gameLoaded = makeLoad(getSavegameFilenameTemp(_targetName, slot).c_str());
 
 	return gameLoaded ? Common::kNoError : Common::kUnknownError;
 }
@@ -243,9 +244,7 @@ Common::Error CineEngine::saveGameState(int slot, const Common::String &desc) {
 	delete fHandle;
 
 	// Save game
-	char saveFileName[256];
-	sprintf(saveFileName, "%s.%1d", _targetName.c_str(), slot);
-	makeSave(saveFileName);
+	makeSave(Cine::CineEngine::internalGetSaveName(_targetName, slot).c_str());
 
 	checkDataDisk(-1);
 
