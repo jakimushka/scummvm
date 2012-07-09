@@ -489,7 +489,7 @@ void DreamWebEngine::savePosition(unsigned int slot, const char *descbuf) {
 	madeUpRoom.facing = _facing;
 	madeUpRoom.b27 = 255;
 
-	Common::String filename = getSavegameFilename(slot);
+	Common::String filename = getSavegameFilenameTemp("DREAMWEB" ,slot);
 	debug(1, "savePosition: slot %d filename %s", slot, filename.c_str());
 	Common::OutSaveFile *outSaveFile = getSaveFileManager()->openForSaving(filename);
 	if (!outSaveFile)	// TODO: Do proper error handling!
@@ -567,7 +567,7 @@ void DreamWebEngine::loadPosition(unsigned int slot) {
 	_timeCount = 0;
 	clearChanges();
 
-	Common::String filename = getSavegameFilename(slot);
+	Common::String filename = internalGetSaveName("DREAMWEB", slot);
 	debug(1, "loadPosition: slot %d filename %s", slot, filename.c_str());
 	Common::InSaveFile *inSaveFile = getSaveFileManager()->openForLoading(filename);
 	if (!inSaveFile)	// TODO: Do proper error handling!

@@ -387,13 +387,17 @@ void DreamWebEngine::setSpeed(uint speed) {
 	_timer->installTimerProc(vSyncInterrupt, 1000000 / 70 / speed, this, "dreamwebVSync");
 }
 
-Common::String DreamWebEngine::getSavegameFilename(int slot) const {
+Common::String DreamWebEngine::internalGetSaveName(Common::String target, int slot) {
 	// TODO: Are saves from all versions of Dreamweb compatible with each other?
 	// Then we can can consider keeping the filenames as DREAMWEB.Dnn.
 	// Otherwise, this must be changed to be target dependent.
 	//Common::String filename = _targetName + Common::String::format(".d%02d", savegameId);
 	Common::String filename = Common::String::format("DREAMWEB.D%02d", slot);
 	return filename;
+}
+
+Common::String DreamWebEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
 }
 
 void DreamWebEngine::keyPressed(uint16 ascii) {
