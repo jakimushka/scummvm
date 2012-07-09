@@ -2636,7 +2636,7 @@ bool GUI_EoB::transferFileMenu(Common::String &targetName, Common::String &selec
 			messageDialogue(11, 65, 6);
 		else {
 			_screen->modifyScreenDim(11, xo, yo, dm->w, dm->h);
-			selection = _vm->getSavegameFilename(targetName, _saveSlotIdTemp[slot]);
+			selection = _vm->internalGetSaveName(targetName, _saveSlotIdTemp[slot]);
 			return true;
 		}
 	} while (_saveSlotIdTemp[slot] == -1);

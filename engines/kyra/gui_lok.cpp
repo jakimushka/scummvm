@@ -573,7 +573,7 @@ void GUI_LoK::setupSavegames(Menu &menu, int num) {
 
 	KyraEngine_LoK::SaveHeader header;
 	for (int i = startSlot; i < num && uint(_savegameOffset + i) < _saveSlots.size(); i++) {
-		if ((in = _vm->openSaveForReading(_vm->getSavegameFilenameTemp(_saveSlots[i + _savegameOffset]).c_str(), header))) {
+		if ((in = _vm->openSaveForReading(_vm->getSavegameFilenameTemp(_vm->getTargetName(), _saveSlots[i + _savegameOffset]).c_str(), header))) {
 			Common::strlcpy(_savegameNames[i], header.description.c_str(), ARRAYSIZE(_savegameNames[0]));
 
 			// Trim long GMM save descriptions to fit our save slots

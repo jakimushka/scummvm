@@ -31,7 +31,7 @@
 namespace Kyra {
 
 Common::Error KyraEngine_LoK::loadGameState(int slot) {
-	const char *fileName = getSavegameFilenameTemp(slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(_targetName, slot).c_str();
 
 	SaveHeader header;
 	Common::InSaveFile *in = openSaveForReading(fileName, header);
@@ -236,7 +236,7 @@ Common::Error KyraEngine_LoK::loadGameState(int slot) {
 }
 
 Common::Error KyraEngine_LoK::saveGameStateIntern(int slot, const char *saveName, const Graphics::Surface *thumb) {
-	const char *fileName = getSavegameFilenameTemp(slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(_targetName, slot).c_str();
 
 	if (shouldQuit())
 		return Common::kNoError;

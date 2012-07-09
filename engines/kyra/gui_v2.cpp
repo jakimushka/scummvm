@@ -452,7 +452,7 @@ void GUI_v2::setupSavegameNames(Menu &menu, int num) {
 	KyraEngine_v2::SaveHeader header;
 	Common::InSaveFile *in;
 	for (int i = startSlot; i < num && uint(_savegameOffset + i) < _saveSlots.size(); ++i) {
-		if ((in = _vm->openSaveForReading(_vm->getSavegameFilenameTemp(_saveSlots[i + _savegameOffset]).c_str(), header)) != 0) {
+		if ((in = _vm->openSaveForReading(_vm->getSavegameFilenameTemp(_vm->getTargetName(), _saveSlots[i + _savegameOffset]).c_str(), header)) != 0) {
 			char *s = getTableString(menu.item[i].itemId);
 			Common::strlcpy(s, header.description.c_str(), 80);
 			Util::convertISOToDOS(s);
@@ -728,7 +728,7 @@ int GUI_v2::deleteMenu(Button *caller) {
 	backUpPage1(_vm->_screenBuffer);
 	initMenu(*_currentMenu);
 	updateAllMenuButtons();
-	_vm->_saveFileMan->removeSavefile(_vm->getSavegameFilenameTemp(_slotToDelete).c_str());
+	_vm->_saveFileMan->removeSavefile(_vm->getSavegameFilenameTemp(_vm->getTargetName(), _slotToDelete).c_str());
 	Common::Array<int>::iterator i = Common::find(_saveSlots.begin(), _saveSlots.end(), _slotToDelete);
 	while (i != _saveSlots.end()) {
 		++i;
@@ -738,8 +738,8 @@ int GUI_v2::deleteMenu(Button *caller) {
 		// Also not rename quicksave slot filenames
 		if (*(i - 1) != *i || *i >= 990)
 			break;
-		Common::String oldName = _vm->getSavegameFilenameTemp(*i).c_str();
-		Common::String newName = _vm->getSavegameFilenameTemp(*i - 1).c_str();
+		Common::String oldName = _vm->getSavegameFilenameTemp(_vm->getTargetName(), *i).c_str();
+		Common::String newName = _vm->getSavegameFilenameTemp(_vm->getTargetName(), *i - 1).c_str();
 		_vm->_saveFileMan->renameSavefile(oldName, newName);
 	}
 	_saveMenu.menuNameId = _vm->gameFlags().isTalkie ? 9 : 17;

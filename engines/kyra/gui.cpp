@@ -84,7 +84,7 @@ int GUI::getNextSavegameSlot() {
 	int start = _vm->game() == GI_LOL ? 0 : 1;
 
 	for (int i = start; i < 990; i++) {
-		if ((in = _vm->_saveFileMan->openForLoading(_vm->getSavegameFilenameTemp(i).c_str())))
+		if ((in = _vm->_saveFileMan->openForLoading(_vm->getSavegameFilenameTemp(_vm->getTargetName(), i).c_str())))
 			delete in;
 		else
 			return i;
@@ -120,7 +120,7 @@ void GUI::updateSaveSlotsList(Common::String targetName, bool force) {
 		memset(_savegameList, 0, _savegameListSize * sizeof(char *));
 
 		for (int i = 0; i < numSaves; i++) {
-			in = _vm->openSaveForReading(_vm->getSavegameFilename(targetName, _saveSlots[i]).c_str(), header, targetName == _vm->_targetName);
+			in = _vm->openSaveForReading(_vm->internalGetSaveName(targetName, _saveSlots[i]).c_str(), header, targetName == _vm->_targetName);
 			char **listEntry = &_savegameList[allowEmptySlots ? _saveSlots[i] : i];
 			if (in) {
 				*listEntry = new char[header.description.size() + 1];
