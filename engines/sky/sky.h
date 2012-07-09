@@ -96,7 +96,7 @@ public:
 
 	static SystemVars _systemVars;
 
-	static Common::String SkyEngine::CalculateSaveName(int slot);
+	static Common::String CalculateSaveName(int slot);
 
 	Common::String getSavegameFilenameTemp(int slot);
 
