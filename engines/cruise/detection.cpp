@@ -276,12 +276,12 @@ SaveStateList CruiseMetaEngine::listSaves(const char *target) const {
 }
 
 void CruiseMetaEngine::removeSaveState(const char *target, int slot) const {
-	g_system->getSavefileManager()->removeSavefile(Cruise::CruiseEngine::getSavegameFile(slot));
+	g_system->getSavefileManager()->removeSavefile(Cruise::CruiseEngine::internalGetSaveName(target, slot));
 }
 
 SaveStateDescriptor CruiseMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
 	Common::InSaveFile *f = g_system->getSavefileManager()->openForLoading(
-		Cruise::CruiseEngine::getSavegameFile(slot));
+		Cruise::CruiseEngine::internalGetSaveName(target, slot));
 	
 	if (f) {
 		Cruise::CruiseSavegameHeader header;
