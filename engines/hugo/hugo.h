@@ -306,7 +306,9 @@ public:
 	bool hasFeature(EngineFeature f) const;
 	const char *getCopyrightString() const;
 
-	Common::String getSavegameFilenameTemp(int slot);
+	Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
+	Common::String getTargetName();
 	uint16 **loadLongArray(Common::SeekableReadStream &in);
 
 	FileManager *_file;

@@ -222,7 +222,7 @@ SaveStateList HugoMetaEngine::listSaves(const char *target) const {
 }
 
 SaveStateDescriptor HugoMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	Common::String fileName = Common::String::format("%s-%02d.SAV", target, slot);
+	Common::String fileName = Hugo::HugoEngine::internalGetSaveName(target, slot);
 	Common::InSaveFile *file = g_system->getSavefileManager()->openForLoading(fileName);
 
 	if (file) {
@@ -273,7 +273,7 @@ SaveStateDescriptor HugoMetaEngine::querySaveMetaInfos(const char *target, int s
 }
 
 void HugoMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String fileName = Common::String::format("%s-%02d.SAV", target, slot);
+	Common::String fileName = Hugo::HugoEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(fileName);
 }
 } // End of namespace Hugo
