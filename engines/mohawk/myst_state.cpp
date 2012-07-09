@@ -76,10 +76,6 @@ MystGameState::MystGameState(MohawkEngine_Myst *vm, Common::SaveFileManager *sav
 MystGameState::~MystGameState() {
 }
 
-Common::StringArray MystGameState::generateSaveGameList() {
-	return _saveFileMan->listSavefiles("*.mys");
-}
-
 bool MystGameState::load(const Common::String &filename) {
 	Common::InSaveFile *loadFile = _saveFileMan->openForLoading(filename);
 	if (!loadFile)

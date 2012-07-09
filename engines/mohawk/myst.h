@@ -150,9 +150,9 @@ public:
 	Common::SeekableReadStream *getResource(uint32 tag, uint16 id);
 
 	Common::String wrapMovieFilename(const Common::String &movieName, uint16 stack);
-
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
 	void reloadSaveList();
-
+	Common::StringArray generateSaveGameList();
 	void changeToStack(uint16 stack, uint16 card, uint16 linkSrcSound, uint16 linkDstSound);
 	void changeToCard(uint16 card, bool updateScreen);
 	uint16 getCurCard() { return _curCard; }

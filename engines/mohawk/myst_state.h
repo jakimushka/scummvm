@@ -40,7 +40,6 @@ public:
 	MystGameState(MohawkEngine_Myst*, Common::SaveFileManager*);
 	~MystGameState();
 
-	Common::StringArray generateSaveGameList();
 	bool load(const Common::String &);
 	bool save(const Common::String &);
 	void deleteSave(const Common::String &);

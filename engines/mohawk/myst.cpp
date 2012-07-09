@@ -264,7 +264,7 @@ Common::Error MohawkEngine_Myst::run() {
 	// Load game from launcher/command line if requested
 	if (ConfMan.hasKey("save_slot") && canLoadGameStateCurrently()) {
 		uint32 gameToLoad = ConfMan.getInt("save_slot");
-		Common::StringArray savedGamesList = _gameState->generateSaveGameList();
+		Common::StringArray savedGamesList = generateSaveGameList();
 		if (gameToLoad > savedGamesList.size())
 			error ("Could not find saved game");
 		_gameState->load(savedGamesList[gameToLoad]);
@@ -1174,14 +1174,14 @@ void MohawkEngine_Myst::loadResources() {
 }
 
 Common::Error MohawkEngine_Myst::loadGameState(int slot) {
-	if (_gameState->load(_gameState->generateSaveGameList()[slot]))
+	if (_gameState->load(generateSaveGameList()[slot]))
 		return Common::kNoError;
 
 	return Common::kUnknownError;
 }
 
 Common::Error MohawkEngine_Myst::saveGameState(int slot, const Common::String &desc) {
-	Common::StringArray saveList = _gameState->generateSaveGameList();
+	Common::StringArray saveList = generateSaveGameList();
 
 	if ((uint)slot < saveList.size())
 		_gameState->deleteSave(saveList[slot]);
@@ -1245,6 +1245,14 @@ void MohawkEngine_Myst::dropPage() {
 
     setMainCursor(kDefaultMystCursor);
     checkCursorHints();
+}
+
+Common::StringArray MohawkEngine_Myst::generateSaveGameList() {
+	return _saveFileMan->listSavefiles("*.mys");
+}
+
+Common::String MohawkEngine_Myst::getSavegameFilenameTemp(Common::String target, int slot) {
+	return generateSaveGameList()[slot];
 }
 
 } // End of namespace Mohawk
