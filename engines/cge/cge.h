@@ -131,7 +131,6 @@ private:
 	void writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader &header);
 	void syncGame(Common::SeekableReadStream *readStream, Common::WriteStream *writeStream, bool tiny);
 	bool savegameExists(int slotNumber);
-	virtual Common::String getSavegameFilenameTemp(int slot);
 public:
 	CGEEngine(OSystem *syst, const ADGameDescription *gameDescription);
 	~CGEEngine();
@@ -140,6 +139,8 @@ public:
 	virtual bool canSaveGameStateCurrently();
 	virtual Common::Error loadGameState(int slot);
 	virtual Common::Error saveGameState(int slot, const Common::String &desc);
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
 
 	static const int _maxSceneArr[5];
 	bool _quitFlag;

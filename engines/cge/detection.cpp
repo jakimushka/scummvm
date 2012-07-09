@@ -140,7 +140,7 @@ bool CGEMetaEngine::hasFeature(MetaEngineFeature f) const {
 }
 
 void CGEMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String fileName = Common::String::format("%s.%03d", target, slot);
+	Common::String fileName = CGE::CGEEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(fileName);
 }
 
@@ -193,7 +193,7 @@ SaveStateList CGEMetaEngine::listSaves(const char *target) const {
 }
 
 SaveStateDescriptor CGEMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	Common::String fileName = Common::String::format("%s.%03d", target, slot);
+	Common::String fileName = CGE::CGEEngine::internalGetSaveName(target, slot);
 	Common::InSaveFile *f = g_system->getSavefileManager()->openForLoading(fileName);
 	
 	if (f) {
