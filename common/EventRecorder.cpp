@@ -133,7 +133,6 @@ void EventRecorder::processMillis(uint32 &millis) {
 		return;
 	}
 	uint32 millisDelay;
-	uint32 audioTime = 0;
 	RecorderEvent timerEvent;
 	switch (_recordMode) {
 	case kRecorderRecord:
@@ -266,6 +265,8 @@ void EventRecorder::togglePause() {
 	case kRecorderPlaybackPause:
 		_recordMode = kRecorderPlayback;
 		debugC(3, kDebugLevelEventRec, "Resume");
+		break;
+	default:
 		break;
 	}
 }
