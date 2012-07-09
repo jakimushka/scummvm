@@ -197,9 +197,7 @@ SaveStateList QueenMetaEngine::listSaves(const char *target) const {
 }
 
 void QueenMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String filename = target;
-	filename += Common::String::format(".s%02d", slot);
-
+	Common::String filename = Common::String::format("queen.s%02d", slot);
 	g_system->getSavefileManager()->removeSavefile(filename);
 }
 
