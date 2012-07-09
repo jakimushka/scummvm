@@ -253,17 +253,12 @@ SaveStateList AgiMetaEngine::listSaves(const char *target) const {
 int AgiMetaEngine::getMaximumSaveSlot() const { return 999; }
 
 void AgiMetaEngine::removeSaveState(const char *target, int slot) const {
-	char fileName[MAXPATHLEN];
-	sprintf(fileName, "%s.%03d", target, slot);
-	g_system->getSavefileManager()->removeSavefile(fileName);
+	g_system->getSavefileManager()->removeSavefile(AgiEngine::internalGetSaveName(target, slot).c_str());
 }
 
 SaveStateDescriptor AgiMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
 	const uint32 AGIflag = MKTAG('A','G','I',':');
-	char fileName[MAXPATHLEN];
-	sprintf(fileName, "%s.%03d", target, slot);
-
-	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(fileName);
+	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(AgiEngine::internalGetSaveName(target, slot).c_str());
 
 	if (in) {
 		if (in->readUint32BE() != AGIflag) {
