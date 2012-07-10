@@ -147,12 +147,12 @@ SaveStateList DraciMetaEngine::listSaves(const char *target) const {
 }
 
 void DraciMetaEngine::removeSaveState(const char *target, int slot) const {
-	g_system->getSavefileManager()->removeSavefile(Draci::DraciEngine::getSavegameFile(slot));
+	g_system->getSavefileManager()->removeSavefile(Draci::DraciEngine::internalGetSaveName(target, slot));
 }
 
 SaveStateDescriptor DraciMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
 	Common::InSaveFile *f = g_system->getSavefileManager()->openForLoading(
-		Draci::DraciEngine::getSavegameFile(slot));
+		Draci::DraciEngine::internalGetSaveName(target, slot));
 	
 	if (f) {
 		Draci::DraciSavegameHeader header;
