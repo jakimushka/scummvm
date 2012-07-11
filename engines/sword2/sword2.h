@@ -224,7 +224,8 @@ public:
 	bool saveExists();
 	bool saveExists(uint16 slotNo);
 	uint32 restoreFromBuffer(byte *buffer, uint32 size);
-	virtual Common::String getSavegameFilenameTemp(int slotNo);
+	static Common::String internalGetSaveName(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
 	uint32 findBufferSize();
 
 	void startGame();
