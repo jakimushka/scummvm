@@ -791,10 +791,6 @@ bool SciEngine::hasMacIconBar() const {
 			(getGameId() == GID_KQ6 || getGameId() == GID_FREDDYPHARKAS);
 }
 
-Common::String SciEngine::getSavegameName(int nr) const {
-	return _targetName + Common::String::format(".%03d", nr);
-}
-
 Common::String SciEngine::getSavegamePattern() const {
 	return _targetName + ".???";
 }
