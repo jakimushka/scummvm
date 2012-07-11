@@ -78,13 +78,11 @@ private:
 	Room *_room;
 	FightsManager *_fights;
 	Common::RandomSource _rnd;
-
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
-	static Common::String internalGetSaveName(Common::String target, int slot);
-
 	const LureGameDescription *_gameDescription;
 
 public:
+	virtual Common::String getSavegameFilenameTemp(int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
 	LureEngine(OSystem *system, const LureGameDescription *gameDesc);
 	~LureEngine();
 	static LureEngine &getReference();

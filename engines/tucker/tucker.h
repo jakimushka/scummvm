@@ -278,7 +278,7 @@ public:
 	virtual Common::Error run();
 	virtual bool hasFeature(EngineFeature f) const;
 	GUI::Debugger *getDebugger() { return _console; }
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	static Common::String internalGetSaveName(Common::String target, int slot);
 
 protected:

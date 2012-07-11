@@ -489,7 +489,7 @@ void DreamWebEngine::savePosition(unsigned int slot, const char *descbuf) {
 	madeUpRoom.facing = _facing;
 	madeUpRoom.b27 = 255;
 
-	Common::String filename = getSavegameFilenameTemp("DREAMWEB" ,slot);
+	Common::String filename = getSavegameFilenameTemp(slot);
 	debug(1, "savePosition: slot %d filename %s", slot, filename.c_str());
 	Common::OutSaveFile *outSaveFile = getSaveFileManager()->openForSaving(filename);
 	if (!outSaveFile)	// TODO: Do proper error handling!

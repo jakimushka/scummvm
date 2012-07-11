@@ -69,7 +69,7 @@ void TuckerEngine::saveOrLoadGameStateData(S &s) {
 
 Common::Error TuckerEngine::loadGameState(int num) {
 	Common::Error ret = Common::kNoError;
-	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(num);
 	Common::InSaveFile *f = _saveFileMan->openForLoading(gameStateFileName);
 	if (f) {
 		uint16 version = f->readUint16LE();
@@ -95,7 +95,7 @@ Common::Error TuckerEngine::loadGameState(int num) {
 
 Common::Error TuckerEngine::saveGameState(int num, const Common::String &description) {
 	Common::Error ret = Common::kNoError;
-	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(num);
 	Common::OutSaveFile *f = _saveFileMan->openForSaving(gameStateFileName);
 	if (f) {
 		f->writeUint16LE(kCurrentGameStateVersion);

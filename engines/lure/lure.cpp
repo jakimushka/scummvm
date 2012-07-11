@@ -177,8 +177,8 @@ void LureEngine::pauseEngineIntern(bool pause) {
 	}
 }
 
-Common::String LureEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String LureEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String LureEngine::internalGetSaveName(Common::String target, int slot) {
@@ -187,7 +187,7 @@ Common::String LureEngine::internalGetSaveName(Common::String target, int slot) 
 
 bool LureEngine::saveGame(uint8 slotNumber, Common::String &caption) {
 	Common::WriteStream *f = this->_saveFileMan->openForSaving(
-		getSavegameFilenameTemp(_targetName, slotNumber).c_str());
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL)
 		return false;
 
@@ -211,7 +211,7 @@ bool LureEngine::saveGame(uint8 slotNumber, Common::String &caption) {
 
 bool LureEngine::loadGame(uint8 slotNumber) {
 	Common::ReadStream *f = this->_saveFileMan->openForLoading(
-		getSavegameFilenameTemp(_targetName, slotNumber).c_str());
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL)
 		return false;
 
@@ -272,7 +272,7 @@ void LureEngine::syncSoundSettings() {
 
 Common::String *LureEngine::detectSave(int slotNumber) {
 	Common::ReadStream *f = this->_saveFileMan->openForLoading(
-		getSavegameFilenameTemp(_targetName, slotNumber).c_str());
+		getSavegameFilenameTemp(slotNumber).c_str());
 	if (f == NULL) return NULL;
 	Common::String *result = NULL;
 

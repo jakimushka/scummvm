@@ -412,7 +412,7 @@ void AGOSEngine_Feeble::listSaveGamesFeeble() {
 				j--;
 			}
 
-			if (!(in = _saveFileMan->openForLoading(genSaveName(j))))
+			if (!(in = _saveFileMan->openForLoading(getSavegameFilenameTemp(j))))
 				break;
 			in->read(b, 100);
 			delete in;
@@ -444,7 +444,7 @@ void AGOSEngine_Feeble::saveUserGame(int slot) {
 	window->textRow = (slot + 1 - window->scrollY) * 15;
 	window->textColumn = 26;
 
-	if ((in = _saveFileMan->openForLoading(genSaveName(readVariable(55))))) {
+	if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(readVariable(55))))) {
 		in->read(name, 100);
 		delete in;
 	}

@@ -49,8 +49,8 @@
 
 namespace Sword2 {
 
-Common::String Sword2Engine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String Sword2Engine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String Sword2Engine::internalGetSaveName(Common::String target, int slot) {
@@ -130,7 +130,7 @@ uint32 Sword2Engine::saveGame(uint16 slotNo, const byte *desc) {
 }
 
 uint32 Sword2Engine::saveData(uint16 slotNo, byte *buffer, uint32 bufferSize) {
-	Common::String saveFileName = getSavegameFilenameTemp(_targetName, slotNo);
+	Common::String saveFileName = getSavegameFilenameTemp(slotNo);
 
 	Common::OutSaveFile *out;
 
@@ -208,7 +208,7 @@ uint32 Sword2Engine::restoreGame(uint16 slotNo) {
 }
 
 uint32 Sword2Engine::restoreData(uint16 slotNo, byte *buffer, uint32 bufferSize) {
-	Common::String saveFileName = getSavegameFilenameTemp(_targetName, slotNo);
+	Common::String saveFileName = getSavegameFilenameTemp(slotNo);
 
 	Common::InSaveFile *in;
 
@@ -373,7 +373,7 @@ uint32 Sword2Engine::restoreFromBuffer(byte *buffer, uint32 size) {
  */
 
 uint32 Sword2Engine::getSaveDescription(uint16 slotNo, byte *description) {
-	Common::String saveFileName = getSavegameFilenameTemp(_targetName, slotNo);
+	Common::String saveFileName = getSavegameFilenameTemp(slotNo);
 
 	Common::InSaveFile *in;
 
@@ -396,7 +396,7 @@ bool Sword2Engine::saveExists() {
 }
 
 bool Sword2Engine::saveExists(uint16 slotNo) {
-	Common::String saveFileName = getSavegameFilenameTemp(_targetName, slotNo);
+	Common::String saveFileName = getSavegameFilenameTemp(slotNo);
 	Common::InSaveFile *in;
 
 	if (!(in = _saveFileMan->openForLoading(saveFileName))) {

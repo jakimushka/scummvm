@@ -223,7 +223,7 @@ public:
 	void pauseEngineIntern(bool pause);
 	virtual GUI::Debugger *getDebugger();
 	Console *getSciDebugger();
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	static Common::String internalGetSaveName(Common::String target, int slot);
 	Common::Error loadGameState(int slot);
 	Common::Error saveGameState(int slot, const Common::String &desc);

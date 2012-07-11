@@ -36,7 +36,7 @@ namespace Kyra {
 Common::Error LoLEngine::loadGameState(int slot) {
 	const uint16 *cdf[] = { _charDefsMan, _charDefsWoman, _charDefsKieran, _charDefsMan, _charDefsAkshel };
 
-	const char *fileName = getSavegameFilenameTemp(_targetName, slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(slot).c_str();
 
 	SaveHeader header;
 	Common::InSaveFile *saveFile = openSaveForReading(fileName, header);
@@ -333,7 +333,7 @@ Common::Error LoLEngine::loadGameState(int slot) {
 }
 
 Common::Error LoLEngine::saveGameStateIntern(int slot, const char *saveName, const Graphics::Surface *thumbnail) {
-	const char *fileName = getSavegameFilenameTemp(_targetName, slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(slot).c_str();
 
 	Common::OutSaveFile *out = openSaveForWriting(fileName, saveName, thumbnail);
 	if (!out)

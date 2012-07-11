@@ -41,9 +41,10 @@ int AGOSEngine::countSaveGames() {
 	int slotNum;
 	bool marks[256];
 
-	char *prefix = genSaveName(998);
-	prefix[strlen(prefix)-3] = '*';
-	prefix[strlen(prefix)-2] = '\0';
+	Common::String prefix = getSavegameFilenameTemp(998).c_str();
+	prefix.setChar('*', prefix.size()-3);
+	prefix.setChar('\0', prefix.size()-2);
+
 	memset(marks, false, 256 * sizeof(bool));	//assume no savegames for this title
 	filenames = _saveFileMan->listSavefiles(prefix);
 
@@ -61,7 +62,7 @@ int AGOSEngine::countSaveGames() {
 
 	while (i < 256) {
 		if (marks[i] &&
-		    (f = _saveFileMan->openForLoading(genSaveName(i)))) {
+		    (f = _saveFileMan->openForLoading(getSavegameFilenameTemp(i)))) {
 			i++;
 			delete f;
 		} else
@@ -72,7 +73,7 @@ int AGOSEngine::countSaveGames() {
 }
 
 #ifdef ENABLE_AGOS2
-char *AGOSEngine_PuzzlePack::genSaveName(int slot) {
+Common::String AGOSEngine_PuzzlePack::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 
 	if (getGameId() == GID_DIMP)
@@ -83,26 +84,26 @@ char *AGOSEngine_PuzzlePack::genSaveName(int slot) {
 	return buf;
 }
 
-char *AGOSEngine_Feeble::genSaveName(int slot) {
+Common::String AGOSEngine_Feeble::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 	sprintf(buf, "feeble.%.3d", slot);
 	return buf;
 }
 #endif
 
-char *AGOSEngine_Simon2::genSaveName(int slot) {
+Common::String AGOSEngine_Simon2::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 	sprintf(buf, "simon2.%.3d", slot);
 	return buf;
 }
 
-char *AGOSEngine_Simon1::genSaveName(int slot) {
+Common::String AGOSEngine_Simon1::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 	sprintf(buf, "simon1.%.3d", slot);
 	return buf;
 }
 
-char *AGOSEngine_Waxworks::genSaveName(int slot) {
+Common::String AGOSEngine_Waxworks::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 
 	if (getPlatform() == Common::kPlatformPC)
@@ -113,7 +114,7 @@ char *AGOSEngine_Waxworks::genSaveName(int slot) {
 	return buf;
 }
 
-char *AGOSEngine_Elvira2::genSaveName(int slot) {
+Common::String AGOSEngine_Elvira2::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 
 	if (getPlatform() == Common::kPlatformPC)
@@ -124,13 +125,13 @@ char *AGOSEngine_Elvira2::genSaveName(int slot) {
 	return buf;
 }
 
-char *AGOSEngine_Elvira1::genSaveName(int slot) {
+Common::String AGOSEngine_Elvira1::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 	sprintf(buf, "elvira1.%.3d", slot);
 	return buf;
 }
 
-char *AGOSEngine::genSaveName(int slot) {
+Common::String AGOSEngine::getSavegameFilenameTemp(int slot) {
 	static char buf[20];
 	sprintf(buf, "pn.%.3d", slot);
 	return buf;
@@ -146,10 +147,10 @@ void AGOSEngine::quickLoadOrSave() {
 	bool success;
 	Common::String buf;
 
-	char *filename = genSaveName(_saveLoadSlot);
+	const char *filename = getSavegameFilenameTemp(_saveLoadSlot).c_str();
 	if (_saveLoadType == 2) {
 		Subroutine *sub;
-		success = loadGame(genSaveName(_saveLoadSlot));
+		success = loadGame(getSavegameFilenameTemp(_saveLoadSlot).c_str());
 		if (!success) {
 			buf = Common::String::format(_("Failed to load game state from file:\n\n%s"), filename);
 		} else if (getGameType() == GType_SIMON1 || getGameType() == GType_SIMON2) {
@@ -266,7 +267,7 @@ int16 AGOSEngine::matchSaveGame(const char *name, uint16 max) {
 
 	memset(dst, 0, sizeof(dst));
 	for (slot = 0; slot < max; slot++) {
-		if ((in = _saveFileMan->openForLoading(genSaveName(slot)))) {
+		if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot)))) {
 			in->read(dst, 8);
 			delete in;
 
@@ -360,7 +361,7 @@ restart:
 			if (slot < 0) {
 				fileError(_windowArray[4], false);
 			} else {
-				if (!loadGame(genSaveName(slot)))
+				if (!loadGame(getSavegameFilenameTemp(slot).c_str()))
 					fileError(_windowArray[4], false);
 			}
 		}
@@ -394,7 +395,7 @@ void AGOSEngine_Elvira2::listSaveGames(char *dst) {
 		window->textColumn = 0;
 		window->textColumnOffset = (getGameType() == GType_ELVIRA2) ? 4 : 0;
 		window->textLength = 0;
-		if ((in = _saveFileMan->openForLoading(genSaveName(slot++)))) {
+		if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot++)))) {
 			in->read(dst, 8);
 			delete in;
 
@@ -414,7 +415,7 @@ void AGOSEngine_Elvira2::listSaveGames(char *dst) {
 			window->textColumnOffset = 0;
 		}
 		window->textLength = 0;
-		if ((in = _saveFileMan->openForLoading(genSaveName(slot++)))) {
+		if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot++)))) {
 			in->read(dst, 8);
 			delete in;
 
@@ -429,7 +430,7 @@ void AGOSEngine_Elvira2::listSaveGames(char *dst) {
 		window->textColumn = 15;
 		window->textColumnOffset = (getGameType() == GType_ELVIRA2) ? 4 : 0;
 		window->textLength = 0;
-		if ((in = _saveFileMan->openForLoading(genSaveName(slot++)))) {
+		if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot++)))) {
 			in->read(dst, 8);
 			delete in;
 
@@ -534,7 +535,7 @@ void AGOSEngine_Elvira2::userGame(bool load) {
 	} else {
 		i = userGameGetKey(&b, buf, 128);
 		if (i != 225) {
-			if (!loadGame(genSaveName(_saveLoadRowCurPos + i)))
+			if (!loadGame(getSavegameFilenameTemp(_saveLoadRowCurPos + i).c_str()))
 				fileError(_windowArray[num], false);
 		}
 	}
@@ -597,7 +598,7 @@ void AGOSEngine_Simon1::listSaveGames(char *dst) {
 
 	slot = _saveLoadRowCurPos;
 	while (_saveLoadRowCurPos + 6 > slot) {
-		if (!(in = _saveFileMan->openForLoading(genSaveName(slot))))
+		if (!(in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot))))
 			break;
 
 		in->read(dst, 18);
@@ -629,7 +630,7 @@ void AGOSEngine_Simon1::listSaveGames(char *dst) {
 		}
 	} else {
 		if (_saveLoadRowCurPos + 6 == slot) {
-			if ((in = _saveFileMan->openForLoading(genSaveName(slot)))) {
+			if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(slot)))) {
 				slot++;
 				delete in;
 			}
@@ -805,7 +806,7 @@ restart:;
 		if (!saveGame(_saveLoadRowCurPos + result, buf + result * 18))
 			fileError(_windowArray[5], true);
 	} else {
-		if (!loadGame(genSaveName(_saveLoadRowCurPos + i)))
+		if (!loadGame(getSavegameFilenameTemp(_saveLoadRowCurPos + i).c_str()))
 			fileError(_windowArray[5], false);
 	}
 
@@ -1114,7 +1115,7 @@ bool AGOSEngine::saveGame(uint slot, const char *caption) {
 
 	_videoLockOut |= 0x100;
 
-	f = _saveFileMan->openForSaving(genSaveName(slot));
+	f = _saveFileMan->openForSaving(getSavegameFilenameTemp(slot));
 	if (f == NULL) {
 		_videoLockOut &= ~0x100;
 		return false;
@@ -1411,7 +1412,7 @@ bool AGOSEngine_Elvira2::saveGame(uint slot, const char *caption) {
 
 	_videoLockOut |= 0x100;
 
-	f = _saveFileMan->openForSaving(genSaveName(slot));
+	f = _saveFileMan->openForSaving(getSavegameFilenameTemp(slot));
 	if (f == NULL) {
 		_videoLockOut &= ~0x100;
 		return false;

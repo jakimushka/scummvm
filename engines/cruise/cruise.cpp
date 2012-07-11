@@ -217,8 +217,8 @@ bool CruiseEngine::canSaveGameStateCurrently() {
 	return (playerMenuEnabled != 0) && (userEnabled != 0);
 }
 
-Common::String CruiseEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String CruiseEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName("", slot);
 }
 
 void CruiseEngine::syncSoundSettings() {

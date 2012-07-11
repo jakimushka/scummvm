@@ -88,7 +88,7 @@ void DrasculaEngine::saveSaveNames() {
 }
 
 Common::String DrasculaEngine::getSavegameFilenameTemp(int num) {
-	return Common::String::format("%s%02d", _targetName.c_str(), num);
+	return _targetName + Common::String::format("%02d", num);
 }
 
 bool DrasculaEngine::saveLoadScreen() {

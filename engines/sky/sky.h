@@ -98,7 +98,7 @@ public:
 
 	static Common::String internalGetSaveName(Common::String target, int slot);
 
-	Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	Common::String getSavegameFilenameTemp(int slot);
 
 
 protected:

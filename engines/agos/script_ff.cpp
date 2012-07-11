@@ -422,7 +422,7 @@ void AGOSEngine_Feeble::off_loadUserGame() {
 	if (readVariable(55) == 999) {
 		loadGame(getFileName(GAME_RESTFILE), true);
 	} else {
-		loadGame(genSaveName(readVariable(55)));
+		loadGame(getSavegameFilenameTemp(readVariable(55)).c_str());
 	}
 }
 

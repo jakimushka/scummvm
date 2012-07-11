@@ -779,7 +779,7 @@ void initVars() {
 }
 
 Common::Error saveSavegameData(int saveGameIdx, const Common::String &saveName) {
-	const char *filename = _vm->getSavegameFilenameTemp("cruise", saveGameIdx).c_str();
+	const char *filename = _vm->getSavegameFilenameTemp(saveGameIdx).c_str();
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::OutSaveFile *f = saveMan->openForSaving(filename);
 	if (f == NULL)
@@ -811,7 +811,7 @@ Common::Error loadSavegameData(int saveGameIdx) {
 	cellStruct *currentcellHead;
 
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
-	Common::InSaveFile *f = saveMan->openForLoading(_vm->getSavegameFilenameTemp("cruise", saveGameIdx));
+	Common::InSaveFile *f = saveMan->openForLoading(_vm->getSavegameFilenameTemp(saveGameIdx));
 
 	if (f == NULL) {
 		printInfoBlackBox("Savegame not found...");

@@ -1086,7 +1086,6 @@ void Control::doAutoSave() {
 
 	Common::String fName = SkyEngine::internalGetSaveName("", 0).c_str();
 	uint16 res = saveGameToFile(false, fName.c_str());
-
 	if (res != GAME_SAVED)
 		displayMessage(0, "Unable to perform autosave to '%s'. (%s)", fName.c_str(), _saveFileMan->popErrorDesc().c_str());
 

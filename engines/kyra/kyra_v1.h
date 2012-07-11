@@ -398,8 +398,7 @@ protected:
 	bool canLoadGameStateCurrently() { return _isSaveAllowed; }
 	bool canSaveGameStateCurrently() { return _isSaveAllowed; }
 
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
-	Common::String getTargetName();
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	Common::String _savegameFilename;
 	static Common::String internalGetSaveName(const Common::String &target, int num);
 	bool saveFileLoadable(int slot);

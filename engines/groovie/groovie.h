@@ -102,8 +102,7 @@ protected:
 
 public:
 	void waitForInput();
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
-
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	Graphics::PixelFormat _pixelFormat;
 	bool _mode8bit;
 	Script *_script;

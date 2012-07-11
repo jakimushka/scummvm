@@ -480,8 +480,8 @@ void SkyEngine::showGrid()
 	}
 }
 
-Common::String SkyEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String SkyEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String SkyEngine::internalGetSaveName(Common::String target, int slot) {

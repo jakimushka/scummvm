@@ -3311,8 +3311,8 @@ Common::String ToucheEngine::internalGetSaveName(Common::String target, int slot
 	return target + Common::String::format(".%d", slot);
 }
 
-Common::String ToucheEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String ToucheEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 } // namespace Touche

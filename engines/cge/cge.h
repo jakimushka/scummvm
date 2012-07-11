@@ -139,9 +139,8 @@ public:
 	virtual bool canSaveGameStateCurrently();
 	virtual Common::Error loadGameState(int slot);
 	virtual Common::Error saveGameState(int slot, const Common::String &desc);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	static Common::String internalGetSaveName(Common::String target, int slot);
-
 	static const int _maxSceneArr[5];
 	bool _quitFlag;
 	bool _showBoundariesFl;

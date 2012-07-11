@@ -209,16 +209,17 @@ void CineMetaEngine::removeSaveState(const char *target, int slot) const {
 
 namespace Cine {
 
-Common::String CineEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String CineEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String CineEngine::internalGetSaveName(Common::String target, int slot) {
-	return Common::String::format("%s.%1d", target.c_str(), slot);
+	return target + Common::String::format(".%1d", slot);
 }
 
+
 Common::Error CineEngine::loadGameState(int slot) {
-	bool gameLoaded = makeLoad(getSavegameFilenameTemp(_targetName, slot).c_str());
+	bool gameLoaded = makeLoad(getSavegameFilenameTemp(slot).c_str());
 
 	return gameLoaded ? Common::kNoError : Common::kUnknownError;
 }

@@ -171,7 +171,7 @@ Common::Error MohawkEngine_Riven::run() {
 			error ("Could not find saved game");
 
 		// Attempt to load the game. On failure, just send us to the main menu.
-		if (_saveLoad->loadGame(savedGamesList[gameToLoad]).getCode() != Common::kNoError) {
+		if (_saveLoad->loadGame(getSavegameFilenameTemp(gameToLoad)).getCode() != Common::kNoError) {
 			changeToStack(aspit);
 			changeToCard(1);
 		}
@@ -729,14 +729,14 @@ void MohawkEngine_Riven::runLoadDialog() {
 }
 
 Common::Error MohawkEngine_Riven::loadGameState(int slot) {
-	return _saveLoad->loadGame(_saveLoad->generateSaveGameList()[slot]);
+	return _saveLoad->loadGame(getSavegameFilenameTemp(slot));
 }
 
 Common::Error MohawkEngine_Riven::saveGameState(int slot, const Common::String &desc) {
 	Common::StringArray saveList = _saveLoad->generateSaveGameList();
 
 	if ((uint)slot < saveList.size())
-		_saveLoad->deleteSave(saveList[slot]);
+		_saveLoad->deleteSave(getSavegameFilenameTemp(slot));
 
 	return _saveLoad->saveGame(desc);
 }
@@ -1009,6 +1009,10 @@ void MohawkEngine_Riven::checkSunnerAlertClick() {
 		return;
 
 	sunners = 1;
+}
+
+Common::String MohawkEngine_Riven::getSavegameFilenameTemp(int slot) {
+	return _saveLoad->generateSaveGameList()[slot];
 }
 
 bool ZipMode::operator== (const ZipMode &z) const {

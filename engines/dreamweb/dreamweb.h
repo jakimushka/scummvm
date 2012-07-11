@@ -136,7 +136,7 @@ public:
 	void setPalette(const uint8 *data, uint start, uint count);
 
 	static Common::String internalGetSaveName(Common::String target, int slot);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	void setShakePos(int pos) { _system->setShakePos(pos); }
 	void printUnderMonitor();

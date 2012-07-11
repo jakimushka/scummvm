@@ -385,7 +385,7 @@ public:
 	GUI::Debugger *getDebugger() { return _console; }
 
 	static Common::String internalGetSaveName(Common::String target, int slot);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 protected:
 
 	void restart();

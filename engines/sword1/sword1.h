@@ -92,7 +92,7 @@ public:
 	static bool isPsx() { return _systemVars.platform == Common::kPlatformPSX; }
 	static bool isWindows() { return _systemVars.platform == Common::kPlatformWindows ; }
 	static Common::String internalGetSaveName(Common::String target, int slot);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 protected:
 	// Engine APIs

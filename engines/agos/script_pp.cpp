@@ -398,7 +398,7 @@ void AGOSEngine_PuzzlePack::opp_loadUserGame() {
 	}
 
 	// XXX
-	loadGame(genSaveName(1));
+	loadGame(getSavegameFilenameTemp(1).c_str());
 }
 
 void AGOSEngine_PuzzlePack::opp_playTune() {

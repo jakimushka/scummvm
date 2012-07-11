@@ -769,8 +769,8 @@ Common::String SwordEngine::internalGetSaveName(Common::String target, int slot)
 	return Common::String::format("sword1.%03d", slot);
 }
 
-Common::String SwordEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String SwordEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName("", slot);
 }
 
 } // End of namespace Sword1

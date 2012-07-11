@@ -252,9 +252,7 @@ SaveStateList LureMetaEngine::listSaves(const char *target) const {
 int LureMetaEngine::getMaximumSaveSlot() const { return 999; }
 
 void LureMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String filename = target;
-	filename += Common::String::format(".%03d", slot);
-
+	Common::String filename = Lure::LureEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(filename);
 }
 

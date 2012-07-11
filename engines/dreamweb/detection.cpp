@@ -152,12 +152,12 @@ SaveStateList DreamWebMetaEngine::listSaves(const char *target) const {
 int DreamWebMetaEngine::getMaximumSaveSlot() const { return 99; }
 
 void DreamWebMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String fileName = Common::String::format("DREAMWEB.D%02d", slot);
+	Common::String fileName = DreamWeb::DreamWebEngine::internalGetSaveName("", slot);
 	g_system->getSavefileManager()->removeSavefile(fileName);
 }
 
 SaveStateDescriptor DreamWebMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	Common::String filename = Common::String::format("DREAMWEB.D%02d", slot);
+	Common::String filename = DreamWeb::DreamWebEngine::internalGetSaveName("", slot);
 	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(filename.c_str());
 
 	if (in) {

@@ -135,6 +135,7 @@ public:
 	Common::Error loadGameState(int slot);
 	Common::Error saveGameState(int slot, const Common::String &desc);
 	bool hasFeature(EngineFeature f) const;
+	virtual Common::String getSavegameFilenameTemp(int slot);
 
 	typedef void (*TimerProc)(MohawkEngine_Riven *vm);
 

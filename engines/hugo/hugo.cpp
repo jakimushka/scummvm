@@ -703,8 +703,8 @@ void HugoEngine::syncSoundSettings() {
 	_sound->syncVolume();
 }
 
-Common::String HugoEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String HugoEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String HugoEngine::internalGetSaveName(Common::String target, int slot) {

@@ -82,7 +82,7 @@ void writeSavegameHeader(Common::OutSaveFile *out, const DraciSavegameHeader &he
 }
 
 Common::Error saveSavegameData(int saveGameIdx, const Common::String &saveName, DraciEngine &vm) {
-	Common::String filename = vm.getSavegameFilenameTemp("draci", saveGameIdx);
+	Common::String filename = vm.getSavegameFilenameTemp(saveGameIdx);
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::OutSaveFile *f = saveMan->openForSaving(filename);
 	if (f == NULL)
@@ -118,7 +118,7 @@ Common::Error loadSavegameData(int saveGameIdx, DraciEngine *vm) {
 	Common::String saveName;
 
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
-	Common::InSaveFile *f = saveMan->openForLoading(vm->getSavegameFilenameTemp("draci", saveGameIdx));
+	Common::InSaveFile *f = saveMan->openForLoading(vm->getSavegameFilenameTemp(saveGameIdx));
 
 	if (f == NULL) {
 		return Common::kNoGameDataFoundError;

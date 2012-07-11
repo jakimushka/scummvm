@@ -317,9 +317,7 @@ public:
 	/** On some systems, check if the game appears to be run from CD. */
 	void checkCD();
 
-	virtual Common::String getSavegameFilenameTemp(int num) {
-		return Common::String();
-	}
+	virtual Common::String getSavegameFilenameTemp(int num) = 0;
 
 protected:
 

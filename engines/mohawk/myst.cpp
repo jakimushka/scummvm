@@ -267,7 +267,7 @@ Common::Error MohawkEngine_Myst::run() {
 		Common::StringArray savedGamesList = generateSaveGameList();
 		if (gameToLoad > savedGamesList.size())
 			error ("Could not find saved game");
-		_gameState->load(savedGamesList[gameToLoad]);
+		_gameState->load(getSavegameFilenameTemp(gameToLoad));
 	} else {
 		// Start us on the first stack.
 		if (getGameType() == GType_MAKINGOF)
@@ -1174,7 +1174,7 @@ void MohawkEngine_Myst::loadResources() {
 }
 
 Common::Error MohawkEngine_Myst::loadGameState(int slot) {
-	if (_gameState->load(generateSaveGameList()[slot]))
+	if (_gameState->load(getSavegameFilenameTemp(slot)))
 		return Common::kNoError;
 
 	return Common::kUnknownError;
@@ -1184,7 +1184,7 @@ Common::Error MohawkEngine_Myst::saveGameState(int slot, const Common::String &d
 	Common::StringArray saveList = generateSaveGameList();
 
 	if ((uint)slot < saveList.size())
-		_gameState->deleteSave(saveList[slot]);
+		_gameState->deleteSave(getSavegameFilenameTemp(slot));
 
 	return _gameState->save(Common::String(desc)) ? Common::kNoError : Common::kUnknownError;
 }
@@ -1251,7 +1251,7 @@ Common::StringArray MohawkEngine_Myst::generateSaveGameList() {
 	return _saveFileMan->listSavefiles("*.mys");
 }
 
-Common::String MohawkEngine_Myst::getSavegameFilenameTemp(Common::String target, int slot) {
+Common::String MohawkEngine_Myst::getSavegameFilenameTemp(int slot) {
 	return generateSaveGameList()[slot];
 }
 

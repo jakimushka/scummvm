@@ -97,7 +97,7 @@ void KyraEngine_LoK::seq_intro() {
 	};
 
 	Common::InSaveFile *in;
-	if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(_targetName, 0).c_str()))) {
+	if ((in = _saveFileMan->openForLoading(getSavegameFilenameTemp(0).c_str()))) {
 		delete in;
 		_skipIntroFlag = true;
 	} else {

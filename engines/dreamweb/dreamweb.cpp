@@ -396,9 +396,10 @@ Common::String DreamWebEngine::internalGetSaveName(Common::String target, int sl
 	return filename;
 }
 
-Common::String DreamWebEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String DreamWebEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName("", slot);
 }
+
 
 void DreamWebEngine::keyPressed(uint16 ascii) {
 	debug(2, "key pressed = %04x", ascii);

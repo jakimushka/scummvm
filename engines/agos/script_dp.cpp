@@ -300,7 +300,7 @@ void AGOSEngine_DIMP::odp_saveUserGame() {
 
 void AGOSEngine_DIMP::odp_loadUserGame() {
 	// 133: load usergame
-	loadGame(genSaveName(1));
+	loadGame(getSavegameFilenameTemp(1).c_str());
 }
 
 } // End of namespace AGOS

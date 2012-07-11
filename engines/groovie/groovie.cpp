@@ -23,7 +23,6 @@
 #include "audio/mididrv.h"
 #include "audio/mixer.h"
 #include "groovie/saveload.h"
-
 #include "groovie/groovie.h"
 #include "groovie/cursor.h"
 #include "groovie/detection.h"
@@ -379,8 +378,8 @@ void GroovieEngine::waitForInput() {
 	_waitingForInput = true;
 }
 
-Common::String GroovieEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return SaveLoad::getSlotSaveName(target, slot);
+Common::String GroovieEngine::getSavegameFilenameTemp(int slot) {
+	return SaveLoad::getSlotSaveName(_targetName, slot);
 }
 
 } // End of namespace Groovie

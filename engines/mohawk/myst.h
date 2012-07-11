@@ -150,7 +150,7 @@ public:
 	Common::SeekableReadStream *getResource(uint32 tag, uint16 id);
 
 	Common::String wrapMovieFilename(const Common::String &movieName, uint16 stack);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	void reloadSaveList();
 	Common::StringArray generateSaveGameList();
 	void changeToStack(uint16 stack, uint16 card, uint16 linkSrcSound, uint16 linkDstSound);

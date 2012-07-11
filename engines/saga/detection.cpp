@@ -328,14 +328,14 @@ Common::Error SagaEngine::loadGameState(int slot) {
 	else
 		_interface->setMode(kPanelChapterSelection);
 
-	load(getSavegameFilenameTemp(_targetName, slot).c_str());
+	load(getSavegameFilenameTemp(slot).c_str());
 	syncSoundSettings();
 
 	return Common::kNoError;	// TODO: return success/failure
 }
 
 Common::Error SagaEngine::saveGameState(int slot, const Common::String &desc) {
-	save(getSavegameFilenameTemp(_targetName, slot).c_str(), desc.c_str());
+	save(getSavegameFilenameTemp(slot).c_str(), desc.c_str());
 	return Common::kNoError;	// TODO: return success/failure
 }
 

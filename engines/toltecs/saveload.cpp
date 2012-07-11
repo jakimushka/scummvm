@@ -204,19 +204,19 @@ void ToltecsEngine::loadgame(const char *filename) {
 }
 
 Common::Error ToltecsEngine::loadGameState(int slot) {
-	const char *fileName = internalGetSaveName(_targetName, slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(slot).c_str();
 	loadgame(fileName);
 	return Common::kNoError;
 }
 
 Common::Error ToltecsEngine::saveGameState(int slot, const Common::String &description) {
-	const char *fileName = internalGetSaveName(_targetName, slot).c_str();
+	const char *fileName = getSavegameFilenameTemp(slot).c_str();
 	savegame(fileName, description.c_str());
 	return Common::kNoError;
 }
 
-Common::String ToltecsEngine::getSavegameFilename(const Common::String target, int slot) {
-	return internalGetSaveName(target, slot);
+Common::String ToltecsEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
 }
 
 Common::String ToltecsEngine::internalGetSaveName(const Common::String target, int slot) {

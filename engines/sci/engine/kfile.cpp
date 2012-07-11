@@ -337,7 +337,7 @@ reg_t kDeviceInfo(EngineState *s, int argc, reg_t *argv) {
 		listSavegames(saves);
 		if (findSavegame(saves, savegameId) != -1) {
 			// Confirmed that this id still lives...
-			Common::String filename = g_sci->getSavegameName(savegameId);
+			Common::String filename = g_sci->getSavegameFilenameTemp(savegameId);
 			Common::SaveFileManager *saveFileMan = g_sci->getSaveFileManager();
 			saveFileMan->removeSavefile(filename);
 		}
@@ -464,7 +464,7 @@ bool Console::cmdListSaves(int argc, const char **argv) {
 	listSavegames(saves);
 
 	for (uint i = 0; i < saves.size(); i++) {
-		Common::String filename = g_sci->getSavegameName(saves[i].id);
+		Common::String filename = g_sci->getSavegameFilenameTemp(saves[i].id);
 		DebugPrintf("%s: '%s'\n", filename.c_str(), saves[i].name);
 	}
 
@@ -632,7 +632,7 @@ reg_t kSaveGame(EngineState *s, int argc, reg_t *argv) {
 
 	s->r_acc = NULL_REG;
 
-	Common::String filename = g_sci->getSavegameName(savegameId);
+	Common::String filename = g_sci->getSavegameFilenameTemp(savegameId);
 	Common::SaveFileManager *saveFileMan = g_sci->getSaveFileManager();
 	Common::OutSaveFile *out;
 
@@ -702,7 +702,7 @@ reg_t kRestoreGame(EngineState *s, int argc, reg_t *argv) {
 		warning("Savegame ID %d not found", savegameId);
 	} else {
 		Common::SaveFileManager *saveFileMan = g_sci->getSaveFileManager();
-		Common::String filename = g_sci->getSavegameName(savegameId);
+		Common::String filename = g_sci->getSavegameFilenameTemp(savegameId);
 		Common::SeekableReadStream *in;
 
 		in = saveFileMan->openForLoading(filename);
@@ -861,7 +861,7 @@ reg_t kFileIOUnlink(EngineState *s, int argc, reg_t *argv) {
 		Common::Array<SavegameDesc> saves;
 		listSavegames(saves);
 		int savedir_nr = saves[slotNum].id;
-		name = g_sci->getSavegameName(savedir_nr);
+		name = g_sci->getSavegameFilenameTemp(savedir_nr);
 		result = saveFileMan->removeSavefile(name);
 	} else {
 		const Common::String wrappedName = g_sci->wrapFilename(name);

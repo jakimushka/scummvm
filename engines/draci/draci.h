@@ -68,7 +68,7 @@ public:
 	void handleEvents();
 
 	static Common::String internalGetSaveName(Common::String target, int saveGameIdx);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(int slot);
 	virtual Common::Error loadGameState(int slot);
 	virtual bool canLoadGameStateCurrently();
 	virtual Common::Error saveGameState(int slot, const Common::String &desc);

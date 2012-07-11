@@ -334,7 +334,7 @@ Common::Error SagaEngine::run() {
 		else
 			_interface->setMode(kPanelChapterSelection);
 
-		load(getSavegameFilenameTemp(_targetName, ConfMan.getInt("save_slot")).c_str());
+		load(getSavegameFilenameTemp(ConfMan.getInt("save_slot")).c_str());
 		syncSoundSettings();
 	} else {
 		_framesEsc = 0;
