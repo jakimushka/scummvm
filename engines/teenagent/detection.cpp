@@ -117,10 +117,6 @@ public:
 		return desc != 0;
 	}
 
-	static Common::String generateGameStateFileName(const char *target, int slot) {
-		return Common::String::format("%s.%02d", target, slot);
-	}
-
 	virtual SaveStateList listSaves(const char *target) const {
 		Common::String pattern = target;
 		pattern += ".*";
@@ -152,12 +148,12 @@ public:
 	}
 
 	virtual void removeSaveState(const char *target, int slot) const {
-		Common::String filename = generateGameStateFileName(target, slot);
+		Common::String filename = TeenAgent::TeenAgentEngine::internalGetSaveName(target, slot);
 		g_system->getSavefileManager()->removeSavefile(filename);
 	}
 
 	virtual SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const {
-		Common::String filename = generateGameStateFileName(target, slot);
+		Common::String filename = TeenAgent::TeenAgentEngine::internalGetSaveName(target, slot);
 		Common::ScopedPtr<Common::InSaveFile> in(g_system->getSavefileManager()->openForLoading(filename));
 		if (!in)
 			return SaveStateDescriptor();
