@@ -594,14 +594,11 @@ protected:
 	void loadResource(Serializer *ser, ResType type, ResId idx);
 	void loadResourceOLD(Serializer *ser, ResType type, ResId idx);	// "Obsolete"
 
-	Common::String makeSavegameName(int slot, bool temporary) const {
-		return makeSavegameName(_targetName, slot, temporary);
-	}
-
 	int getKeyState(int key);
 public:
-	static Common::String makeSavegameName(const Common::String &target, int slot, bool temporary);
-	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	Common::String makeSavegameName(int slot, bool temporary);
+	virtual Common::String getSavegameFilenameTemp(int slot);
+	static Common::String internalGetSaveName(const Common::String &target, int slot);
 	bool getSavegameName(int slot, Common::String &desc);
 	void listSavegames(bool *marks, int num);
 

@@ -1233,12 +1233,12 @@ SaveStateList ScummMetaEngine::listSaves(const char *target) const {
 }
 
 void ScummMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String filename = ScummEngine::makeSavegameName(target, slot, false);
+	Common::String filename = ScummEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(filename);
 }
 
 SaveStateDescriptor ScummMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	Common::String filename = ScummEngine::makeSavegameName(target, slot, false);
+	Common::String filename = ScummEngine::internalGetSaveName(target, slot);
 	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(filename);
 
 	if (!in)

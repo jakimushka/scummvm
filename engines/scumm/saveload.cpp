@@ -587,10 +587,12 @@ bool ScummEngine::loadState(int slot, bool compat) {
 	return true;
 }
 
-Common::String ScummEngine::makeSavegameName(const Common::String &target, int slot, bool temporary) {
-	Common::String extension;
-	extension = Common::String::format(".%c%02d", temporary ? 'c' : 's', slot);
-	return target + extension;
+Common::String ScummEngine::makeSavegameName(int slot, bool temporary) {
+	if (temporary) {
+		return _targetName + Common::String::format(".c%02d", slot);
+	} else {
+		return getSavegameFilenameTemp(slot);
+	}
 }
 
 void ScummEngine::listSavegames(bool *marks, int num) {
@@ -667,7 +669,7 @@ Graphics::Surface *ScummEngine::loadThumbnailFromSlot(const char *target, int sl
 	if (slot < 0)
 		return 0;
 
-	Common::String filename = ScummEngine::makeSavegameName(target, slot, false);
+	Common::String filename = ScummEngine::internalGetSaveName(target, slot);
 	if (!(in = g_system->getSavefileManager()->openForLoading(filename))) {
 		return 0;
 	}
@@ -700,7 +702,7 @@ bool ScummEngine::loadInfosFromSlot(const char *target, int slot, SaveStateMetaI
 	if (slot < 0)
 		return 0;
 
-	Common::String filename = makeSavegameName(target, slot, false);
+	Common::String filename = internalGetSaveName(target, slot);
 	if (!(in = g_system->getSavefileManager()->openForLoading(filename))) {
 		return false;
 	}

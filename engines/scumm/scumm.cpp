@@ -2621,8 +2621,12 @@ void ScummEngine::errorString(const char *buf1, char *buf2, int buf2Size) {
 	}
 }
 
-Common::String ScummEngine::getSavegameFilenameTemp(Common::String target, int slot) {
-	return makeSavegameName(slot, false);
+Common::String ScummEngine::getSavegameFilenameTemp(int slot) {
+	return internalGetSaveName(_targetName, slot);
+}
+
+Common::String ScummEngine::internalGetSaveName(const Common::String &target, int slot) {
+	return target + Common::String::format(".s%02d", slot);
 }
 
 
