@@ -204,30 +204,24 @@ void ToltecsEngine::loadgame(const char *filename) {
 }
 
 Common::Error ToltecsEngine::loadGameState(int slot) {
-	const char *fileName = getSavegameFilename(slot);
+	const char *fileName = internalGetSaveName(_targetName, slot).c_str();
 	loadgame(fileName);
 	return Common::kNoError;
 }
 
 Common::Error ToltecsEngine::saveGameState(int slot, const Common::String &description) {
-	const char *fileName = getSavegameFilename(slot);
+	const char *fileName = internalGetSaveName(_targetName, slot).c_str();
 	savegame(fileName, description.c_str());
 	return Common::kNoError;
 }
 
-const char *ToltecsEngine::getSavegameFilename(int num) {
-	static Common::String filename;
-	filename = getSavegameFilename(_targetName, num);
-	return filename.c_str();
+Common::String ToltecsEngine::getSavegameFilename(const Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
 }
 
-Common::String ToltecsEngine::getSavegameFilename(const Common::String &target, int num) {
-	assert(num >= 0 && num <= 999);
-
-	char extension[5];
-	sprintf(extension, "%03d", num);
-
-	return target + "." + extension;
+Common::String ToltecsEngine::internalGetSaveName(const Common::String target, int slot) {
+	assert(slot >= 0 && slot <= 999);
+	return target + Common::String::format(".%03d", slot);
 }
 
 } // End of namespace Toltecs

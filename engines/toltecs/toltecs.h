@@ -203,8 +203,9 @@ public:
 	void savegame(const char *filename, const char *description);
 	void loadgame(const char *filename);
 
-	const char *getSavegameFilename(int num);
-	static Common::String getSavegameFilename(const Common::String &target, int num);
+
+	virtual Common::String getSavegameFilename(const Common::String target, int slot);
+	static Common::String internalGetSaveName(const Common::String target, int slot);
 
 	static kReadSaveHeaderError readSaveHeader(Common::SeekableReadStream *in, bool loadThumbnail, SaveHeader &header);
 

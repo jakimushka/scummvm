@@ -237,7 +237,7 @@ int ToltecsMetaEngine::getMaximumSaveSlot() const {
 
 void ToltecsMetaEngine::removeSaveState(const char *target, int slot) const {
 	Common::SaveFileManager *saveFileMan = g_system->getSavefileManager();
-	Common::String filename = Toltecs::ToltecsEngine::getSavegameFilename(target, slot);
+	Common::String filename = Toltecs::ToltecsEngine::internalGetSaveName(target, slot);
 
 	saveFileMan->removeSavefile(filename.c_str());
 
@@ -254,13 +254,13 @@ void ToltecsMetaEngine::removeSaveState(const char *target, int slot) const {
 		// Rename every slot greater than the deleted slot,
 		if (slotNum > slot) {
 			saveFileMan->renameSavefile(file->c_str(), filename.c_str());
-			filename = Toltecs::ToltecsEngine::getSavegameFilename(target, ++slot);
+			filename = Toltecs::ToltecsEngine::internalGetSaveName(target, ++slot);
 		}
 	}
 }
 
 SaveStateDescriptor ToltecsMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	Common::String filename = Toltecs::ToltecsEngine::getSavegameFilename(target, slot);
+	Common::String filename = Toltecs::ToltecsEngine::internalGetSaveName(target, slot);
 	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(filename.c_str());
 
 	if (in) {
