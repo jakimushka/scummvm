@@ -798,7 +798,7 @@ uint16 Control::shiftUp(uint8 speed) {
 bool Control::autoSaveExists() {
 	bool test = false;
 	Common::InSaveFile *f;
-	f = _saveFileMan->openForLoading(SkyEngine::CalculateSaveName(0).c_str());
+	f = _saveFileMan->openForLoading(SkyEngine::internalGetSaveName("", 0).c_str());
 	if (f != NULL) {
 		test = true;
 		delete f;
@@ -1084,7 +1084,7 @@ void Control::saveDescriptions(const Common::StringArray &list) {
 
 void Control::doAutoSave() {
 
-	Common::String fName = SkyEngine::CalculateSaveName(0).c_str();
+	Common::String fName = SkyEngine::internalGetSaveName("", 0).c_str();
 	uint16 res = saveGameToFile(false, fName.c_str());
 
 	if (res != GAME_SAVED)
@@ -1095,7 +1095,7 @@ void Control::doAutoSave() {
 uint16 Control::saveGameToFile(bool fromControlPanel, const char *filename) {
 	if (!filename) {
 		Common::String fName;
-		fName = SkyEngine::CalculateSaveName(_selectedGame);
+		fName = SkyEngine::internalGetSaveName("", _selectedGame);
 		filename = fName.c_str();
 	}
 
@@ -1376,7 +1376,7 @@ uint16 Control::parseSaveData(uint8 *srcBuf) {
 
 uint16 Control::restoreGameFromFile(int slot) {
 	Common::InSaveFile *inf;
-	Common::String fName = SkyEngine::CalculateSaveName(slot);
+	Common::String fName = SkyEngine::internalGetSaveName("", slot);
 	inf = _saveFileMan->openForLoading(fName.c_str());
 	if (inf == NULL) {
 		return RESTORE_FAILED;

@@ -480,11 +480,11 @@ void SkyEngine::showGrid()
 	}
 }
 
-Common::String SkyEngine::getSavegameFilenameTemp(int slot) {
-	return CalculateSaveName(slot);
+Common::String SkyEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
 }
 
-Common::String SkyEngine::CalculateSaveName(int slot) {
+Common::String SkyEngine::internalGetSaveName(Common::String target, int slot) {
 	if (slot == 0) {
 		if (SkyEngine::isCDVersion())
 			return "SKY-VM-CD.ASD";
