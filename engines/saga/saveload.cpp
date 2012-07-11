@@ -42,9 +42,15 @@ static SaveFileData emptySlot = {
 	 "", 0
 };
 
-Common::String SagaEngine::getSavegameFilenameTemp(int slot) {
-	return Common::String::format("%s.s%02u", _targetName.c_str(), slot);
+Common::String SagaEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
 }
+
+Common::String SagaEngine::internalGetSaveName(Common::String target, int slot) {
+	return target + Common::String::format(".s%02u", slot);
+}
+
+
 
 SaveFileData *SagaEngine::getSaveFile(uint idx) {
 	if (idx >= MAX_SAVES) {
@@ -116,7 +122,7 @@ void SagaEngine::fillSaveList() {
 	int slotNumber;
 	Common::String name;
 
-	name = getSavegameFilenameTemp(MAX_SAVES);
+	name = getSavegameFilenameTemp(_targetName, MAX_SAVES);
 	
 	name.setChar('*',name.size()-2);
 	name.setChar(0,name.size()-1);
@@ -138,7 +144,7 @@ void SagaEngine::fillSaveList() {
 
 		slotNumber = atoi(slot);
 		if (slotNumber >= 0 && slotNumber < MAX_SAVES) {
-			name = getSavegameFilenameTemp(slotNumber).c_str();
+			name = getSavegameFilenameTemp(_targetName, slotNumber).c_str();
 			if ((in = _saveFileMan->openForLoading(name.c_str())) != NULL) {
 				_saveHeader.type = in->readUint32BE();
 				_saveHeader.size = in->readUint32LE();

@@ -208,20 +208,15 @@ SaveStateList SagaMetaEngine::listSaves(const char *target) const {
 int SagaMetaEngine::getMaximumSaveSlot() const { return MAX_SAVES - 1; }
 
 void SagaMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String filename = target;
-	filename += Common::String::format(".s%02d", slot);
-
+	Common::String filename = Saga::SagaEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(filename);
 }
 
 SaveStateDescriptor SagaMetaEngine::querySaveMetaInfos(const char *target, int slot) const {
-	static char fileName[MAX_FILE_NAME];
-	sprintf(fileName, "%s.s%02d", target, slot);
-	char title[TITLESIZE];
-
+	Common::String fileName = Saga::SagaEngine::internalGetSaveName(target, slot);
 	Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(fileName);
-
 	if (in) {
+		char title[TITLESIZE];
 		uint32 type = in->readUint32BE();
 		in->readUint32LE();		// size
 		uint32 version = in->readUint32LE();
@@ -333,14 +328,14 @@ Common::Error SagaEngine::loadGameState(int slot) {
 	else
 		_interface->setMode(kPanelChapterSelection);
 
-	load(getSavegameFilenameTemp(slot).c_str());
+	load(getSavegameFilenameTemp(_targetName, slot).c_str());
 	syncSoundSettings();
 
 	return Common::kNoError;	// TODO: return success/failure
 }
 
 Common::Error SagaEngine::saveGameState(int slot, const Common::String &desc) {
-	save(getSavegameFilenameTemp(slot).c_str(), desc.c_str());
+	save(getSavegameFilenameTemp(_targetName, slot).c_str(), desc.c_str());
 	return Common::kNoError;	// TODO: return success/failure
 }
 

@@ -1115,7 +1115,7 @@ void Interface::setLoad(PanelButton *panelButton) {
 					if (_vm->isSaveListFull() || (_optionSaveFileTitleNumber > 0)) {
 						debug(1, "Loading save game %d", _vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber);
 						setMode(kPanelMain);
-						_vm->load(_vm->getSavegameFilenameTemp(_vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str());
+						_vm->load(_vm->getSavegameFilenameTemp(_vm->getTargetName(), _vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str());
 						_vm->syncSoundSettings();
 					}
 				}
@@ -1364,17 +1364,17 @@ void Interface::setSave(PanelButton *panelButton) {
 			}
 			if (!_vm->isSaveListFull() && (_optionSaveFileTitleNumber == 0)) {
 				if (_vm->locateSaveFile(_textInputString, titleNumber)) {
-					fileName = _vm->getSavegameFilenameTemp(_vm->getSaveFile(titleNumber)->slotNumber).c_str();
+					fileName = _vm->getSavegameFilenameTemp(_vm->getTargetName(), _vm->getSaveFile(titleNumber)->slotNumber).c_str();
 					_vm->save(fileName, _textInputString);
 					_optionSaveFileTitleNumber = titleNumber;
 				} else {
-					fileName = _vm->getSavegameFilenameTemp(_vm->getNewSaveSlotNumber()).c_str();
+					fileName = _vm->getSavegameFilenameTemp(_vm->getTargetName(), _vm->getNewSaveSlotNumber()).c_str();
 					_vm->save(fileName, _textInputString);
 					_vm->fillSaveList();
 					calcOptionSaveSlider();
 				}
 			} else {
-				fileName = _vm->getSavegameFilenameTemp(_vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str();
+				fileName = _vm->getSavegameFilenameTemp(_vm->getTargetName(), _vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str();
 				_vm->save(fileName, _textInputString);
 			}
 			resetSaveReminder();
@@ -1583,7 +1583,7 @@ void Interface::setOption(PanelButton *panelButton) {
 				if (_vm->isSaveListFull() || (_optionSaveFileTitleNumber > 0)) {
 					debug(1, "Loading save game %d", _vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber);
 					setMode(kPanelMain);
-					_vm->load(_vm->getSavegameFilenameTemp(_vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str());
+					_vm->load(_vm->getSavegameFilenameTemp(_vm->getTargetName(), _vm->getSaveFile(_optionSaveFileTitleNumber)->slotNumber).c_str());
 					_vm->syncSoundSettings();
 				}
 			}

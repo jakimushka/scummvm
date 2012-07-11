@@ -486,7 +486,11 @@ public:
 		return _saveHeader.version;
 	}
 	void fillSaveList();
-	virtual Common::String getSavegameFilenameTemp(int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	Common::String getTargetName() {
+		return _targetName;
+	}
 
 	SaveFileData *getSaveFile(uint idx);
 	uint getNewSaveSlotNumber() const;
