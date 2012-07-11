@@ -850,6 +850,15 @@ size_t strlcat(char *dst, const char *src, size_t size) {
 	return dstLength + (src - srcStart);
 }
 
+Common::String removeExtention(String fileName) {
+	if (fileName.contains('.')) {
+		while (fileName.lastChar() != '.') {
+			fileName.deleteLastChar();
+		}
+	}
+	return fileName;
+}
+
 }	// End of namespace Common
 
 // Portable implementation of stricmp / strcasecmp / strcmpi.

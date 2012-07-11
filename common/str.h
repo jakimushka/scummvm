@@ -386,6 +386,7 @@ size_t strlcat(char *dst, const char *src, size_t size);
  */
 #define tag2str(x)	Common::tag2string(x).c_str()
 
+Common::String removeExtention(Common::String fileName);
 
 } // End of namespace Common
 
