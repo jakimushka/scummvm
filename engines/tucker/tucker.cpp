@@ -3877,5 +3877,12 @@ void TuckerEngine::addDirtyRect(int x, int y, int w, int h) {
 		_fullRedraw = true;
 	}
 }
+Common::String TuckerEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
+}
+
+Common::String TuckerEngine::internalGetSaveName(Common::String target, int slot) {
+	return target + Common::String::format(".%d", slot);	
+}
 
 } // namespace Tucker

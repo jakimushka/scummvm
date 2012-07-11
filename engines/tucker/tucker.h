@@ -249,7 +249,7 @@ inline int scaleMixerVolume(int volume, int max = 100) {
 	return volume * Audio::Mixer::kMaxChannelVolume / max;
 }
 
-Common::String generateGameStateFileName(const char *target, int slot, bool prefixOnly = false);
+Common::String generateGameStatePrefix(Common::String target);
 
 class AnimationSequencePlayer;
 
@@ -278,6 +278,8 @@ public:
 	virtual Common::Error run();
 	virtual bool hasFeature(EngineFeature f) const;
 	GUI::Debugger *getDebugger() { return _console; }
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
+	static Common::String internalGetSaveName(Common::String target, int slot);
 
 protected:
 

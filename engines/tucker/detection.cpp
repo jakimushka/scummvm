@@ -160,7 +160,7 @@ public:
 	}
 
 	virtual SaveStateList listSaves(const char *target) const {
-		Common::String pattern = Tucker::generateGameStateFileName(target, 0, true);
+		Common::String pattern = Tucker::generateGameStatePrefix(target);
 		Common::StringArray filenames = g_system->getSavefileManager()->listSavefiles(pattern);
 		bool slotsTable[Tucker::kLastSaveSlot + 1];
 		memset(slotsTable, 0, sizeof(slotsTable));
@@ -190,7 +190,7 @@ public:
 	}
 
 	virtual void removeSaveState(const char *target, int slot) const {
-		Common::String filename = Tucker::generateGameStateFileName(target, slot);
+		Common::String filename = Tucker::TuckerEngine::internalGetSaveName(target, slot);
 		g_system->getSavefileManager()->removeSavefile(filename);
 	}
 };

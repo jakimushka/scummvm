@@ -31,14 +31,8 @@ enum {
 	kCurrentGameStateVersion = 1
 };
 
-Common::String generateGameStateFileName(const char *target, int slot, bool prefixOnly) {
-	Common::String name(target);
-	if (prefixOnly) {
-		name += ".*";
-	} else {
-		name += Common::String::format(".%d", slot);
-	}
-	return name;
+Common::String generateGameStatePrefix(Common::String target) {
+	return target + ".*";
 }
 
 static void saveOrLoadInt(Common::WriteStream &stream, int &i) {
@@ -75,7 +69,7 @@ void TuckerEngine::saveOrLoadGameStateData(S &s) {
 
 Common::Error TuckerEngine::loadGameState(int num) {
 	Common::Error ret = Common::kNoError;
-	Common::String gameStateFileName = generateGameStateFileName(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
 	Common::InSaveFile *f = _saveFileMan->openForLoading(gameStateFileName);
 	if (f) {
 		uint16 version = f->readUint16LE();
@@ -101,7 +95,7 @@ Common::Error TuckerEngine::loadGameState(int num) {
 
 Common::Error TuckerEngine::saveGameState(int num, const Common::String &description) {
 	Common::Error ret = Common::kNoError;
-	Common::String gameStateFileName = generateGameStateFileName(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
 	Common::OutSaveFile *f = _saveFileMan->openForSaving(gameStateFileName);
 	if (f) {
 		f->writeUint16LE(kCurrentGameStateVersion);
