@@ -2950,9 +2950,15 @@ bool ToonEngine::canLoadGameStateCurrently() {
 	return !_gameState->_inMenu && !_gameState->_inInventory && !_gameState->_inConversation && !_gameState->_inCutaway && !_gameState->_mouseHidden && !_moviePlayer->isPlaying();
 }
 
-Common::String ToonEngine::getSavegameFilenameTemp(int nr) {
-	return _targetName + Common::String::format(".%03d", nr);
+Common::String ToonEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
 }
+
+Common::String ToonEngine::internalGetSaveName(Common::String target, int slot) {
+	return target + Common::String::format(".%03d", slot);
+}
+
+
 
 bool ToonEngine::saveGame(int32 slot, const Common::String &saveGameDesc) {
 	const EnginePlugin *plugin = NULL;
@@ -2978,7 +2984,7 @@ bool ToonEngine::saveGame(int32 slot, const Common::String &saveGameDesc) {
 	if (savegameId < 0)
 		return false; // dialog aborted
 
-	Common::String savegameFile = getSavegameFilenameTemp(savegameId);
+	Common::String savegameFile = getSavegameFilenameTemp(_targetName, savegameId);
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::OutSaveFile *saveFile = saveMan->openForSaving(savegameFile);
 	if (!saveFile)
@@ -3067,7 +3073,7 @@ bool ToonEngine::loadGame(int32 slot) {
 	if (savegameId < 0)
 		return false; // dialog aborted
 
-	Common::String savegameFile = getSavegameFilenameTemp(savegameId);
+	Common::String savegameFile = getSavegameFilenameTemp(_targetName, savegameId);
 	Common::SaveFileManager *saveMan = g_system->getSavefileManager();
 	Common::InSaveFile *loadFile = saveMan->openForLoading(savegameFile);
 	if (!loadFile)
@@ -4695,6 +4701,7 @@ void ToonEngine::clearDirtyRects() {
 	_dirtyRects.clear();
 	_dirtyAll = false;
 }
+
 void SceneAnimation::save(ToonEngine *vm, Common::WriteStream *stream) {
 	stream->writeByte(_active);
 	stream->writeSint32BE(_id);
