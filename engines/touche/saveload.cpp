@@ -321,7 +321,7 @@ void ToucheEngine::loadGameStateData(Common::ReadStream *stream) {
 
 Common::Error ToucheEngine::saveGameState(int num, const Common::String &description) {
 	bool saveOk = false;
-	Common::String gameStateFileName = generateGameStateFileName(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
 	Common::OutSaveFile *f = _saveFileMan->openForSaving(gameStateFileName);
 	if (f) {
 		f->writeUint16LE(kCurrentGameStateVersion);
@@ -344,7 +344,7 @@ Common::Error ToucheEngine::saveGameState(int num, const Common::String &descrip
 
 Common::Error ToucheEngine::loadGameState(int num) {
 	bool loadOk = false;
-	Common::String gameStateFileName = generateGameStateFileName(_targetName.c_str(), num);
+	Common::String gameStateFileName = getSavegameFilenameTemp(_targetName.c_str(), num);
 	Common::InSaveFile *f = _saveFileMan->openForLoading(gameStateFileName);
 	if (f) {
 		uint16 version = f->readUint16LE();
@@ -373,12 +373,6 @@ void readGameStateDescription(Common::ReadStream *f, char *description, int len)
 	} else {
 		description[0] = 0;
 	}
-}
-
-Common::String generateGameStateFileName(const char *target, int slot) {
-	Common::String name(target);
-	name += Common::String::format(".%d", slot);
-	return name;
 }
 
 Common::String generateSavePrefix(const char *target) {

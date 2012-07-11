@@ -346,7 +346,6 @@ enum StringType {
 };
 
 void readGameStateDescription(Common::ReadStream *f, char *description, int len);
-Common::String generateGameStateFileName(const char *target, int slot);
 Common::String generateSavePrefix(const char *target);
 int getGameStateFileSlot(const char *filename);
 
@@ -385,6 +384,8 @@ public:
 	virtual void syncSoundSettings();
 	GUI::Debugger *getDebugger() { return _console; }
 
+	static Common::String internalGetSaveName(Common::String target, int slot);
+	virtual Common::String getSavegameFilenameTemp(Common::String target, int slot);
 protected:
 
 	void restart();

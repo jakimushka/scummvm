@@ -202,7 +202,7 @@ SaveStateList ToucheMetaEngine::listSaves(const char *target) const {
 	}
 	for (int slot = 0; slot < Touche::kMaxSaveStates; ++slot) {
 		if (slotsTable[slot]) {
-			Common::String file = Touche::generateGameStateFileName(target, slot);
+			Common::String file = Touche::ToucheEngine::internalGetSaveName(target, slot);
 			Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(file);
 			if (in) {
 				char description[64];
@@ -222,7 +222,7 @@ int ToucheMetaEngine::getMaximumSaveSlot() const {
 }
 
 void ToucheMetaEngine::removeSaveState(const char *target, int slot) const {
-	Common::String filename = Touche::generateGameStateFileName(target, slot);
+	Common::String filename = Touche::ToucheEngine::internalGetSaveName(target, slot);
 	g_system->getSavefileManager()->removeSavefile(filename);
 }
 

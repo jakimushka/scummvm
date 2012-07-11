@@ -3307,4 +3307,12 @@ bool ToucheEngine::canSaveGameStateCurrently() {
 	return _gameState == kGameStateGameLoop && _flagsTable[618] == 0 && !_hideInventoryTexts;
 }
 
+Common::String ToucheEngine::internalGetSaveName(Common::String target, int slot) {
+	return target + Common::String::format(".%d", slot);
+}
+
+Common::String ToucheEngine::getSavegameFilenameTemp(Common::String target, int slot) {
+	return internalGetSaveName(target, slot);
+}
+
 } // namespace Touche
