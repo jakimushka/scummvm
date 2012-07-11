@@ -928,7 +928,7 @@ void Ringworld2Game::start() {
 
 	if (ConfMan.hasKey("save_slot")) {
 		slot = ConfMan.getInt("save_slot");
-		Common::String file = g_vm->getSavegameFilenameTemp(slot);
+		Common::String file = g_vm->getSavegameFilenameTemp(g_vm->getTargetName(), slot);
 		Common::InSaveFile *in = g_vm->_system->getSavefileManager()->openForLoading(file);
 		if (in)
 			delete in;

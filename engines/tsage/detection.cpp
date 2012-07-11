@@ -108,9 +108,6 @@ public:
 		return desc != 0;
 	}
 
-	static Common::String generateGameStateFileName(const char *target, int slot) {
-		return Common::String::format("%s.%03d", target, slot);
-	}
 
 	virtual SaveStateList listSaves(const char *target) const {
 		Common::String pattern = target;
@@ -149,13 +146,12 @@ public:
 	}
 
 	virtual void removeSaveState(const char *target, int slot) const {
-		Common::String filename = Common::String::format("%s.%03d", target, slot);
+		Common::String filename = TsAGE::TSageEngine::internalGetSaveName(target, slot);
 		g_system->getSavefileManager()->removeSavefile(filename);
 	}
 
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const {
-		Common::InSaveFile *f = g_system->getSavefileManager()->openForLoading(
-			generateGameStateFileName(target, slot));
+		Common::InSaveFile *f = g_system->getSavefileManager()->openForLoading(TsAGE::TSageEngine::internalGetSaveName(target, slot));
 		
 		if (f) {
 			TsAGE::tSageSavegameHeader header;
