@@ -239,7 +239,7 @@ Common::String KyraEngine_v1::internalGetSaveName(const Common::String &target, 
 }
 
 bool KyraEngine_v1::saveFileLoadable(int slot) {
-	if ((slot < 0 || slot > 999) && (slot != kRecorderSlot))
+	if ((slot < 0 || slot > 999) || (slot == kRecorderSlot))
 		return false;
 
 	SaveHeader header;

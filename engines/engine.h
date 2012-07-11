@@ -29,8 +29,6 @@
 
 class OSystem;
 
-#define kRecorderSlot 6666
-
 namespace Audio {
 class Mixer;
 }
@@ -57,6 +55,10 @@ class Engine {
 public:
 	OSystem *_system;
 	Audio::Mixer *_mixer;
+	enum SpecialSlots {
+		kRecorderSlot = -6,
+		kAutosaveSlot = -5
+	};
 
 protected:
 	Common::TimerManager *_timer;
@@ -67,6 +69,8 @@ protected:
 	virtual int runDialog(GUI::Dialog &dialog);
 
 	const Common::String _targetName; // target name for saves
+
+	Common::String checkForSpecialSlot(Common::String &fileName, int slot);
 
 private:
 	/**

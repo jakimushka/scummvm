@@ -560,6 +560,20 @@ bool Engine::shouldQuit() {
 	return (eventMan->shouldQuit() || eventMan->shouldRTL());
 }
 
+Common::String Engine::checkForSpecialSlot(Common::String &fileName, int slot) {
+	switch (slot) {
+	case kRecorderSlot:
+		return "_" + Common::removeExtention(fileName) + ".sav";
+		break;
+	case kAutosaveSlot:
+		return "_" + Common::removeExtention(fileName) + ".asv";
+		break;
+	default:
+		return fileName;
+		break;
+	}
+}
+
 /*
 EnginePlugin *Engine::getMetaEnginePlugin() const {
 
