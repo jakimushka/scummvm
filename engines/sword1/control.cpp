@@ -1090,7 +1090,7 @@ void Control::renderVolumeBar(uint8 id, uint8 volL, uint8 volR) {
 
 void Control::saveGameToFile(uint8 slot) {
 	uint16 cnt;
-	Common::String fName = SwordEngine::calculateFileName(slot);
+	Common::String fName = SwordEngine::internalGetSaveName("", slot);
 	uint16 liveBuf[TOTAL_SECTIONS];
 	Common::OutSaveFile *outf;
 	outf = _saveFileMan->openForSaving(fName.c_str());
@@ -1146,7 +1146,7 @@ void Control::saveGameToFile(uint8 slot) {
 bool Control::restoreGameFromFile(uint8 slot) {
 	uint16 cnt;
 	Common::InSaveFile *inf;
-	Common::String fName = SwordEngine::calculateFileName(slot);
+	Common::String fName = SwordEngine::internalGetSaveName("", slot);
 	inf = _saveFileMan->openForLoading(fName.c_str());
 	if (!inf) {
 		// Display an error message, and do nothing
@@ -1217,7 +1217,7 @@ bool Control::convertSaveGame(uint8 slot, char *desc) {
 	char oldFileName[15];
 	Common::String newFileName;
 	sprintf(oldFileName, "SAVEGAME.%03d", slot);
-	newFileName = SwordEngine::calculateFileName(slot);
+	newFileName = SwordEngine::internalGetSaveName("", slot);
 	uint8 *saveData;
 	int dataSize;
 
