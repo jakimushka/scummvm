@@ -133,7 +133,6 @@ void EventRecorder::processMillis(uint32 &millis) {
 		return;
 	}
 	uint32 millisDelay;
-	uint32 audioTime = 0;
 	RecorderEvent timerEvent;
 	switch (_recordMode) {
 	case kRecorderRecord:
@@ -452,7 +451,7 @@ void EventRecorder::getConfigFromDomain(ConfigManager::Domain *domain) {
 void EventRecorder::getConfig() {
 	getConfigFromDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
 	getConfigFromDomain(ConfMan.getActiveDomain());
-	getConfigFromDomain(ConfMan.getDomain(ConfMan.kTransientDomain));
+	_playbackFile.getHeader().settingsRecords["save_slot"] = ConfMan.get("save_slot");
 }
 
 
@@ -461,12 +460,11 @@ void EventRecorder::applyPlaybackSettings() {
 		String currentValue = ConfMan.get(i->_key);
 		if (currentValue != i->_value) {
 			warning("Config value <%s>: %s -> %s", i->_key.c_str(), i->_value.c_str(), currentValue.c_str());
-			ConfMan.set(i->_key, i->_value, ConfMan.kApplicationDomain);
+			ConfMan.set(i->_key, i->_value, ConfMan.kTransientDomain);
 		}
 	}
 	removeDifferentEntriesInDomain(ConfMan.getDomain(ConfMan.kApplicationDomain));
 	removeDifferentEntriesInDomain(ConfMan.getActiveDomain());
-	removeDifferentEntriesInDomain(ConfMan.getDomain(ConfMan.kTransientDomain));
 }
 
 void EventRecorder::removeDifferentEntriesInDomain(ConfigManager::Domain *domain) {

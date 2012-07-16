@@ -996,12 +996,9 @@ void LauncherDialog::recordGame(int item) {
 		break;
 	case RecorderDialog::kRecordDialogPlayback:
 		ConfMan.setActiveDomain(_domains[item]);
-		if (alert.runModal() == GUI::kMessageOK) {
-			loadGame(item);
-		}
 		close();
-		ConfMan.set("record-mode", "playback");
-		ConfMan.set("record-file-name", recorderDialog.getFileName());
+		ConfMan.set("record-mode", "playback", ConfigManager::kTransientDomain);
+		ConfMan.set("record-file-name", recorderDialog.getFileName(), ConfigManager::kTransientDomain);
 		break;
 	case RecorderDialog::kRecordDialogRecord:
 		ConfMan.setActiveDomain(_domains[item]);
@@ -1012,7 +1009,7 @@ void LauncherDialog::recordGame(int item) {
 		g_eventRec.setAuthor(recorderDialog._author);
 		g_eventRec.setName(recorderDialog._name);
 		g_eventRec.setNotes(recorderDialog._notes);
-		ConfMan.set("record-mode", "record");
+		ConfMan.set("record-mode", "record", ConfigManager::kTransientDomain);
 		break;
 	}
 }
