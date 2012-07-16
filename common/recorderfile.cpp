@@ -52,6 +52,10 @@ void PlaybackFile::close() {
 		_writeStream->finalize();
 	}
 	delete _writeStream;
+	for (Common::HashMap<Common::String, SaveFileBuffer>::iterator  i = _header.saveFiles.begin(); i != _header.saveFiles.end(); ++i) {
+		free(i->_value.buffer);
+	}
+	_header.saveFiles.clear();
 	_mode = kClosed;
 	_readStream = NULL;
 	_writeStream = NULL;
@@ -137,6 +141,9 @@ bool PlaybackFile::processChunk(ChunkHeader &nextChunk) {
 			_readStream->seek(-8, SEEK_CUR);
 			_playbackParseState = kFileStateDone;
 			return false;
+		case kSaveTag:
+			_playbackParseState = kFileStateProcessSave;
+			break;
 		case kSettingsSectionTag:
 			_playbackParseState = kFileStateProcessSettings;
 			warning("Loading record header");
@@ -144,6 +151,14 @@ bool PlaybackFile::processChunk(ChunkHeader &nextChunk) {
 		default:
 			_readStream->skip(nextChunk.len);
 			break;
+		}
+		break;
+	case kFileStateProcessSave:
+		if (nextChunk.id == kSaveRecordTag) {
+			readSaveRecord();
+		} else {
+			_playbackParseState = kFileStateSelectSection;
+			return false;
 		}
 		break;
 	case kFileStateProcessHeader:
@@ -180,7 +195,7 @@ bool PlaybackFile::processChunk(ChunkHeader &nextChunk) {
 		break;
 	case kFileStateProcessSettings:
 		if (nextChunk.id == kSettingsRecordTag) {
-			if (!processSettingsRecord(nextChunk)) {
+			if (!processSettingsRecord()) {
 				_playbackParseState = kFileStateError;
 				return false;
 			}
@@ -211,7 +226,7 @@ void PlaybackFile::processRndSeedRecord(ChunkHeader chunk) {
 	_header.randomSourceRecords[randomSourceName] = randomSourceSeed;
 }
 
-bool PlaybackFile::processSettingsRecord(ChunkHeader chunk) {
+bool PlaybackFile::processSettingsRecord() {
 	ChunkHeader keyChunk = readChunkHeader();
 	if (keyChunk.id != kSettingsRecordKeyTag) {
 		warning("Invalid format of settings section");
@@ -227,6 +242,30 @@ bool PlaybackFile::processSettingsRecord(ChunkHeader chunk) {
 	_header.settingsRecords[key] = value;
 	return true;
 }
+
+
+bool PlaybackFile::readSaveRecord() {
+	ChunkHeader fileNameChunk = readChunkHeader();
+	if (fileNameChunk.id != kSaveRecordNameTag) {
+		warning("Invalid format of save section");
+		return false;
+	}
+	String fileName = readString(fileNameChunk.len);
+	ChunkHeader saveBufferChunk = readChunkHeader();
+	if (saveBufferChunk.id != kSaveRecordBufferTag) {
+		warning("Invalid format of save section");
+		return false;
+	}
+	debug("%s", fileName.c_str());
+	SaveFileBuffer buf;
+	buf.size = saveBufferChunk.len;
+	buf.buffer = (byte *)malloc(saveBufferChunk.len);
+	_readStream->read(buf.buffer, buf.size);
+	_header.saveFiles[fileName] = buf;
+	return true;
+}
+
+
 
 Common::RecorderEvent PlaybackFile::getNextEvent() {
 	assert(_mode == kRead);
@@ -339,7 +378,6 @@ void PlaybackFile::dumpHeaderToFile() {
 	//NULL  size for first tag cause we can't calculate
 	//size of file in moment of header dumping
 	_writeStream->writeUint32LE(0);
-
 	_writeStream->writeUint32LE(kVersionTag);
 	_writeStream->writeUint32LE(4);
 	_writeStream->writeUint32LE(RECORD_VERSION);
@@ -347,6 +385,7 @@ void PlaybackFile::dumpHeaderToFile() {
 	writeGameHash();
 	writeRandomRecords();
 	writeGameSettings();
+	writeSaveFilesSection();
 }
 
 void PlaybackFile::writeHeaderSection() {
@@ -563,6 +602,37 @@ void PlaybackFile::skipHeader() {
 			uint32 size = _readStream->readUint32LE();
 			_readStream->skip(size);
 		}
+	}
+}
+
+void PlaybackFile::addSaveFile(const Common::String &fileName, Common::InSaveFile *saveStream) {
+	uint oldPos = saveStream->pos();
+	saveStream->seek(0);
+	_header.saveFiles[fileName].buffer = (byte *)malloc(saveStream->size());
+	_header.saveFiles[fileName].size = saveStream->size();
+	saveStream->read(_header.saveFiles[fileName].buffer, saveStream->size());
+	saveStream->seek(oldPos);
+}
+
+void PlaybackFile::writeSaveFilesSection() {
+	uint size = 0;
+	for (Common::HashMap<Common::String, SaveFileBuffer>::iterator  i = _header.saveFiles.begin(); i != _header.saveFiles.end(); ++i) {
+		size += i->_value.size + i->_key.size() + 24;
+	}
+	if (size == 0) {
+		return;
+	}
+	_writeStream->writeSint32LE(kSaveTag);
+	_writeStream->writeSint32LE(size);
+	for (Common::HashMap<Common::String, SaveFileBuffer>::iterator  i = _header.saveFiles.begin(); i != _header.saveFiles.end(); ++i) {
+		_writeStream->writeSint32LE(kSaveRecordTag);
+		_writeStream->writeSint32LE(i->_key.size() + i->_value.size + 16);
+		_writeStream->writeSint32LE(kSaveRecordNameTag);
+		_writeStream->writeSint32LE(i->_key.size());
+		_writeStream->writeString(i->_key);
+		_writeStream->writeSint32LE(kSaveRecordBufferTag);
+		_writeStream->writeSint32LE(i->_value.size);
+		_writeStream->write(i->_value.buffer, i->_value.size);
 	}
 }
 

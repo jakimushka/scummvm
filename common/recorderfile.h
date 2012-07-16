@@ -6,6 +6,7 @@
 #include "common/mutex.h"
 #include "common/memstream.h"
 #include "common/config-manager.h"
+#include "common/savefile.h"
 
 //capacity of records buffer
 #define kMaxBufferedRecords 10000
@@ -35,6 +36,7 @@ class PlaybackFile {
 		kFileStateProcessRandom,
 		kFileStateSelectSection,
 		kFileStateProcessSettings,
+		kFileStateProcessSave,
 		kFileStateDone,
 		kFileStateError
 	};
@@ -55,6 +57,10 @@ class PlaybackFile {
 		kSettingsRecordTag = MKTAG('S','R','E','C'),
 		kSettingsRecordKeyTag = MKTAG('S','K','E','Y'),
 		kSettingsRecordValueTag = MKTAG('S','V','A','L'),
+		kSaveTag = MKTAG('S','A','V','E'),
+		kSaveRecordTag = MKTAG('R','S','A','V'),
+		kSaveRecordNameTag = MKTAG('S','N','A','M'),
+		kSaveRecordBufferTag = MKTAG('S','B','U','F'),
 		kMD5Tag = MKTAG('M','D','5',' ')
 	};
 	struct ChunkHeader {
@@ -62,6 +68,10 @@ class PlaybackFile {
 		uint32 len;
 	};
 public:
+	struct SaveFileBuffer {
+		byte *buffer;
+		uint32 size;
+	};
 	struct PlaybackFileHeader {
 		Common::String fileName;
 		Common::String author;
@@ -70,6 +80,7 @@ public:
 		Common::String description;
 		Common::StringMap hashRecords;
 		Common::StringMap settingsRecords;
+		Common::HashMap<Common::String, SaveFileBuffer> saveFiles;
 		RandomSeedsDictionary randomSourceRecords;
 	};
 	PlaybackFile();
@@ -85,6 +96,7 @@ public:
 	int getScreensCount();
 	Graphics::Surface *getScreenShot(int number);
 	void updateHeader();
+	void addSaveFile(const Common::String &fileName, Common::InSaveFile *saveStream);
 private:
 	PlaybackFileHeader _header;
 	int _recordCount;
@@ -99,6 +111,7 @@ private:
 	WriteStream *_writeStream;
 	PlaybackFileState _playbackParseState;
 	void skipHeader();
+	void writeSaveFilesSection();
 	void writeGameSettings();
 	void writeHeaderSection();
 	void writeGameHash();
@@ -106,6 +119,7 @@ private:
 	bool parseHeader();
 	void dumpRecordsToFile();
 	void dumpHeaderToFile();
+	bool readSaveRecord();
 	bool skipToNextScreenshot();
 	ChunkHeader readChunkHeader();
 	Common::String readString(int len);
@@ -114,7 +128,7 @@ private:
 	bool checkPlaybackFileVersion();
 	void readHashMap(ChunkHeader chunk);
 	void processRndSeedRecord(ChunkHeader chunk);
-	bool processSettingsRecord(ChunkHeader chunk);
+	bool processSettingsRecord();
 	void readEvent(RecorderEvent& event);
 	void readEventsToBuffer(uint32 size);
 };
