@@ -45,10 +45,11 @@
 
 #define g_eventRec (Common::EventRecorder::instance())
 
-
+namespace GUI {
+	class Dialog;
+};
 
 namespace Common {
-
 class RandomSource;
 class SeekableReadStream;
 class WriteStream;
@@ -77,13 +78,15 @@ public:
 	void init(const ADGameDescription *desc, RecordMode mode);
 	void deinit();
 	bool delayMillis(uint msecs, bool logged = false);
+	void takeScreenshot();
+	void preDrawOverlayGui();
+	void postDrawOverlayGui();
+
 	/** TODO: Add documentation, this is only used by the backend */
 	void processMillis(uint32 &millis);
 
-	void takeScreenshot();
-
-	bool processAudio(uint32 &samples, bool paused);
-	void sync();
+	GUI::Dialog *controlPanel;
+	bool processAudio(uint32 &samples, bool paused);	void sync();
 	SdlMixerManager *getMixerManager();
 	DefaultTimerManager *getTimerManager();
 	void setAuthor(const Common::String &author);
