@@ -46,7 +46,7 @@
 #define g_eventRec (Common::EventRecorder::instance())
 
 namespace GUI {
-	class Dialog;
+	class OnScreenDialog;
 };
 
 namespace Common {
@@ -85,7 +85,7 @@ public:
 	/** TODO: Add documentation, this is only used by the backend */
 	void processMillis(uint32 &millis);
 
-	GUI::Dialog *controlPanel;
+	GUI::OnScreenDialog *controlPanel;
 	bool processAudio(uint32 &samples, bool paused);	void sync();
 	SdlMixerManager *getMixerManager();
 	DefaultTimerManager *getTimerManager();
@@ -115,6 +115,7 @@ public:
 	void RegisterEventSource();
 	Common::String generateRecordFileName(const String &target);
 	SaveFileManager *getSaveManager(SaveFileManager *realSaveManager);
+	void togglePause();
 private:
 	SaveFileManager *_realSaveManager;
 	RecorderSaveFileManager _fakeSaveManager;
@@ -147,7 +148,6 @@ private:
 	void readAudioEvent();
 	void increaseEngineSpeed();
 	void decreaseEngineSpeed();
-	void togglePause();
 	RecorderEvent _nextEvent;
 	uint8 _engineSpeedMultiplier;
 	WriteStream *_screenshotsFile;
