@@ -70,6 +70,10 @@ bool PlaybackFile::parseHeader() {
 	while ((_playbackParseState != kFileStateDone) && (_playbackParseState != kFileStateError)) {
 		if (processChunk(nextChunk)) {
 			nextChunk = readChunkHeader();
+			if (_readStream->err()) {
+				warning("Error in header parsing");
+				_playbackParseState = kFileStateError;
+			}
 		}
 	}
 	return _playbackParseState == kFileStateDone;
@@ -546,6 +550,9 @@ bool PlaybackFile::skipToNextScreenshot() {
 		}
 		else {
 			uint32 size = _readStream->readUint32LE();
+			if (_readStream->err()) {
+				break;
+			}
 			_readStream->skip(size);
 		}
 	}
