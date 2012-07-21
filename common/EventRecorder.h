@@ -118,6 +118,8 @@ public:
 	SaveFileManager *getSaveManager(SaveFileManager *realSaveManager);
 	void togglePause();
 private:
+	bool _enableDrag;
+	Common::Point dragPoint;
 	SaveFileManager *_realSaveManager;
 	RecorderSaveFileManager _fakeSaveManager;
 	byte *saveBuffer;
