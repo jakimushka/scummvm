@@ -230,6 +230,7 @@ public:
 	static const char *const kImageSearch;    ///< Search tool image used in the launcher
 	static const char *const kImageEraser;     ///< Clear input image used in the launcher
 	static const char *const kImageDelbtn; ///< Delete characters in the predictive dialog
+	static const char *const kImageStopbtn; ///< Delete characters in the predictive dialog
 
 	/**
 	 * Graphics mode enumeration.
