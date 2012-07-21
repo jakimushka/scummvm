@@ -158,6 +158,7 @@ void EventRecorder::processMillis(uint32 &millis) {
 		}
 		_timerManager->handler(_fakeTimer);
 		millis = _fakeTimer;
+		controlPanel->setReplayedTime(_fakeTimer);
 		break;
 	case kRecorderPlaybackPause:
 		millis = _fakeTimer;
