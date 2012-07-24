@@ -34,6 +34,7 @@ bool PlaybackFile::openRead(Common::String fileName) {
 	close();
 	_header.fileName = fileName;
 	_eventsSize = 0;
+	_tmpPlaybackFile.seek(0);
 	_readStream = wrapBufferedSeekableReadStream(g_system->getSavefileManager()->openForLoading(fileName), 128 * 1024, DisposeAfterUse::YES);
 	if (_readStream == NULL) {
 		return false;
