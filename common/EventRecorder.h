@@ -122,7 +122,6 @@ private:
 	Common::Point dragPoint;
 	SaveFileManager *_realSaveManager;
 	RecorderSaveFileManager _fakeSaveManager;
-	byte *saveBuffer;
 	virtual List<Event> mapEvent(const Event &ev, EventSource *source);
 	bool _initialized;
 	void setGameMd5(const ADGameDescription *gameDesc);
@@ -158,7 +157,7 @@ private:
 	volatile uint32 _fakeTimer;
 	uint32 _lastScreenshotTime;
 	uint32 _screenshotPeriod;
-	PlaybackFile _playbackFile;
+	PlaybackFile *_playbackFile;
 	void saveScreenShot();
 	void checkRecordedMD5();
 	volatile RecordMode _recordMode;
