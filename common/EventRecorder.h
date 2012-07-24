@@ -86,7 +86,7 @@ public:
 	void processMillis(uint32 &millis);
 
 	GUI::OnScreenDialog *controlPanel;
-	bool processAudio(uint32 &samples, bool paused);	void sync();
+	bool processAudio(uint32 &samples, bool paused);
 	SdlMixerManager *getMixerManager();
 	DefaultTimerManager *getTimerManager();
 	void setAuthor(const Common::String &author);
