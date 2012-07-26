@@ -28,6 +28,7 @@
 #include "backends/events/sdl/sdl-events.h"
 #include "backends/platform/sdl/sdl.h"
 #include "common/config-manager.h"
+#include "common/EventRecorder.h"
 #include "common/mutex.h"
 #include "common/textconsole.h"
 #include "common/translation.h"
@@ -770,9 +771,14 @@ bool SurfaceSdlGraphicsManager::loadGFXMode() {
 		fixupResolutionForAspectRatio(_videoMode.desiredAspectRatio, _videoMode.hardwareWidth, _videoMode.hardwareHeight);
 	}
 
-	_hwscreen = SDL_SetVideoMode(_videoMode.hardwareWidth, _videoMode.hardwareHeight, 16,
-		_videoMode.fullscreen ? (SDL_FULLSCREEN|SDL_SWSURFACE) : SDL_SWSURFACE
-	);
+	if (ConfMan.getInt("disable-display") == 1) {
+		_hwscreen = g_eventRec.getSurface(_videoMode.hardwareWidth, _videoMode.hardwareHeight);
+	} else {
+		_hwscreen = SDL_SetVideoMode(_videoMode.hardwareWidth, _videoMode.hardwareHeight, 16,
+			_videoMode.fullscreen ? (SDL_FULLSCREEN|SDL_SWSURFACE) : SDL_SWSURFACE
+			);
+	}
+
 #ifdef USE_RGB_COLOR
 	detectSupportedFormats();
 #endif
@@ -870,7 +876,14 @@ void SurfaceSdlGraphicsManager::unloadGFXMode() {
 	}
 
 	if (_hwscreen) {
-		SDL_FreeSurface(_hwscreen);
+		if (ConfMan.getInt("disable-display") == 1) {
+			delete _hwscreen;
+		} else {
+			_hwscreen = SDL_SetVideoMode(_videoMode.hardwareWidth, _videoMode.hardwareHeight, 16,
+				_videoMode.fullscreen ? (SDL_FULLSCREEN|SDL_SWSURFACE) : SDL_SWSURFACE
+				);
+		}
+
 		_hwscreen = NULL;
 	}
 
@@ -1193,7 +1206,9 @@ void SurfaceSdlGraphicsManager::internUpdateScreen() {
 #endif
 
 		// Finally, blit all our changes to the screen
-		SDL_UpdateRects(_hwscreen, _numDirtyRects, _dirtyRectList);
+		if (ConfMan.getInt("disable-display") != 1) {
+			SDL_UpdateRects(_hwscreen, _numDirtyRects, _dirtyRectList);
+		}
 	}
 
 	_numDirtyRects = 0;

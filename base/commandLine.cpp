@@ -393,6 +393,9 @@ Common::String parseCommandLine(Common::StringMap &settings, int argc, const cha
 			DO_OPTION_BOOL('f', "fullscreen")
 			END_OPTION
 
+			DO_LONG_OPTION_INT("disable-display")
+			END_OPTION
+
 			DO_LONG_OPTION("opl-driver")
 			END_OPTION
 
