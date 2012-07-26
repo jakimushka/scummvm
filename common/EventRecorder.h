@@ -126,6 +126,7 @@ public:
 	Common::String generateRecordFileName(const String &target);
 	SaveFileManager *getSaveManager(SaveFileManager *realSaveManager);
 	void togglePause();
+	bool EventRecorder::grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
 	SDL_Surface *getSurface(int width, int height);
 private:
 	Common::String _author;
@@ -150,7 +151,6 @@ private:
 	DefaultTimerManager *_timerManager;
 	void switchMixer();
 	void switchTimerManagers();
-	bool grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
 	bool openRecordFile(const String &fileName);
 	bool checkGameHash(const ADGameDescription *desc);
 	String findMD5ByFileName(const ADGameDescription *gameDesc, const String &fileName);
@@ -165,7 +165,6 @@ private:
 	void decreaseEngineSpeed();
 	RecorderEvent _nextEvent;
 	uint8 _engineSpeedMultiplier;
-	WriteStream *_screenshotsFile;
 	MutexRef _timeMutex;
 	volatile uint32 _lastMillis;
 	volatile uint32 _fakeTimer;

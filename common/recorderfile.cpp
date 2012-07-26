@@ -1,7 +1,11 @@
+#include "common/EventRecorder.h"
+#include "common/md5.h"
 #include "common/recorderfile.h"
 #include "common/savefile.h"
 #include "common/bufferedstream.h"
 #include "graphics/thumbnail.h"
+#include "graphics/surface.h"
+#include "graphics/scaler.h"
 
 #define RECORD_VERSION 1
 
@@ -10,6 +14,7 @@ namespace Common {
 PlaybackFile::PlaybackFile() : _tmpRecordFile(_tmpBuffer, kRecordBuffSize), _tmpPlaybackFile(_tmpBuffer, kRecordBuffSize) {
 	_readStream = NULL;
 	_writeStream = NULL;
+	_screenshotsFile = NULL;
 	_mode = kClosed;
 }
 
@@ -42,6 +47,7 @@ bool PlaybackFile::openRead(Common::String fileName) {
 	if (!parseHeader()) {
 		return false;
 	}
+	_screenshotsFile = wrapBufferedWriteStream(g_system->getSavefileManager()->openForSaving("screenshots.bin"), 128 * 1024);
 	_mode = kRead;
 	return true;
 }
@@ -55,6 +61,11 @@ void PlaybackFile::close() {
 		delete _writeStream;
 		_writeStream = NULL;
 		updateHeader();
+	}
+	if (_screenshotsFile != NULL) {
+		_screenshotsFile->finalize();
+		delete _screenshotsFile;
+		_screenshotsFile = NULL;
 	}
 	for (Common::HashMap<Common::String, SaveFileBuffer>::iterator  i = _header.saveFiles.begin(); i != _header.saveFiles.end(); ++i) {
 		free(i->_value.buffer);
@@ -293,8 +304,7 @@ Common::RecorderEvent PlaybackFile::getNextEvent() {
 				_readStream->skip(header.len-8);
 				break;
 			case kMD5Tag:
-				_readStream->skip(header.len);
-				//checkRecordedMD5();
+				checkRecordedMD5();
 				break;
 			default:
 				_readStream->skip(header.len);
@@ -652,5 +662,22 @@ void PlaybackFile::writeSaveFilesSection() {
 		_writeStream->write(i->_value.buffer, i->_value.size);
 	}
 }
+
+
+void PlaybackFile::checkRecordedMD5() {
+	uint8 currentMD5[16];
+	uint8 savedMD5[16];
+	Graphics::Surface screen;
+	_readStream->read(savedMD5, 16);
+	if (!g_eventRec.grabScreenAndComputeMD5(screen, currentMD5)) {
+		return;
+	}
+	if (memcmp(savedMD5, currentMD5, 16) != 0) {
+		warning("Recorded and current screenshots are different");
+	}
+	Graphics::saveThumbnail(*_screenshotsFile, screen);
+	screen.free();
+}
+
 
 }
