@@ -128,12 +128,16 @@ public:
 	void togglePause();
 	bool EventRecorder::grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
 	SDL_Surface *getSurface(int width, int height);
+	bool checkForContinueGame();
+	void deleteTemporarySave();
 private:
 	Common::String _author;
 	Common::String _desc;
 	Common::String _name;
 	void setFileHeader();
 	bool _enableDrag;
+	int _temporarySlot;
+	bool _needcontinueGame;
 	Common::Point dragPoint;
 	SaveFileManager *_realSaveManager;
 	RecorderSaveFileManager _fakeSaveManager;
@@ -150,6 +154,7 @@ private:
 	NullSdlMixerManager *_fakeMixerManager;
 	DefaultTimerManager *_timerManager;
 	void switchMixer();
+	void save();
 	void switchTimerManagers();
 	bool openRecordFile(const String &fileName);
 	bool checkGameHash(const ADGameDescription *desc);
