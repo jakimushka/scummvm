@@ -12,7 +12,7 @@ bool OnScreenDialog::isVisible() const {
 
 enum {
 	kStopCmd = 'STOP',
-	kEditCmd = 'Edit'
+	kEditCmd = 'EDIT'
 };
 
 void OnScreenDialog::reflowLayout() {

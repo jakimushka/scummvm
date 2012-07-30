@@ -230,8 +230,8 @@ public:
 	static const char *const kImageSearch;    ///< Search tool image used in the launcher
 	static const char *const kImageEraser;     ///< Clear input image used in the launcher
 	static const char *const kImageDelbtn; ///< Delete characters in the predictive dialog
-	static const char *const kImageStopbtn; ///< Delete characters in the predictive dialog
-	static const char *const kImageEditbtn; ///< Delete characters in the predictive dialog
+	static const char *const kImageStopbtn; ///< Stop button in recorder onscreen dialog
+	static const char *const kImageEditbtn; ///< Edit button in recorder onscreen dialog
 
 	/**
 	 * Graphics mode enumeration.
