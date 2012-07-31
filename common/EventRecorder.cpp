@@ -341,7 +341,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	_recordMode = mode;
 	_needcontinueGame = false;
 
-	controlPanel = new GUI::OnScreenDialog(10,10,200,32);
+	controlPanel = new GUI::OnScreenDialog();
 	controlPanel->open();
 
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
