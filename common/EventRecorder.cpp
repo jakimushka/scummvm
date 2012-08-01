@@ -259,6 +259,8 @@ void EventRecorder::togglePause() {
 		_recordMode = kRecorderPlayback;
 		debugC(3, kDebugLevelEventRec, "Resume");
 		break;
+	default:
+		break;
 	}
 }
 
