@@ -273,7 +273,12 @@ public:
 
 	void refresh();
 	void enable();
+
+	void showCursor();
+	void hideCursor();
+
 	void disable();
+
 
 	/**
 	 * Implementation of the GUI::Theme API. Called when a
