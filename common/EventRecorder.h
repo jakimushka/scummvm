@@ -47,7 +47,7 @@
 
 namespace GUI {
 	class OnScreenDialog;
-};
+}
 
 namespace Common {
 class RandomSource;
@@ -126,7 +126,7 @@ public:
 	Common::String generateRecordFileName(const String &target);
 	SaveFileManager *getSaveManager(SaveFileManager *realSaveManager);
 	void togglePause();
-	bool EventRecorder::grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
+	bool grabScreenAndComputeMD5(Graphics::Surface &screen, uint8 md5[16]);
 	SDL_Surface *getSurface(int width, int height);
 	bool checkForContinueGame();
 	void deleteTemporarySave();
