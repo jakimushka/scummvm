@@ -183,9 +183,6 @@ void EventRecorder::checkForKeyCode(const Event &event) {
 		if ((event.kbd.ascii == '*')) {
 			togglePause();
 		}
-		if ((event.kbd.ascii == '/')) {
-			save();
-		}
 	}
 }
 
@@ -712,7 +709,7 @@ SDL_Surface *EventRecorder::getSurface(int width, int height) {
 	return surface;
 }
 
-void EventRecorder::save() {
+void EventRecorder::switchMode() {
 	const Common::String gameId = ConfMan.get("gameid");
 	const EnginePlugin *plugin = 0;
 	EngineMan.findGame(gameId, &plugin);

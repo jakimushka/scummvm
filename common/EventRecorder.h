@@ -130,6 +130,7 @@ public:
 	SDL_Surface *getSurface(int width, int height);
 	bool checkForContinueGame();
 	void deleteTemporarySave();
+	void switchMode();
 private:
 	Common::String _author;
 	Common::String _desc;
@@ -154,7 +155,6 @@ private:
 	NullSdlMixerManager *_fakeMixerManager;
 	DefaultTimerManager *_timerManager;
 	void switchMixer();
-	void save();
 	void switchTimerManagers();
 	bool openRecordFile(const String &fileName);
 	bool checkGameHash(const ADGameDescription *desc);

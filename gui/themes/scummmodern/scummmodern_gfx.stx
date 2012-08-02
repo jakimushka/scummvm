@@ -103,6 +103,7 @@
 		<bitmap filename = 'eraser.bmp'/>
 		<bitmap filename = 'delbtn.bmp'/>
 		<bitmap filename = 'editbtn.bmp'/>
+		<bitmap filename = 'switchbtn.bmp'/>
 	</bitmaps>
 
 	<fonts>

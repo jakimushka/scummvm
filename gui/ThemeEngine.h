@@ -232,6 +232,7 @@ public:
 	static const char *const kImageDelbtn; ///< Delete characters in the predictive dialog
 	static const char *const kImageStopbtn; ///< Stop button in recorder onscreen dialog
 	static const char *const kImageEditbtn; ///< Edit button in recorder onscreen dialog
+	static const char *const kImageSwitchModebtn; ///< Switch mode button in recorder onscreen dialog
 
 	/**
 	 * Graphics mode enumeration.
