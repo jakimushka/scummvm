@@ -30,7 +30,7 @@ NullSdlMixerManager::NullSdlMixerManager() : SdlMixerManager() {
 	_samples = 8192;
 	while (_samples * 16 > _outputRate * 2)
 		_samples >>= 1;
-	_samplesBuf = new uint8[_samples];
+	_samplesBuf = new uint8[_samples * 4];
 }
 
 NullSdlMixerManager::~NullSdlMixerManager() {
