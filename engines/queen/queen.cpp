@@ -29,7 +29,6 @@
 #include "common/savefile.h"
 #include "common/system.h"
 #include "common/events.h"
-#include "common/EventRecorder.h"
 #include "common/textconsole.h"
 #include "common/translation.h"
 

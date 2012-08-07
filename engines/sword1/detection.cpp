@@ -28,7 +28,6 @@
 #include "common/gui_options.h"
 #include "common/savefile.h"
 #include "common/system.h"
-#include "common/EventRecorder.h"
 #include "graphics/thumbnail.h"
 #include "graphics/surface.h"
 

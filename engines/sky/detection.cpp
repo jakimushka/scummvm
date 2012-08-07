@@ -34,7 +34,6 @@
 #include "common/savefile.h"
 #include "common/textconsole.h"
 #include "common/translation.h"
-#include "common/EventRecorder.h"
 
 #include "engines/metaengine.h"
 

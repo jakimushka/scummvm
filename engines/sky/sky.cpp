@@ -48,7 +48,6 @@
 #include "engines/util.h"
 
 #ifdef _WIN32_WCE
-
 extern bool toolbar_drawn;
 extern bool draw_keyboard;
 #endif
