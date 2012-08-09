@@ -77,7 +77,7 @@ public:
 	void init(Common::String recordFileName, RecordMode mode);
 	void init(const ADGameDescription *desc, RecordMode mode);
 	void deinit();
-	bool delayMillis(uint msecs, bool logged = false);
+	bool delayMillis(uint &msecs, bool logged = false);
 	void takeScreenshot();
 	void preDrawOverlayGui();
 	void postDrawOverlayGui();
@@ -131,6 +131,7 @@ public:
 	bool checkForContinueGame();
 	void deleteTemporarySave();
 	void switchMode();
+	void updateSubsystems();
 private:
 	Common::String _author;
 	Common::String _desc;
@@ -149,7 +150,6 @@ private:
 	void applyPlaybackSettings();
 	void removeDifferentEntriesInDomain(ConfigManager::Domain *domain);
 	void getConfigFromDomain(ConfigManager::Domain *domain);
-	void updateSubsystems();
 	MutexRef _recorderMutex;
 	SdlMixerManager *_realMixerManager;
 	NullSdlMixerManager *_fakeMixerManager;

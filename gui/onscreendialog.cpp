@@ -63,6 +63,7 @@ void OnScreenDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 		break;
 	case kSwitchModeCmd:
 		g_eventRec.switchMode();
+		close();
 		break;
 	}
 }
@@ -123,6 +124,11 @@ bool OnScreenDialog::isMouseOver(int x, int y) {
 
 bool OnScreenDialog::isMouseOver() {
 	return _mouseOver;
+}
+
+void OnScreenDialog::close() {
+	CursorMan.lock(false);
+	Dialog::close();
 }
 
 

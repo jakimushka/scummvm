@@ -17,6 +17,7 @@ private:
 public:
 	OnScreenDialog();
 	~OnScreenDialog();
+	virtual void close();
 	virtual bool isVisible() const;
 	bool isMouseOver();
 	virtual void reflowLayout();
