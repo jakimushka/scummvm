@@ -52,7 +52,10 @@ void OnScreenDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 	case kEditCmd:
 		close();
 		g_gui.theme()->disable();
+		CursorMan.lock(false);
 		dlg.runModal();
+		CursorMan.lock(true);
+		g_gui.theme()->enable();
 		g_eventRec.setAuthor(dlg.getAuthor());
 		g_eventRec.setName(dlg.getName());
 		g_eventRec.setNotes(dlg.getNotes());
