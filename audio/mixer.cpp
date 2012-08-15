@@ -288,16 +288,16 @@ int MixerImpl::mixCallback(byte *samples, uint len) {
 				paused = false;
 		}
 	if (g_eventRec.processAudio(len, paused)) {
-	for (int i = 0; i != NUM_CHANNELS; i++)
-		if (_channels[i]) {
-			if (_channels[i]->isFinished()) {
-				delete _channels[i];
-				_channels[i] = 0;
-			} else if (!_channels[i]->isPaused()) {
+		for (int i = 0; i != NUM_CHANNELS; i++)	{
+			if (_channels[i]) {
+				if (_channels[i]->isFinished()) {
+					delete _channels[i];
+					_channels[i] = 0;
+				} else if (!_channels[i]->isPaused()) {
 					tmp = _channels[i]->mix(buf, len);
-			
-				if (tmp > res)
-					res = tmp;
+					if (tmp > res)
+						res = tmp;
+				}
 			}
 		}
 	}
