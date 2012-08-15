@@ -71,6 +71,7 @@ EventRecorder::EventRecorder() {
 	_fakeMixerManager = NULL;
 	_enableDrag = false;
 	_initialized = false;
+	_fastPlayback = false;
 }
 
 EventRecorder::~EventRecorder() {
@@ -110,26 +111,9 @@ void EventRecorder::deinit() {
 	switchTimerManagers();
 }
 
-bool EventRecorder::delayMillis(uint msecs, bool logged) {
-	if (_recordMode == kRecorderRecord)	{
-		RecorderEvent delayEvent;
-		delayEvent.type = EVENT_DELAY;
-		delayEvent.time = _fakeTimer;
-		delayEvent.count = msecs;
-		_playbackFile->writeEvent(delayEvent);
-		g_system->delayMillis(msecs);
-	}
-	if (_recordMode == kRecorderPlayback) {
-		if (_nextEvent.type == EVENT_DELAY) {
-			g_system->delayMillis(_nextEvent.time);
-			if (!logged) {
-				g_system->delayMillis(_nextEvent.time);
-			}
-			_nextEvent = _playbackFile->getNextEvent();
-			return true;
-		} else {
-			return true;
-		}
+bool EventRecorder::delayMillis(uint &msecs, bool logged) {
+	if (_fastPlayback) {
+		msecs = 0;
 	}
 	return false;
 }
@@ -174,6 +158,8 @@ void EventRecorder::processMillis(uint32 &millis) {
 
 void EventRecorder::checkForKeyCode(const Event &event) {
 	if (event.type == EVENT_KEYDOWN) {
+		if ((_recordMode == kRecorderPlayback) && (event.kbd.ascii == '*')) {
+			_fastPlayback = !_fastPlayback;
 		if ((event.kbd.ascii == '-')) {
 			decreaseEngineSpeed();
 		}

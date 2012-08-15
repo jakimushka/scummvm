@@ -133,6 +133,7 @@ public:
 	void switchMode();
 	void updateSubsystems();
 private:
+	bool _fastPlayback;
 	Common::String _author;
 	Common::String _desc;
 	Common::String _name;

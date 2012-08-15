@@ -481,6 +481,7 @@ uint32 OSystem_SDL::getMillis(bool skipRecord) {
 }
 
 void OSystem_SDL::delayMillis(uint msecs) {
+	g_eventRec.delayMillis(msecs);
 	SDL_Delay(msecs);
 }
 
