@@ -95,7 +95,6 @@ void EventRecorder::deinit() {
 	_recordMode = kPassthrough;
 	delete _fakeMixerManager;
 	_fakeMixerManager = NULL;
-	g_gui.theme()->disable();
 	controlPanel->close();
 	delete controlPanel;
 	debugC(3, kDebugLevelEventRec, "EventRecorder: deinit");
@@ -122,6 +121,9 @@ void EventRecorder::processMillis(uint32 &millis) {
 	if (!_initialized) {
 		return;
 	}
+	if (_recordMode == kRecorderPlaybackPause) {
+		millis = _fakeTimer;
+	}
 	uint32 millisDelay;
 	RecorderEvent timerEvent;
 	switch (_recordMode) {
@@ -142,6 +144,9 @@ void EventRecorder::processMillis(uint32 &millis) {
 		if (_nextEvent.type == EVENT_TIMER) {
 			_fakeTimer = _nextEvent.time;
 			_nextEvent = _playbackFile->getNextEvent();
+		} else {
+			_timerManager->handler(_fakeTimer);
+
 		}
 		_timerManager->handler(_fakeTimer);
 		millis = _fakeTimer;
@@ -160,13 +165,8 @@ void EventRecorder::checkForKeyCode(const Event &event) {
 	if (event.type == EVENT_KEYDOWN) {
 		if ((_recordMode == kRecorderPlayback) && (event.kbd.ascii == '*')) {
 			_fastPlayback = !_fastPlayback;
-		if ((event.kbd.ascii == '-')) {
-			decreaseEngineSpeed();
 		}
-		if ((event.kbd.ascii == '+')) {
-			increaseEngineSpeed();
-		}
-		if ((event.kbd.ascii == '*')) {
+		if (event.kbd.ascii == '/') {
 			togglePause();
 		}
 	}
@@ -233,13 +233,19 @@ void EventRecorder::increaseEngineSpeed() {
 }
 
 void EventRecorder::togglePause() {
+	RecordMode oldState;
 	switch (_recordMode) {
 	case kRecorderPlayback:	
+	case kRecorderRecord:
+		oldState = _recordMode;
 		_recordMode = kRecorderPlaybackPause;
+		controlPanel->runModal();
+		_recordMode = oldState;
+		_initialized = true;
 		debugC(3, kDebugLevelEventRec, "Pause");
 		break;
 	case kRecorderPlaybackPause:
-		_recordMode = kRecorderPlayback;
+		controlPanel->close();
 		debugC(3, kDebugLevelEventRec, "Resume");
 		break;
 	default:
@@ -249,7 +255,7 @@ void EventRecorder::togglePause() {
 
 
 bool EventRecorder::processAudio(uint32 &samples,bool paused) {
-	if ((_recordMode == kRecorderRecord)&& !paused)	{	
+	if ((_recordMode == kRecorderRecord) && !paused)	{
 		if (!_initialized) {
 			return false;
 		}
@@ -325,7 +331,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	_lastScreenshotTime = 0;
 	_recordMode = mode;
 	_needcontinueGame = false;
-
+	_fastPlayback = false;
 
 	g_system->getEventManager()->getEventDispatcher()->registerSource(this, false);
 	_screenshotPeriod = ConfMan.getInt("screenshot_period");
@@ -338,8 +344,7 @@ void EventRecorder::init(Common::String recordFileName, RecordMode mode) {
 	}
 	if (_recordMode != kPassthrough) {
 		controlPanel = new GUI::OnScreenDialog();
-		controlPanel->open();
-		g_gui.theme()->enable();
+//		controlPanel->open();
 	}
 	if (_recordMode == kRecorderPlayback) {
 		applyPlaybackSettings();
@@ -485,7 +490,7 @@ void EventRecorder::updateSubsystems() {
 }
 
 List<Event> EventRecorder::mapEvent(const Event &ev, EventSource *source) {
-	if (!_initialized) {
+	if ((!_initialized) && (_recordMode != kRecorderPlaybackPause)) {
 		return DefaultEventMapper::mapEvent(ev, source);
 	}
 	checkForKeyCode(ev);
@@ -496,7 +501,12 @@ List<Event> EventRecorder::mapEvent(const Event &ev, EventSource *source) {
 	Event evt = ev;
 	evt.mouse.x = evt.mouse.x * (g_system->getOverlayWidth() / g_system->getWidth());
 	evt.mouse.y = evt.mouse.y * (g_system->getOverlayHeight() / g_system->getHeight());
-	g_gui.processEvent(evt, controlPanel);
+	if ((_recordMode == kRecorderRecord) || (_recordMode == kRecorderPlaybackPause)) {
+		g_gui.processEvent(evt, controlPanel);
+	}
+	if (_recordMode == kRecorderPlaybackPause) {
+		return List<Event>();
+	}
 	if (_recordMode == kRecorderRecord) {
 		if (((evt.type == EVENT_LBUTTONDOWN) || (evt.type == EVENT_LBUTTONUP) || (evt.type == EVENT_MOUSEMOVE)) && controlPanel->isMouseOver()) {
 			return List<Event>();
