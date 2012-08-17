@@ -130,9 +130,14 @@ public:
 	SDL_Surface *getSurface(int width, int height);
 	bool checkForContinueGame();
 	void deleteTemporarySave();
-	void switchMode();
+	bool switchMode();
 	void updateSubsystems();
+	void setRedraw(bool redraw) {
+		_needRedraw = redraw;
+	}
+	void switchFastMode();
 private:
+	bool _needRedraw;
 	bool _fastPlayback;
 	Common::String _author;
 	Common::String _desc;
